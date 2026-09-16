@@ -23,15 +23,20 @@ export const SeoHead = ({
       : `${title} | OmniMetrics Hub`;
     document.title = fullTitle;
 
-    // Helper to set or create meta tag
+    // Helper to set or create meta tag, pruning any duplicates
     const setMetaTag = (attrName: string, attrValue: string, content: string) => {
-      let element = document.querySelector(`meta[${attrName}="${attrValue}"]`);
-      if (!element) {
-        element = document.createElement('meta');
+      const elements = document.querySelectorAll(`meta[${attrName}="${attrValue}"]`);
+      if (elements.length > 0) {
+        elements[0].setAttribute('content', content);
+        for (let i = 1; i < elements.length; i++) {
+          elements[i].remove();
+        }
+      } else {
+        const element = document.createElement('meta');
         element.setAttribute(attrName, attrValue);
+        element.setAttribute('content', content);
         document.head.appendChild(element);
       }
-      element.setAttribute('content', content);
     };
 
     // Meta Description
@@ -42,15 +47,20 @@ export const SeoHead = ({
       setMetaTag('name', 'keywords', keywords.join(', '));
     }
 
-    // Canonical Link
+    // Canonical Link - strictly maintain exactly one canonical tag in document.head
     const canonicalUrl = getAbsoluteUrl(canonicalPath);
-    let canonicalLink = document.querySelector('link[rel="canonical"]');
-    if (!canonicalLink) {
-      canonicalLink = document.createElement('link');
+    const existingCanonicals = document.querySelectorAll('link[rel="canonical"]');
+    if (existingCanonicals.length > 0) {
+      existingCanonicals[0].setAttribute('href', canonicalUrl);
+      for (let i = 1; i < existingCanonicals.length; i++) {
+        existingCanonicals[i].remove();
+      }
+    } else {
+      const canonicalLink = document.createElement('link');
       canonicalLink.setAttribute('rel', 'canonical');
+      canonicalLink.setAttribute('href', canonicalUrl);
       document.head.appendChild(canonicalLink);
     }
-    canonicalLink.setAttribute('href', canonicalUrl);
 
     // OpenGraph Tags
     setMetaTag('property', 'og:site_name', 'OmniMetrics Hub');

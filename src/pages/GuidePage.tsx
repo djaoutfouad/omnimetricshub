@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { ARTICLES_DATA } from '../data/articles';
 import { TOOLS_DATA } from '../data/tools';
 import { SeoHead } from '../components/SeoHead';
@@ -30,17 +30,29 @@ const ALIAS_MAP: Record<string, string> = {
 
 export const GuidePage: React.FC = () => {
   const { slugOrId } = useParams<{ slugOrId: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const resolvedSlugOrId = slugOrId ? ALIAS_MAP[slugOrId] || slugOrId : '';
+  const cleanSlugOrId = (slugOrId || '').trim().replace(/\/+$/, '');
+  const resolvedSlugOrId = cleanSlugOrId ? ALIAS_MAP[cleanSlugOrId] || cleanSlugOrId : '';
 
   const article = ARTICLES_DATA.find(
     (a) =>
       a.id === resolvedSlugOrId ||
       a.slug === resolvedSlugOrId ||
-      a.id === slugOrId ||
-      a.slug === slugOrId
+      a.id === cleanSlugOrId ||
+      a.slug === cleanSlugOrId
   );
+
+  useEffect(() => {
+    if (article) {
+      const canonicalPath = `/blog/${article.slug || article.id}`;
+      if (location.pathname !== canonicalPath) {
+        navigate(canonicalPath, { replace: true });
+      }
+    }
+  }, [article, location.pathname, navigate]);
 
   if (!article) {
     return (

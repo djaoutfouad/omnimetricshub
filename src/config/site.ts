@@ -23,12 +23,13 @@ export const SITE_CONFIG = {
 
 /**
  * Generates an absolute URL from a given relative path using the centralized site URL.
+ * Policy: Root path returns trailing slash ('https://omnimetricshub.pages.dev/'),
+ * while all subpaths strictly omit trailing slash ('https://omnimetricshub.pages.dev/tools/slug').
  */
 export function getAbsoluteUrl(path: string = ''): string {
-  const cleanPath = path.trim();
-  if (!cleanPath || cleanPath === '/') {
+  const cleanPath = path.trim().replace(/^\/+|\/+$/g, '');
+  if (!cleanPath) {
     return `${SITE_URL}/`;
   }
-  const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
-  return `${SITE_URL}${normalizedPath}`;
+  return `${SITE_URL}/${cleanPath}`;
 }

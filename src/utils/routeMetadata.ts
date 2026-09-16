@@ -533,10 +533,11 @@ export function getAllStaticRoutes(): string[] {
     '/404',
   ];
 
-  // Add all calculator routes (both /tools/ and /calculators/)
+  // Add all calculator routes (both /tools/, /calculators/, and /calculator/)
   for (const tool of TOOLS_DATA) {
     routes.push(`/tools/${tool.slug}`);
     routes.push(`/calculators/${tool.slug}`);
+    routes.push(`/calculator/${tool.slug}`);
   }
 
   // Add tool aliases so they pre-render static HTML with canonical URLs (no 404s)

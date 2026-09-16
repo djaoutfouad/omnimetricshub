@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { TOOLS_DATA } from '../data/tools';
 import { ARTICLES_DATA } from '../data/articles';
 import { CurrencySymbol } from '../types';
@@ -48,6 +48,7 @@ interface Props {
 export const CalculatorPage: React.FC<Props> = ({ currency }) => {
   const { slugOrId } = useParams<{ slugOrId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Clean raw slug and resolve any legacy/alternate aliases (e.g. profit-margin-markup -> profit-margin)
@@ -59,12 +60,15 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
     (t) => t.slug === targetSlug || t.slug === cleanSlug || t.id === cleanSlug
   );
 
-  // Soft client-side replace if accessed via alias or legacy id
+  // Soft client-side replace to canonical /tools/:slug if accessed via alias, legacy id, alternate prefix, or trailing slash
   useEffect(() => {
-    if (tool && cleanSlug && cleanSlug !== tool.slug) {
-      navigate(`/tools/${tool.slug}`, { replace: true });
+    if (tool) {
+      const canonicalPath = `/tools/${tool.slug}`;
+      if (location.pathname !== canonicalPath) {
+        navigate(canonicalPath, { replace: true });
+      }
     }
-  }, [tool, cleanSlug, navigate]);
+  }, [tool, location.pathname, navigate]);
 
   if (!tool) {
     return (
@@ -214,7 +218,7 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
         schemaData={schemaData}
       />
 
-      <div className="space-y-8">
+      <div className="space-y-8 pb-12 sm:pb-6">
         {/* Breadcrumb Navigation */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-400">
           <Link to="/" className="hover:text-slate-800 transition font-medium">

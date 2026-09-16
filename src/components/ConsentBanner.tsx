@@ -45,17 +45,17 @@ export const ConsentBanner: React.FC = () => {
     <aside
       aria-label="Privacy and Transparency Notice"
       role="complementary"
-      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 bg-slate-900/95 text-slate-100 p-4 sm:p-5 rounded-3xl shadow-2xl border border-slate-800 backdrop-blur-md text-xs space-y-3 transition-all animate-in fade-in slide-in-from-bottom-4"
+      className="fixed bottom-3 left-3 right-3 sm:left-6 sm:right-auto sm:max-w-sm z-40 bg-slate-900/95 text-slate-100 p-3.5 sm:p-4 rounded-2xl shadow-2xl border border-slate-800 backdrop-blur-md text-xs space-y-2.5 transition-all animate-in fade-in slide-in-from-bottom-4"
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2 font-bold text-white text-sm">
-          <Cookie className="w-4 h-4 text-emerald-400" />
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 font-bold text-white text-xs sm:text-sm">
+          <Cookie className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>Privacy & Transparency Notice</span>
         </div>
         <button
           type="button"
           onClick={handleDecline}
-          className="text-slate-400 hover:text-white p-1 rounded-lg transition cursor-pointer"
+          className="text-slate-400 hover:text-white p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition cursor-pointer"
           aria-label="Close Notice"
         >
           <X className="w-4 h-4" />
@@ -66,7 +66,7 @@ export const ConsentBanner: React.FC = () => {
         OmniMetrics Hub computes financial models client-side in your browser. We use local storage solely for essential interface preferences. No personal calculation data is collected or tracked on external servers.
       </p>
 
-      <div className="flex items-center justify-between pt-1 gap-2">
+      <div className="flex items-center justify-between pt-0.5 gap-2">
         <Link
           to="/privacy"
           className="text-slate-400 hover:text-emerald-400 text-[11px] underline underline-offset-2 transition font-medium"
@@ -77,14 +77,14 @@ export const ConsentBanner: React.FC = () => {
           <button
             type="button"
             onClick={handleDecline}
-            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold transition cursor-pointer border border-slate-700/60"
+            className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold transition cursor-pointer border border-slate-700/60"
           >
             Essential Only
           </button>
           <button
             type="button"
             onClick={handleAccept}
-            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold transition shadow-sm cursor-pointer"
+            className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold transition shadow-sm cursor-pointer"
           >
             Accept
           </button>

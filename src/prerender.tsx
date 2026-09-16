@@ -19,7 +19,18 @@ async function prerender() {
     );
   }
 
-  const template = fs.readFileSync(TEMPLATE_PATH, 'utf-8');
+  const rawTemplate = fs.readFileSync(TEMPLATE_PATH, 'utf-8');
+
+  // Clean the base template of any prior head SEO tags to ensure exactly 1 canonical & 1 description per page
+  const cleanTemplate = rawTemplate
+    .replace(/<title>[\s\S]*?<\/title>/gi, '')
+    .replace(/<link\s+[^>]*rel=["']canonical["'][^>]*>/gi, '')
+    .replace(/<meta\s+[^>]*name=["']description["'][^>]*>/gi, '')
+    .replace(/<meta\s+[^>]*name=["']keywords["'][^>]*>/gi, '')
+    .replace(/<meta\s+[^>]*property=["']og:[^"']*["'][^>]*>/gi, '')
+    .replace(/<meta\s+[^>]*name=["']twitter:[^"']*["'][^>]*>/gi, '')
+    .replace(/<script\s+[^>]*id=["']json-ld-structured-data["'][^>]*>[\s\S]*?<\/script>/gi, '');
+
   const routes = getAllStaticRoutes();
   console.log(`📄 Found ${routes.length} static routes to pre-render.`);
 
@@ -64,8 +75,9 @@ async function prerender() {
         ],
       };
 
-    // 3. Build head elements (note: <title> is replaced directly in the template at line 90)
+    // 3. Build head elements (strictly 1 title, 1 canonical, 1 description)
     const headMetaTags = `
+    <title>${escapeHtml(meta.title)}</title>
     <meta name="description" content="${escapeAttr(meta.description)}" />
     ${meta.keywords && meta.keywords.length > 0 ? `<meta name="keywords" content="${escapeAttr(meta.keywords.join(', '))}" />` : ''}
     <link rel="canonical" href="${canonicalUrl}" />
@@ -83,14 +95,8 @@ async function prerender() {
     <script type="application/ld+json" id="json-ld-structured-data">${JSON.stringify(schemaData)}</script>
 `;
 
-    // 4. Inject metadata & rendered app into template
-    let html = template;
-
-    // Replace <title>...</title>
-    html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(meta.title)}</title>`);
-
-    // Replace existing <meta name="description" ...>
-    html = html.replace(/<meta\s+name=["']description["'][\s\S]*?>/i, '');
+    // 4. Inject metadata & rendered app into pristine clean template
+    let html = cleanTemplate;
 
     // Inject head tags before </head>
     html = html.replace('</head>', `${headMetaTags}</head>`);
@@ -123,6 +129,7 @@ async function prerender() {
     if (r === '/404') return false;
     // Exclude secondary prefix variants from sitemap (they have canonical links to /tools/ and /blog/)
     if (r.startsWith('/calculators/')) return false;
+    if (r.startsWith('/calculator/')) return false;
     if (r.startsWith('/guides/')) return false;
     if (r.startsWith('/articles/')) return false;
     // Exclude legacy alias routes from sitemap
