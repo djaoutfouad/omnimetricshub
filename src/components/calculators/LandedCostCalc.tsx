@@ -278,7 +278,7 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
 
         <NumericInputField
           id="landed-fee-fixed-input"
-          label={`Fixed Fee (${currency})`}
+          label={`Fixed Fee per Txn (${currency})`}
           value={paymentFeeFixedStr}
           onChange={setPaymentFeeFixedStr}
           fieldState={feeFixedField}
@@ -287,7 +287,7 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
           min={0}
           max={1000}
           step="0.05"
-          helperText="per txn"
+          helperText="Per customer transaction"
         />
       </div>
 

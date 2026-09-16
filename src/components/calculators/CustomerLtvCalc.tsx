@@ -103,6 +103,10 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
       ? roundToDecimals(safeCac / monthlyGrossProfitContribution, 1)
       : null;
 
+  // Recommended Maximum CAC based on standard 3:1 LTV:CAC industry rule
+  const recommendedMaxCac =
+    grossProfitLtv !== null ? roundToDecimals(grossProfitLtv / 3, 2) : null;
+
   const handleCopy = async () => {
     if (!isFormValid) return;
     const lifespanText =
@@ -113,8 +117,9 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
     const ltvProfitText = grossProfitLtv !== null ? formatLatinCurrency(grossProfitLtv, currency) : 'N/A';
     const ratioText = ltvCacRatio !== null ? `${ltvCacRatio.toFixed(2)}x` : 'N/A';
     const paybackText = paybackMonths !== null ? `${paybackMonths} months` : 'N/A';
+    const maxCacText = recommendedMaxCac !== null ? formatLatinCurrency(recommendedMaxCac, currency) : 'N/A';
 
-    const text = `Customer Lifetime Value (LTV) Breakdown:\n- Avg Order / Contract Value (AOV): ${formatLatinCurrency(safeAov, currency)}\n- Monthly Order Frequency: ${safeFreq} orders/mo\n- Monthly Churn Rate: ${formatLatinPercent(safeChurn)}\n- Implied Lifespan: ${lifespanText}\n- Gross Revenue LTV: ${ltvRevText}\n- Gross Profit LTV (${formatLatinPercent(safeMargin)} Margin): ${ltvProfitText}\n- CAC: ${formatLatinCurrency(safeCac, currency)}\n- LTV:CAC Ratio: ${ratioText}\n- CAC Payback Horizon: ${paybackText}\n\nNotice: Linear steady-state retention model without discount rate.`;
+    const text = `Customer Lifetime Value (LTV) Breakdown:\n- Avg Order / Contract Value (AOV): ${formatLatinCurrency(safeAov, currency)}\n- Monthly Order Frequency: ${safeFreq} orders/mo\n- Monthly Churn Rate: ${formatLatinPercent(safeChurn)}\n- Implied Lifespan: ${lifespanText}\n- Gross Revenue LTV: ${ltvRevText}\n- Gross Profit LTV (${formatLatinPercent(safeMargin)} Margin): ${ltvProfitText}\n- Current CAC: ${formatLatinCurrency(safeCac, currency)}\n- Recommended Max CAC (3:1 Rule): ${maxCacText}\n- LTV:CAC Ratio: ${ratioText}\n- CAC Payback Horizon: ${paybackText}\n\nNotice: Linear steady-state retention model without discount rate.`;
 
     const ok = await copyTextToClipboard(text);
     if (ok) {
@@ -238,6 +243,13 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
               {grossRevenueLtv !== null && customerLifespanMonths !== null
                 ? `${formatLatinCurrency(grossRevenueLtv, currency)} (${customerLifespanMonths} mos)`
                 : 'N/A'}
+            </span>
+          </div>
+
+          <div className="border-t border-slate-800 pt-2 flex justify-between text-xs text-slate-400">
+            <span>Recommended Max CAC (3:1 LTV:CAC Target):</span>
+            <span className="font-semibold text-emerald-400">
+              {recommendedMaxCac !== null ? formatLatinCurrency(recommendedMaxCac, currency) : 'N/A'}
             </span>
           </div>
         </div>

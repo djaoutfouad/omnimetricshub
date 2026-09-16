@@ -85,7 +85,7 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
 
   const finalBalance = isFormValid ? roundToDecimals(fvPrincipal + fvDeposits, 2) : 0;
   const totalPrincipalDeposits = roundToDecimals(safePrincipal + (safeMonthly * totalMonths), 2);
-  const totalInterestEarned = isFormValid ? roundToDecimals(Math.max(0, finalBalance - totalPrincipalDeposits), 2) : 0;
+  const totalInterestEarned = isFormValid ? roundToDecimals(finalBalance - totalPrincipalDeposits, 2) : 0;
   const principalSharePercent =
     finalBalance > 0 ? roundToDecimals((totalPrincipalDeposits / finalBalance) * 100, 1) : 0;
   const interestSharePercent =

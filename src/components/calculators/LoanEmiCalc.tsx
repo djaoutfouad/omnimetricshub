@@ -47,7 +47,7 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
   const safePrincipal = principalField.value ?? 0;
   const safeRate = rateField.value ?? 0;
   const safeTenureYears = tenureField.value ?? 30;
-  const totalMonths = Math.max(1, Math.min(480, Math.round(safeTenureYears * 12)));
+  const totalMonths = Math.round(safeTenureYears * 12);
 
   const monthlyRate = (safeRate / 100) / 12;
 
@@ -64,8 +64,8 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
   const safeEmi = isFormValid ? roundToDecimals(emi, 2) : 0;
   const totalRepayment = isFormValid
     ? roundToDecimals(safeEmi * totalMonths, 2)
-    : safePrincipal;
-  const totalInterest = isFormValid ? roundToDecimals(Math.max(0, totalRepayment - safePrincipal), 2) : 0;
+    : 0;
+  const totalInterest = isFormValid ? roundToDecimals(totalRepayment - safePrincipal, 2) : 0;
   const principalSharePercent =
     totalRepayment > 0 ? roundToDecimals((safePrincipal / totalRepayment) * 100, 1) : 0;
   const interestSharePercent =

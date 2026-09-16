@@ -43,18 +43,31 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
     fieldName: 'Pre-Tax Deductions (Monthly)',
   });
 
-  const isFormValid = grossField.isValid && taxRateField.isValid && deductionsField.isValid;
-
   const safeGross = grossField.value ?? 0;
   const safeTaxRate = taxRateField.value ?? 0;
   const safeMonthlyDeductions = deductionsField.value ?? 0;
+  const annualPreTaxDeductions = roundToDecimals(safeMonthlyDeductions * 12, 2);
+
+  const isDeductionsValid = !grossField.isValid || !deductionsField.isValid || annualPreTaxDeductions <= safeGross;
+  const deductionExceededError = !isDeductionsValid
+    ? `Annual deductions (${formatLatinCurrency(annualPreTaxDeductions, currency)}) cannot exceed gross annual salary (${formatLatinCurrency(safeGross, currency)}).`
+    : undefined;
+
+  const isFormValid =
+    grossField.isValid &&
+    taxRateField.isValid &&
+    deductionsField.isValid &&
+    isDeductionsValid;
 
   // Pre-tax deductions reduce taxable income before tax calculation
-  const annualPreTaxDeductions = roundToDecimals(safeMonthlyDeductions * 12, 2);
-  const taxableIncome = Math.max(0, roundToDecimals(safeGross - annualPreTaxDeductions, 2));
-  const annualTax = isFormValid ? roundToDecimals(taxableIncome * (safeTaxRate / 100), 2) : 0;
+  const taxableIncome = isFormValid
+    ? roundToDecimals(safeGross - annualPreTaxDeductions, 2)
+    : 0;
+  const annualTax = isFormValid
+    ? roundToDecimals(taxableIncome * (safeTaxRate / 100), 2)
+    : 0;
   const annualNet = isFormValid
-    ? Math.max(0, roundToDecimals(safeGross - annualTax - annualPreTaxDeductions, 2))
+    ? roundToDecimals(safeGross - annualTax - annualPreTaxDeductions, 2)
     : 0;
 
   // Paycheck breakdown
@@ -186,7 +199,12 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
 
       {/* Primary Results Card */}
       {!isFormValid ? (
-        <InvalidInputAlert message="Please provide valid non-negative numbers for salary, tax rate (0-70%), and deductions." />
+        <InvalidInputAlert
+          message={
+            deductionExceededError ||
+            'Please provide valid non-negative numbers for salary, tax rate (0-70%), and deductions.'
+          }
+        />
       ) : (
         <div className="p-4 bg-slate-900 text-white rounded-2xl shadow-inner space-y-3">
           <div className="flex justify-between items-baseline">

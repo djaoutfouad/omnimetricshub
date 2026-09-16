@@ -274,16 +274,18 @@ ROAS Percentage (%) = (Attributed Revenue / Total Ad Spend) × 100
 Cost Per Acquisition (CPA) = Total Ad Spend / Total Conversions
 Break-Even ROAS = 1 / (Gross Profit Margin % / 100)
 
-Net Ad Profit = Attributed Revenue - Total Ad Spend
-True Net Profit (After COGS) = Attributed Revenue - Total Ad Spend - COGS
+Gross Ad Profit = Attributed Revenue - Total Ad Spend
+True Net Profit (After Spend & COGS) = Attributed Revenue - Total Ad Spend - COGS
 True Campaign ROI (%) = (True Net Profit / (Total Ad Spend + COGS)) × 100`,
-      stepByStepExample: `Example: An e-commerce brand spends $2,000.00 on Meta Ads, generating $8,000.00 in revenue across 100 orders, with $3,200.00 in product COGS (40% COGS / 60% gross margin).
+      stepByStepExample: `Example: An e-commerce brand spends $2,000.00 on Meta Ads, generating $8,000.00 in attributed revenue across 100 orders, with $3,200.00 in product manufacturing costs (COGS) (40% COGS / 60% gross margin).
 
-1. ROAS Multiplier = $8,000.00 / $2,000.00 = 4.0x (400%).
+1. ROAS Multiplier = $8,000.00 / $2,000.00 = 4.00x (400%).
 2. Cost Per Acquisition (CPA) = $2,000.00 / 100 = $20.00 per customer order.
-3. Break-Even ROAS = 1 / 0.60 = 1.67x. (Any campaign ROAS above 1.67x produces net positive cash flow).
-4. True Net Profit = $8,000.00 - $2,000.00 (ad spend) - $3,200.00 (COGS) = $2,800.00.
-5. True Campaign ROI = ($2,800.00 / ($2,000.00 + $3,200.00)) × 100 = 53.8%.`,
+3. Gross Product Margin = ($8,000.00 - $3,200.00) / $8,000.00 = 60.0%.
+4. Break-Even ROAS = 1 / 0.60 = 1.67x. (Any campaign ROAS above 1.67x generates positive net contribution).
+5. Gross Ad Profit (Rev - Spend) = $8,000.00 - $2,000.00 = $6,000.00.
+6. True Net Profit (After Spend & COGS) = $8,000.00 - $2,000.00 - $3,200.00 = $2,800.00.
+7. True Campaign ROI = ($2,800.00 / ($2,000.00 + $3,200.00)) × 100 = 53.8%.`,
       whenToUse: [
         'When evaluating performance across advertising platforms (Google Ads, Meta, TikTok, Amazon PPC, Pinterest).',
         'When deciding whether to scale daily ad budgets or pause underperforming ad sets.',
@@ -418,14 +420,19 @@ Traffic Required for 100 Sales = 100 / (CR% / 100)`,
       formulaMath: `Customs Duty Cost = FOB Unit Cost × (Tariff % / 100)
 Total Landed Cost per Unit = FOB Cost + Freight/Unit + Customs Duty + Packaging
 
-Recommended Retail Price = (Total Landed Cost + Gateway Fixed Fee) / (1 - (Gateway Rate% / 100) - (Target Margin% / 100))
-Break-Even Retail Price = (Total Landed Cost + Gateway Fixed Fee) / (1 - (Gateway Rate% / 100))`,
-      stepByStepExample: `Example: You import a product manufactured overseas with a $15.00 FOB price. Ocean freight is $3.00 per unit, customs tariff is 6.0%, and custom packaging is $1.50. You target a 55% gross profit margin and expect standard 2.9% + $0.30 payment processing fees.
+Recommended Retail Price = (Total Landed Cost + Processor Fixed Fee per Txn) / (1 - (Processor Rate% / 100) - (Target Margin% / 100))
+Break-Even Retail Price = (Total Landed Cost + Processor Fixed Fee per Txn) / (1 - (Processor Rate% / 100))
+
+Note on Rounding Conventions:
+• Standard Half-Up Rounding: Rounds to nearest cent ($18.43 in default parameters).
+• Ceiling Rounding: Safely covers remaining fractions of a cent ($18.44). Both are mathematically grounded.`,
+      stepByStepExample: `Example: You import a product manufactured overseas with a $15.00 FOB price. Ocean freight is $3.00 per unit, customs tariff is 6.0%, and custom packaging is $1.50. You target a 55% gross profit margin and expect standard 2.9% + $0.30 payment processing fees (modeled per single-unit transaction).
 
 1. Customs Duty = $15.00 × 0.06 = $0.90 per unit.
 2. Total Landed Cost = $15.00 + $3.00 + $0.90 + $1.50 = $20.40 per unit.
 3. Compute pricing denominator: 1 - 0.029 (gateway) - 0.55 (margin) = 0.421.
 4. Recommended Retail Price = ($20.40 + $0.30) / 0.421 = $20.70 / 0.421 = $49.17.
+5. Break-Even Retail Price (0% margin) = ($20.40 + $0.30) / (1 - 0.029) = $20.70 / 0.971 = $21.32.
 
 Verification Check:
 • Selling Price: $49.17
@@ -491,22 +498,30 @@ Verification Check:
       whatIsIt: 'When transitioning from salaried employment to independent freelancing or consulting, dividing annual salary by standard working hours (2,080 hours) leads to severe underpricing. Solopreneurs must self-fund taxes, health insurance, software subscriptions, unpaid sick leave, and non-billable business development hours.',
       howItWorks: 'Enter your desired annual net take-home salary, estimated income and self-employment taxes, annual business overhead, and expected annual billable hours. The calculator determines your total required gross revenue, minimum sustainable hourly rate, standard 8-hour day rate, and weekly pacing targets.',
       formulaExplanation: 'Total required gross revenue is calculated by summing your target take-home pay, estimated tax and insurance liabilities, and business operating overhead. Dividing this gross revenue by realistic annual billable hours gives your hourly billing rate.',
-      formulaMath: `Total Required Gross Revenue = Target Net Take-Home + Taxes & Health Insurance + Business Operating Expenses
+      formulaMath: `Base Required Revenue = Target Net Take-Home + Taxes & Health Insurance + Business Overhead
+Profit & Growth Buffer = Base Required Revenue × (Buffer % / 100)
+Total Required Gross Revenue = Base Required Revenue + Profit & Growth Buffer
 
 Minimum Hourly Rate = Total Required Gross Revenue / Annual Billable Hours
 Standard Day Rate (8 Hours) = Minimum Hourly Rate × 8
-Weekly Gross Target = Total Required Gross Revenue / Active Working Weeks
+Weekly Gross Target = Total Required Gross Revenue / Active Working Weeks (typically 48 weeks)
+Monthly Gross Target = Total Required Gross Revenue / 12
 
 Where:
-• Target Net Take-Home: Personal income you wish to take home after all expenses
+• Target Net Take-Home: Personal net disposable income after all expenses
 • Taxes & Insurance: Estimated self-employment tax, income tax, and health/dental coverage
-• Annual Billable Hours: Realistic client-facing hours (typically 1,000 to 1,200 hours/year)`,
-      stepByStepExample: `Example: A consultant wants an annual net take-home income of $75,000.00. They anticipate $22,000.00 in self-employment/income taxes and health coverage, and $8,000.00 in software, hardware, accounting, and office overhead. They plan for 1,000 billable hours per year (approx. 20.8 billable hours/week across 48 active working weeks).
+• Business Overhead: Software subscriptions, equipment amortization, legal, and hosting
+• Buffer %: Reinvestment, emergency cushion, and business profit margin (e.g. 10%)
+• Annual Billable Hours: Realistic client-facing hours (standard baseline: 1,000 hrs/yr)`,
+      stepByStepExample: `Example: A consultant wants an annual net take-home income of $75,000.00. They anticipate $22,000.00 in self-employment/income taxes and health coverage, $8,000.00 in business overhead, a 10.0% profit/growth buffer, and 1,000 billable hours per year (approx. 20.8 billable hours/week across 48 active working weeks).
 
-1. Total Required Gross Revenue = $75,000 + $22,000 + $8,000 = $105,000.00 per year.
-2. Minimum Hourly Rate = $105,000.00 / 1,000 billable hours = $105.00 / hour.
-3. Standard Day Rate (8h) = $105.00 × 8 = $840.00 / day.
-4. Weekly Billing Target (48 weeks) = $105,000 / 48 = $2,187.50 / week.`,
+1. Base Required Revenue = $75,000.00 + $22,000.00 + $8,000.00 = $105,000.00 / year.
+2. Profit & Growth Buffer (10%) = $105,000.00 × 0.10 = $10,500.00.
+3. Total Required Gross Revenue = $105,000.00 + $10,500.00 = $115,500.00 / year.
+4. Minimum Hourly Rate = $115,500.00 / 1,000 billable hours = $115.50 / hour.
+5. Standard Day Rate (8h) = $115.50 × 8 = $924.00 / day.
+6. Weekly Gross Target (48 weeks) = $115,500.00 / 48 = $2,406.25 / week.
+7. Monthly Gross Target = $115,500.00 / 12 = $9,625.00 / month.`,
       whenToUse: [
         'When transitioning from full-time corporate employment to independent freelancing or agency consulting.',
         'When quoting fixed-fee client project proposals based on expected milestone duration.',
@@ -566,19 +581,21 @@ Where:
       whatIsIt: 'When commercial clients fail to settle invoices by the agreed contract due date, businesses are legally permitted under commercial legislation (such as UK/EU Late Payment of Commercial Debts acts) or contractual terms to charge accrued late payment interest and statutory debt collection compensation fees.',
       howItWorks: 'Enter your invoice principal balance, annual interest rate (statutory benchmark plus reference rate, or contract rate), days overdue past the payment due date, and optional fixed statutory compensation. The calculator determines your daily interest accrual, total accumulated interest, and final updated statement balance.',
       formulaExplanation: 'Daily interest is calculated by multiplying the invoice principal by the annual interest rate divided by 365 days. Total interest equals the daily rate multiplied by days past due. The total outstanding balance adds the principal, accumulated interest, and recovery compensation.',
-      formulaMath: `Daily Interest Rate = (Invoice Principal × (Annual Interest Rate % / 100)) / 365
+      formulaMath: `Daily Interest Rate = (Invoice Principal × (Annual Interest Rate % / 100)) / Day-Count Basis (B)
 Accrued Late Interest = Daily Interest Rate × Days Overdue
-Total Balance Due = Invoice Principal + Accrued Late Interest + Statutory Recovery Fee
+Total Balance Due = Invoice Principal + Accrued Late Interest + Recovery Compensation Fee
 
 Where:
 • Invoice Principal: Original unpaid invoice amount
-• Annual Interest Rate%: Statutory reference rate (e.g. Bank of England base rate + 8.0%) or contract rate
-• Days Overdue: Calendar days elapsed since payment due date`,
-      stepByStepExample: `Example: A B2B client owes an unpaid invoice of $5,000.00 that is 60 days overdue under a contract clause specifying 10.0% annual late payment interest with a $70.00 administrative recovery compensation fee.
+• Annual Interest Rate%: Statutory reference rate (e.g. benchmark + 8.0%) or agreed contractual rate
+• Days Overdue: Calendar days elapsed since the contractual payment due date
+• Day-Count Basis (B): 365 (standard calendar year), 360 (commercial banking / money market convention), or 366 (leap year)
+• Recovery Compensation Fee: Illustrative tiered administrative recovery benchmark (e.g. £40/£70/£100 or contractual recovery fee; subject to applicable local law and jurisdiction)`,
+      stepByStepExample: `Example: A B2B client owes an unpaid invoice of $5,000.00 that is 60 days overdue under a contract clause specifying 10.0% annual late payment interest with a $70.00 administrative recovery compensation fee using a standard 365-day calendar year basis.
 
-1. Daily Interest = ($5,000.00 × 0.10) / 365 = $500.00 / 365 = $1.3698 per day.
-2. Accrued Interest (60 days) = $1.3698 × 60 = $82.19.
-3. Statutory Recovery Fee = $70.00.
+1. Daily Interest = ($5,000.00 × 0.10) / 365 = $500.00 / 365 = $1.369863 per day.
+2. Accrued Interest (60 days) = $1.369863 × 60 = $82.19 (or $83.33 under 360-day commercial basis).
+3. Statutory / Contractual Recovery Fee = $70.00.
 4. Total Outstanding Balance = $5,000.00 + $82.19 + $70.00 = $5,152.19.`,
       whenToUse: [
         'When issuing formal overdue payment notices and updated statements of account to late-paying corporate clients.',
@@ -649,14 +666,20 @@ Where:
 • t: Time horizon in years
 • Total Principal Deposits = P + (PMT × 12 × t)
 • Total Compound Interest Earned = Future Value - Total Principal Deposits`,
-      stepByStepExample: `Example: You start with an initial deposit of $10,000.00 and invest $300.00 each month at an estimated 8.0% annual return compounded monthly over 15 years.
+      stepByStepExample: `Example: You start with an initial deposit of $10,000.00 and invest $500.00 each month at an estimated 8.0% annual return compounded monthly over a 10-year horizon (120 months).
 
-1. Total Principal Invested = $10,000 + ($300 × 12 × 15) = $10,000 + $54,000 = $64,000.00.
-2. Compounding factor for 15 years (180 months) at 8% monthly: (1 + 0.08/12)^180 = 3.3069.
-3. Principal Growth = $10,000 × 3.3069 = $33,069.21.
-4. Monthly Deposits Growth = $300 × [(3.3069 - 1) / (0.08/12)] = $300 × 346.038 = $103,811.47.
-5. Total Projected Future Balance = $33,069.21 + $103,811.47 = $136,880.68.
-6. Total Compound Interest Earned = $136,880.68 - $64,000.00 = $72,880.68 (Interest accounts for 53.2% of the final wealth balance).`,
+1. Total Principal Invested = $10,000.00 + ($500.00 × 12 × 10) = $10,000.00 + $60,000.00 = $70,000.00.
+2. Monthly Compounding Rate = 0.08 / 12 = 0.0066667.
+3. Compounding Factor for 120 months = (1 + 0.08/12)^120 = 2.21964.
+4. Principal Growth = $10,000.00 × 2.21964 = $22,196.40.
+5. Monthly Annuity Growth = $500.00 × [(2.21964 - 1) / (0.08/12)] = $91,473.02.
+6. Total Projected Future Balance = $22,196.40 + $91,473.02 = $113,669.42.
+7. Total Compound Interest Earned = $113,669.42 - $70,000.00 = $43,669.42.
+
+Sensitivity Check (Increasing Starting Principal to $20,000.00):
+• Doubling initial principal to $20,000.00 lifts Principal Growth to $44,392.80 ($20,000 × 2.21964).
+• Adding unchanged monthly contribution growth ($91,473.02) yields a final wealth balance of $135,865.82.
+• Total Principal Deposited = $80,000.00; Total Interest Earned = $55,865.82.`,
       whenToUse: [
         'When planning long-term retirement savings, index fund portfolios, or college fund contributions.',
         'When evaluating the long-term wealth impact of increasing monthly savings rates.',
@@ -725,14 +748,14 @@ Where:
 
 Total Repayment Amount = Monthly EMI × n
 Total Interest Payable = Total Repayment Amount - Principal Loan Amount`,
-      stepByStepExample: `Example: You take out a $40,000.00 commercial equipment loan at a 7.0% annual interest rate over a 5-year tenure (60 monthly payments).
+      stepByStepExample: `Example: You finance a $250,000.00 property loan at a 6.5% annual interest rate over a 30-year tenure (360 monthly installments).
 
-1. Monthly Interest Rate r = (0.07 / 12) = 0.0058333.
-2. Total Months n = 5 × 12 = 60 months.
-3. Factor (1 + r)^n = (1.0058333)^60 = 1.417625.
-4. Monthly EMI = [$40,000 × 0.0058333 × 1.417625] / [1.417625 - 1] = $330.78 / 0.417625 = $792.05 / month.
-5. Total Repayment Amount = $792.05 × 60 = $47,523.00.
-6. Total Interest Cost = $47,523.00 - $40,000.00 = $7,523.00 (Interest represents 15.8% of total payout).`,
+1. Monthly Interest Rate r = (0.065 / 12) = 0.0054167.
+2. Total Months n = 30 × 12 = 360 monthly installments.
+3. Compounding Factor (1 + r)^n = (1.0054167)^360 = 6.991798.
+4. Monthly Payment (EMI) = [$250,000.00 × 0.0054167 × 6.991798] / [6.991798 - 1] = $1,580.17 / month (rounded half-up to currency cents).
+5. Total Repayment Amount = $1,580.17 × 360 = $568,861.20.
+6. Total Cumulative Interest = $568,861.20 - $250,000.00 = $318,861.20 (Interest represents 56.1% of total cumulative cash payments).`,
       whenToUse: [
         'When evaluating commercial financing for equipment purchases, vehicle fleets, or business expansion.',
         'When comparing lending offers from different financial institutions with varied terms and rates.',
@@ -790,28 +813,32 @@ Total Interest Payable = Total Repayment Amount - Principal Loan Amount`,
     relatedToolIds: ['calc-roas', 'calc-cr-cpa', 'calc-margin', 'calc-breakeven'],
     detailedGuide: {
       whatIsIt: 'Customer Lifetime Value (LTV or CLV) represents the total gross revenue and net profit an individual customer account generates for your business throughout the duration of their relationship. Benchmarking LTV against Customer Acquisition Cost (CAC) ensures sustainable marketing unit economics.',
-      howItWorks: 'Enter your Average Order Value (AOV), annual purchase frequency, average customer lifespan in years, and gross profit margin percentage. The calculator computes annual customer revenue, Gross Lifetime Revenue (LTV), Net Profit LTV, and your recommended Maximum Customer Acquisition Cost (CAC) under the industry standard 3:1 ratio.',
-      formulaExplanation: 'Annual revenue per customer equals AOV multiplied by purchase frequency. Gross LTV multiplies annual customer revenue by customer lifespan. Net Profit LTV multiplies Gross LTV by your gross profit margin percentage. Maximum CAC is Net Profit LTV divided by 3.',
-      formulaMath: `Annual Revenue per Customer = Average Order Value (AOV) × Annual Purchase Frequency
-Gross Lifetime Value (LTV) = Annual Revenue per Customer × Customer Lifespan (Years)
+      howItWorks: 'Enter your Average Order Value (AOV), monthly purchase frequency, monthly customer churn rate, gross profit margin percentage, and Customer Acquisition Cost (CAC). The calculator computes implied customer lifespan, gross revenue LTV, gross profit LTV, the LTV:CAC ratio, CAC payback horizon, and the recommended maximum CAC under the standard 3:1 benchmark.',
+      formulaExplanation: 'Monthly customer revenue equals AOV multiplied by monthly purchase frequency. Customer lifespan in months equals 1 divided by monthly churn rate decimal. Gross LTV multiplies monthly customer revenue by customer lifespan. Gross Profit LTV multiplies Gross LTV by gross profit margin percentage. Recommended Maximum CAC equals Gross Profit LTV divided by 3.',
+      formulaMath: `Monthly Revenue per Customer = Average Order Value (AOV) × Monthly Purchase Frequency
+Customer Lifespan (Months) = 1 / (Monthly Churn Rate % / 100)
+Gross Revenue Lifetime Value (LTV) = Monthly Revenue × Customer Lifespan
 
-Net Profit LTV = Gross Lifetime Value × (Gross Profit Margin % / 100)
-Recommended Maximum CAC (at 3:1 LTV:CAC) = Net Profit LTV / 3
+Gross Profit LTV = Gross Revenue LTV × (Gross Profit Margin % / 100)
+LTV:CAC Ratio = Gross Profit LTV / Customer Acquisition Cost (CAC)
+Recommended Maximum CAC (at 3:1 LTV:CAC) = Gross Profit LTV / 3
+CAC Payback Horizon (Months) = CAC / (Monthly Revenue × Gross Margin %)
 
 Where:
-• AOV: Average revenue generated per transaction
-• Annual Purchase Frequency: Number of orders an active customer places per year
-• Customer Lifespan: Average number of years a customer continues buying
-• Gross Profit Margin%: Percentage of revenue retained after product COGS`,
-      stepByStepExample: `Example: A specialty subscription coffee brand has an Average Order Value (AOV) of $40.00, purchase frequency of 6 orders per year, average customer retention lifespan of 3 years, and a 65% gross profit margin.
+• AOV: Average revenue generated per checkout or monthly subscription invoice
+• Monthly Purchase Frequency: Number of orders an active customer places per month
+• Monthly Churn Rate: Percentage of customer base that cancels or stops purchasing monthly
+• Gross Profit Margin%: Percentage of revenue retained after product COGS
+• CAC: Fully loaded acquisition spend per newly acquired customer`,
+      stepByStepExample: `Example: A subscription e-commerce brand operates with an Average Order Value (AOV) of $65.00, monthly purchase frequency of 1.5 orders/month, a 5.0% monthly churn rate, 60.0% gross margin, and a $120.00 CAC.
 
-1. Annual Customer Revenue = $40.00 × 6 = $240.00 / year.
-2. Gross Lifetime Value (LTV) = $240.00 × 3 years = $720.00.
-3. Net Profit LTV = $720.00 × 0.65 = $468.00 in cumulative net profit per customer.
-4. Recommended Maximum CAC (3:1 LTV:CAC target) = $468.00 / 3 = $156.00.
-
-Interpretation:
-The company can spend up to $156.00 to acquire a new customer while maintaining a healthy 3:1 profit-to-acquisition ratio.`,
+1. Monthly Revenue per Customer = $65.00 × 1.5 = $97.50 / month.
+2. Implied Customer Lifespan = 1 / 0.05 = 20.0 months (approx. 1.7 years).
+3. Gross Revenue LTV = $97.50 × 20.0 months = $1,950.00.
+4. Gross Profit LTV = $1,950.00 × 0.60 = $1,170.00 cumulative gross profit.
+5. LTV:CAC Efficiency Ratio = $1,170.00 / $120.00 = 9.75x (indicates high profitability).
+6. Recommended Maximum CAC (3:1 LTV:CAC benchmark) = $1,170.00 / 3 = $390.00.
+7. CAC Payback Horizon = $120.00 / ($97.50 × 0.60) = $120.00 / $58.50 = 2.1 months.`,
       whenToUse: [
         'When establishing marketing acquisition budgets and determining maximum allowable bids on paid advertising channels.',
         'When evaluating the ROI of customer retention, loyalty programs, and post-purchase email onboarding flows.',
@@ -870,27 +897,30 @@ The company can spend up to $156.00 to acquire a new customer while maintaining 
     detailedGuide: {
       whatIsIt: 'Gross salary represents total contracted compensation before deductions, whereas net take-home salary is the actual disposable cash deposited into your bank account after income taxes, social security/Medicare contributions, and optional pre-tax benefit deductions.',
       howItWorks: 'Enter your gross annual salary, estimated effective tax withholding rate, and optional monthly pre-tax deductions (such as health insurance, dental, or retirement contributions). The calculator estimates total annual taxes withheld, annual net take-home pay, and pay period deposits across monthly, bi-weekly, and weekly schedules.',
-      formulaExplanation: 'Annual tax withholding is estimated by multiplying gross salary by the effective tax rate. Total annual other deductions are subtracted, and remaining net compensation is divided across standard payroll frequencies.',
-      formulaMath: `Annual Taxes Withheld = Gross Annual Salary × (Effective Tax Rate % / 100)
-Annual Other Deductions = Monthly Deductions × 12
-Annual Net Take-Home = Gross Annual Salary - Annual Taxes Withheld - Annual Other Deductions
+      formulaExplanation: 'Pre-tax benefit deductions (such as retirement and healthcare) reduce taxable income before income tax withholding is calculated. Annual tax is computed on taxable income, and remaining net compensation is distributed across standard payroll frequencies.',
+      formulaMath: `Annual Pre-Tax Deductions = Monthly Deductions × 12
+Taxable Income Base = Gross Annual Salary - Annual Pre-Tax Deductions
+Annual Taxes Withheld = Taxable Income Base × (Effective Tax Rate % / 100)
+Annual Net Take-Home = Gross Annual Salary - Annual Taxes Withheld - Annual Pre-Tax Deductions
 
 Monthly Paycheck (12 pay periods) = Annual Net Take-Home / 12
 Bi-Weekly Paycheck (26 pay periods) = Annual Net Take-Home / 26
 Weekly Paycheck (52 pay periods) = Annual Net Take-Home / 52
+Annual Tax Savings from Pre-Tax Deductions = Annual Pre-Tax Deductions × (Effective Tax Rate % / 100)
 
 Where:
 • Gross Annual Salary: Total contracted pre-tax earnings
 • Effective Tax Rate: Overall blended percentage of income paid across all tax brackets
-• Pre-Tax Deductions: Voluntary retirement, health, or flexible spending deductions`,
-      stepByStepExample: `Example: An employee receives a job offer with an $85,000.00 gross annual salary, an estimated 22.0% effective tax rate, and $200.00/month in health insurance and 401(k) retirement contributions.
+• Pre-Tax Deductions: Voluntary retirement, health insurance, or flexible spending deductions`,
+      stepByStepExample: `Example: An employee receives a job offer with an $85,000.00 gross annual salary, an estimated 22.0% effective tax rate, and $200.00/month in pre-tax health insurance and 401(k) retirement contributions.
 
-1. Annual Taxes Withheld = $85,000.00 × 0.22 = $18,700.00.
-2. Annual Pre-Tax Deductions = $200.00 × 12 = $2,400.00.
-3. Annual Net Take-Home = $85,000.00 - $18,700.00 - $2,400.00 = $63,900.00.
-4. Monthly Paycheck Deposit = $63,900.00 / 12 = $5,325.00 / month.
-5. Bi-Weekly Paycheck (26 pay periods) = $63,900.00 / 26 = $2,457.69 per paycheck.
-6. Effective Overall Withholding = (($18,700 + $2,400) / $85,000) × 100 = 24.8%.`,
+1. Annual Pre-Tax Deductions = $200.00 × 12 = $2,400.00 / year.
+2. Taxable Income Base = $85,000.00 - $2,400.00 = $82,600.00.
+3. Annual Taxes Withheld = $82,600.00 × 0.22 = $18,172.00.
+4. Annual Net Take-Home = $85,000.00 - $18,172.00 - $2,400.00 = $64,428.00.
+5. Monthly Paycheck Deposit = $64,428.00 / 12 = $5,369.00 / month.
+6. Bi-Weekly Paycheck (26 pay periods) = $64,428.00 / 26 = $2,478.00 per paycheck.
+7. Annual Tax Savings Achieved = $2,400.00 × 0.22 = $528.00 saved via pre-tax shielding.`,
       whenToUse: [
         'When evaluating new job offers or negotiating compensation packages.',
         'When budgeting personal monthly living expenses against actual expected net bank deposits.',

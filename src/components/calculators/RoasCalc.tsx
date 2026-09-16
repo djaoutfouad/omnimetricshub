@@ -224,7 +224,7 @@ export const RoasCalc: React.FC<Props> = ({ currency }) => {
 
           <div className="grid grid-cols-2 gap-2 border-t border-slate-800 pt-2.5 text-xs">
             <div>
-              <span className="text-slate-400 block text-[11px]">Net Ad Profit:</span>
+              <span className="text-slate-400 block text-[11px]">Gross Ad Profit (Rev - Spend):</span>
               <span className={`font-bold ${netAdProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'} text-sm`}>
                 {formatLatinCurrency(netAdProfit, currency)}
               </span>
@@ -243,7 +243,7 @@ export const RoasCalc: React.FC<Props> = ({ currency }) => {
 
           {safeCogs > 0 && (
             <div className="border-t border-slate-800 pt-2.5 flex justify-between items-baseline text-xs">
-              <span className="text-slate-300">True Net Profit (After COGS):</span>
+              <span className="text-slate-300">True Net Profit (After COGS & Spend):</span>
               <span className={`font-bold ${netTrueProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                 {formatLatinCurrency(netTrueProfit, currency)} {trueRoi !== null ? `(${formatLatinPercent(trueRoi)} ROI)` : ''}
               </span>
