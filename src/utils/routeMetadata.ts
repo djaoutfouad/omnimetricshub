@@ -19,6 +19,18 @@ const ALIAS_MAP: Record<string, string> = {
   'ecommerce-landed-cost-guide': 'landed-cost-and-tariffs-guide',
 };
 
+export const TOOL_ALIAS_MAP: Record<string, string> = {
+  'profit-margin-markup': 'profit-margin',
+  'break-even-point': 'break-even',
+  'landed-cost-pricing': 'landed-cost',
+  'net-salary-tax': 'salary-tax',
+  'payment-fees': 'payment-gateway-fees',
+  'roas': 'roas-calculator',
+  'customer-lifetime-value': 'customer-ltv',
+  'clv': 'customer-ltv',
+  'late-interest': 'late-payment-interest',
+};
+
 export function getRouteMetadata(rawPath: string): RouteMeta {
   const cleanPath = rawPath.replace(/\/+$/, '') || '/';
 
@@ -202,7 +214,8 @@ export function getRouteMetadata(rawPath: string): RouteMeta {
     cleanPath.startsWith('/calculators/') ||
     cleanPath.startsWith('/calculator/')
   ) {
-    const slugOrId = cleanPath.split('/')[2];
+    const rawSlugOrId = cleanPath.split('/')[2];
+    const slugOrId = TOOL_ALIAS_MAP[rawSlugOrId] || rawSlugOrId;
     const tool = TOOLS_DATA.find((t) => t.slug === slugOrId || t.id === slugOrId);
 
     if (tool) {
@@ -524,6 +537,11 @@ export function getAllStaticRoutes(): string[] {
   for (const tool of TOOLS_DATA) {
     routes.push(`/tools/${tool.slug}`);
     routes.push(`/calculators/${tool.slug}`);
+  }
+
+  // Add tool aliases so they pre-render static HTML with canonical URLs (no 404s)
+  for (const alias of Object.keys(TOOL_ALIAS_MAP)) {
+    routes.push(`/tools/${alias}`);
   }
 
   // Add all guide and blog routes (including /blog/, /guides/, /articles/)

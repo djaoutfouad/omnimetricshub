@@ -20,8 +20,8 @@ export const Footer: React.FC<Props> = ({
         <div className="md:col-span-2 space-y-3">
           <div className="flex items-center gap-2.5">
             <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-extrabold text-base shadow-sm">
-                Σ
+              <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-black text-xs tracking-tight shadow-sm">
+                OM
               </div>
               <div className="font-extrabold text-base text-white tracking-tight">
                 OmniMetrics <span className="text-emerald-400">Hub</span>

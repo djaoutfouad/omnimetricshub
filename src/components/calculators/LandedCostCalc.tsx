@@ -22,6 +22,7 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
   const [paymentFeePercentStr, setPaymentFeePercentStr] = useState<string>('2.9');
   const [paymentFeeFixedStr, setPaymentFeeFixedStr] = useState<string>('0.30');
   const [targetMarginStr, setTargetMarginStr] = useState<string>('50.0');
+  const [dutyBasis, setDutyBasis] = useState<'FOB' | 'CIF'>('FOB');
   const [copied, setCopied] = useState(false);
 
   // Field validation
@@ -92,7 +93,9 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
   const safeFeeFixed = feeFixedField.value ?? 0;
 
   // Calculations per unit
-  const tariffCost = roundToDecimals(safeUnitCost * (safeTariff / 100), 2);
+  // FOB basis = duty applied to goods only (US/standard); CIF basis = duty applied to goods + freight (EU/UK/standard)
+  const dutyBase = dutyBasis === 'FOB' ? safeUnitCost : roundToDecimals(safeUnitCost + safeFreight, 2);
+  const tariffCost = roundToDecimals(dutyBase * (safeTariff / 100), 2);
   const totalLandedCost = roundToDecimals(
     safeUnitCost + safeFreight + tariffCost + safePackaging,
     2
@@ -189,19 +192,46 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <NumericInputField
-          id="landed-tariff-input"
-          label="Import Customs Duty / Tariff (%)"
-          value={tariffPercentStr}
-          onChange={setTariffPercentStr}
-          fieldState={tariffField}
-          suffix="%"
-          placeholder="0.0"
-          min={0}
-          max={500}
-          step="any"
-          helperText={`${formatLatinCurrency(tariffCost, currency)} duty on FOB cost`}
-        />
+        <div className="space-y-1.5">
+          <NumericInputField
+            id="landed-tariff-input"
+            label="Import Customs Duty / Tariff (%)"
+            value={tariffPercentStr}
+            onChange={setTariffPercentStr}
+            fieldState={tariffField}
+            suffix="%"
+            placeholder="0.0"
+            min={0}
+            max={500}
+            step="any"
+            helperText={`${formatLatinCurrency(tariffCost, currency)} duty on ${dutyBasis} basis`}
+          />
+          <div className="flex items-center gap-1 text-[11px] text-slate-500">
+            <span className="font-semibold">Duty Valuation:</span>
+            <button
+              type="button"
+              onClick={() => setDutyBasis('FOB')}
+              className={`px-2 py-0.5 rounded text-[10px] font-bold transition cursor-pointer ${
+                dutyBasis === 'FOB'
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+              }`}
+            >
+              FOB (Goods)
+            </button>
+            <button
+              type="button"
+              onClick={() => setDutyBasis('CIF')}
+              className={`px-2 py-0.5 rounded text-[10px] font-bold transition cursor-pointer ${
+                dutyBasis === 'CIF'
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+              }`}
+            >
+              CIF (Goods+Freight)
+            </button>
+          </div>
+        </div>
 
         <NumericInputField
           id="landed-packaging-input"
@@ -218,7 +248,7 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <NumericInputField
           id="landed-margin-input"
           label="Desired Profit Margin (%)"
@@ -232,38 +262,33 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
           step="1"
         />
 
-        <div className="space-y-1">
-          <label htmlFor="landed-fee-percent-input" className="text-xs font-bold text-slate-700 block">
-            Payment Processor Rate & Fee
-          </label>
-          <div className="grid grid-cols-2 gap-1.5">
-            <input
-              id="landed-fee-percent-input"
-              type="text"
-              inputMode="decimal"
-              value={paymentFeePercentStr}
-              onChange={(e) => setPaymentFeePercentStr(e.target.value)}
-              aria-label="Payment Processor Percentage Rate"
-              className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none text-xs focus:ring-2 focus:ring-emerald-500"
-              placeholder="2.9%"
-            />
-            <input
-              id="landed-fee-fixed-input"
-              type="text"
-              inputMode="decimal"
-              value={paymentFeeFixedStr}
-              onChange={(e) => setPaymentFeeFixedStr(e.target.value)}
-              aria-label="Payment Processor Fixed Fee"
-              className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none text-xs focus:ring-2 focus:ring-emerald-500"
-              placeholder={`+ ${currency}0.30`}
-            />
-          </div>
-          {(!feePercentField.isValid || !feeFixedField.isValid) && (
-            <p role="alert" className="text-rose-600 text-[11px] font-semibold">
-              {feePercentField.errorMessage || feeFixedField.errorMessage}
-            </p>
-          )}
-        </div>
+        <NumericInputField
+          id="landed-fee-percent-input"
+          label="Processor Rate (%)"
+          value={paymentFeePercentStr}
+          onChange={setPaymentFeePercentStr}
+          fieldState={feePercentField}
+          suffix="%"
+          placeholder="2.9"
+          min={0}
+          max={95}
+          step="0.1"
+          helperText="e.g. 2.9%"
+        />
+
+        <NumericInputField
+          id="landed-fee-fixed-input"
+          label={`Fixed Fee (${currency})`}
+          value={paymentFeeFixedStr}
+          onChange={setPaymentFeeFixedStr}
+          fieldState={feeFixedField}
+          prefix={currency}
+          placeholder="0.30"
+          min={0}
+          max={1000}
+          step="0.05"
+          helperText="per txn"
+        />
       </div>
 
       {/* Main Scorecard */}
@@ -340,6 +365,7 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
             setPaymentFeePercentStr('2.9');
             setPaymentFeeFixedStr('0.30');
             setTargetMarginStr('50.0');
+            setDutyBasis('FOB');
           }}
           className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 font-medium transition cursor-pointer"
         >

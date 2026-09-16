@@ -28,8 +28,8 @@ export const Header: React.FC<Props> = ({
           className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none group shrink-0"
           onClick={onReset}
         >
-          <div className="w-9 h-9 rounded-xl bg-emerald-600 group-hover:bg-emerald-500 flex items-center justify-center text-white font-extrabold text-xl shadow-sm transition">
-            Σ
+          <div className="w-9 h-9 rounded-xl bg-emerald-600 group-hover:bg-emerald-500 flex items-center justify-center text-white font-black text-sm tracking-tight shadow-sm transition">
+            OM
           </div>
           <div>
             <div className="font-extrabold text-[15px] text-slate-900 tracking-tight leading-none flex items-center gap-1">

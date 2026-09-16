@@ -272,7 +272,7 @@ export const ConversionRateCpaCalc: React.FC<Props> = ({ currency }) => {
       {visitorsPer100Conversions !== null && (
         <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl flex items-center justify-between text-xs text-teal-950">
           <span className="flex items-center gap-1 font-semibold">
-            <Target className="w-3.5 h-3.5 text-teal-600" /> Whole traffic required for 100 sales:
+            <Target className="w-3.5 h-3.5 text-teal-600" /> Total traffic required for 100 sales:
           </span>
           <span className="font-extrabold text-teal-900">
             {visitorsPer100Conversions.toLocaleString('en-US')} unique visitors

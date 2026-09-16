@@ -166,14 +166,25 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
       </div>
 
       {/* Billable hours slider & input */}
-      <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
-        <div className="flex items-center justify-between text-xs">
-          <label htmlFor="freelance-hours-input" className="font-bold text-slate-700 flex items-center gap-1.5">
+      <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+          <label htmlFor="freelance-hours-num" className="font-bold text-slate-700 flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-violet-600" /> Annual Billable Hours:
           </label>
-          <span className="font-bold text-violet-700">
-            {safeBillableHours.toLocaleString('en-US')} hrs/yr (~{(safeBillableHours / activeWeeks).toFixed(1)} hrs/wk across 48 weeks)
-          </span>
+          <div className="flex items-center gap-2">
+            <input
+              id="freelance-hours-num"
+              type="text"
+              inputMode="numeric"
+              value={billableHoursStr}
+              onChange={(e) => setBillableHoursStr(e.target.value)}
+              aria-label="Annual Billable Hours (type directly)"
+              className="w-20 px-2 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold text-right text-violet-700 outline-none focus:ring-2 focus:ring-violet-500"
+            />
+            <span className="text-[11px] font-semibold text-slate-500">
+              hrs/yr (~{(safeBillableHours / activeWeeks).toFixed(1)} hrs/wk across {activeWeeks} wks)
+            </span>
+          </div>
         </div>
         <input
           id="freelance-hours-input"
@@ -183,6 +194,7 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
           step="25"
           value={Math.min(1800, Math.max(200, safeBillableHours))}
           onChange={(e) => setBillableHoursStr(e.target.value)}
+          aria-label="Annual Billable Hours slider"
           className="w-full accent-violet-600 cursor-pointer"
         />
         <div className="flex justify-between text-[10px] text-slate-400">
@@ -190,6 +202,11 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
           <span className="font-semibold text-slate-600">Balanced (1,000 hrs)</span>
           <span>Max Capacity (1,500 hrs)</span>
         </div>
+        {!billableHoursField.isValid && (
+          <p role="alert" className="text-rose-600 text-[11px] font-semibold">
+            {billableHoursField.errorMessage}
+          </p>
+        )}
       </div>
 
       {/* Primary Scorecard */}

@@ -19,7 +19,7 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
   const [annualRateStr, setAnnualRateStr] = useState<string>('10.0');
   const [daysOverdueStr, setDaysOverdueStr] = useState<string>('60');
   const [compensationFeeStr, setCompensationFeeStr] = useState<string>('70');
-  const [dayBasis, setDayBasis] = useState<365 | 366>(365);
+  const [dayBasis, setDayBasis] = useState<360 | 365 | 366>(365);
   const [copied, setCopied] = useState(false);
 
   // Field validations
@@ -154,10 +154,11 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
           <select
             id="late-basis-select"
             value={dayBasis}
-            onChange={(e) => setDayBasis(parseInt(e.target.value, 10) as 365 | 366)}
+            onChange={(e) => setDayBasis(parseInt(e.target.value, 10) as 360 | 365 | 366)}
             className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 outline-none focus:ring-2 focus:ring-orange-500 text-xs"
           >
-            <option value={365}>Actual/365 (Standard)</option>
+            <option value={365}>Actual/365 (Standard UK/Commonwealth)</option>
+            <option value={360}>Actual/360 (US Commercial / Money Market)</option>
             <option value={366}>Actual/366 (Leap Year)</option>
           </select>
         </div>

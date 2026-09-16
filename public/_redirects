@@ -1,0 +1,25 @@
+# OmniMetrics Hub Cloudflare Pages / Static Hosting Redirects (HTTP 301)
+/tools/profit-margin-markup /tools/profit-margin 301
+/tools/profit-margin-markup/ /tools/profit-margin 301
+/tools/break-even-point /tools/break-even 301
+/tools/break-even-point/ /tools/break-even 301
+/tools/landed-cost-pricing /tools/landed-cost 301
+/tools/landed-cost-pricing/ /tools/landed-cost 301
+/tools/net-salary-tax /tools/salary-tax 301
+/tools/net-salary-tax/ /tools/salary-tax 301
+/tools/payment-fees /tools/payment-gateway-fees 301
+/tools/payment-fees/ /tools/payment-gateway-fees 301
+/tools/roas /tools/roas-calculator 301
+/tools/roas/ /tools/roas-calculator 301
+/tools/customer-lifetime-value /tools/customer-ltv 301
+/tools/customer-lifetime-value/ /tools/customer-ltv 301
+/tools/clv /tools/customer-ltv 301
+/tools/clv/ /tools/customer-ltv 301
+/tools/late-interest /tools/late-payment-interest 301
+/tools/late-interest/ /tools/late-payment-interest 301
+
+# Secondary path prefixes redirect to primary canonical paths
+/calculators/:slug /tools/:slug 301
+/calculator/:slug /tools/:slug 301
+/guides/:slug /blog/:slug 301
+/articles/:slug /blog/:slug 301

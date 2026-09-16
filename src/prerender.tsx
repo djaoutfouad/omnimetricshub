@@ -4,7 +4,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import App from './App';
-import { getAllStaticRoutes, getRouteMetadata } from './utils/routeMetadata';
+import { getAllStaticRoutes, getRouteMetadata, TOOL_ALIAS_MAP } from './utils/routeMetadata';
 import { getAbsoluteUrl, SITE_URL, SITE_CONFIG } from './config/site';
 
 const DIST_DIR = path.resolve(process.cwd(), 'dist');
@@ -118,14 +118,26 @@ async function prerender() {
     renderedCount++;
   }
 
-  // 6. Generate dynamic sitemap.xml in dist/ based on active SITE_URL
-  const indexableRoutes = routes.filter((r) => r !== '/404');
+  // 6. Generate dynamic sitemap.xml in dist/ containing ONLY canonical URLs
+  const indexableRoutes = routes.filter((r) => {
+    if (r === '/404') return false;
+    // Exclude secondary prefix variants from sitemap (they have canonical links to /tools/ and /blog/)
+    if (r.startsWith('/calculators/')) return false;
+    if (r.startsWith('/guides/')) return false;
+    if (r.startsWith('/articles/')) return false;
+    // Exclude legacy alias routes from sitemap
+    if (r.startsWith('/tools/')) {
+      const slug = r.split('/')[2];
+      if (TOOL_ALIAS_MAP[slug]) return false;
+    }
+    return true;
+  });
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${indexableRoutes
   .map((r) => {
     const loc = getAbsoluteUrl(r);
-    const priority = r === '/' ? '1.0' : r.startsWith('/calculators/') || r.startsWith('/tools/') ? '0.9' : r.startsWith('/blog/') || r.startsWith('/guides/') ? '0.8' : '0.6';
+    const priority = r === '/' ? '1.0' : r.startsWith('/tools/') ? '0.9' : r.startsWith('/blog/') ? '0.8' : '0.6';
     const changefreq = r === '/' || r === '/calculators' || r === '/blog' ? 'weekly' : 'monthly';
     return `  <url>
     <loc>${loc}</loc>

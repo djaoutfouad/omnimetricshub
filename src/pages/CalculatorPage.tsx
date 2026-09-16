@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { TOOLS_DATA } from '../data/tools';
 import { ARTICLES_DATA } from '../data/articles';
 import { CurrencySymbol } from '../types';
@@ -8,6 +8,7 @@ import { AdSlot } from '../components/AdSlot';
 import { ContentWithRails } from '../components/ContentWithRails';
 import { SITE_URL, getAbsoluteUrl } from '../config/site';
 import { copyTextToClipboard } from '../utils/clipboard';
+import { TOOL_ALIAS_MAP } from '../utils/routeMetadata';
 import {
   ChevronRight,
   ArrowLeft,
@@ -46,12 +47,24 @@ interface Props {
 
 export const CalculatorPage: React.FC<Props> = ({ currency }) => {
   const { slugOrId } = useParams<{ slugOrId: string }>();
+  const navigate = useNavigate();
   const [copiedLink, setCopiedLink] = useState(false);
 
-  // Match either by slug or by legacy ID
+  // Clean raw slug and resolve any legacy/alternate aliases (e.g. profit-margin-markup -> profit-margin)
+  const cleanSlug = (slugOrId || '').trim().replace(/\/+$/, '');
+  const targetSlug = TOOL_ALIAS_MAP[cleanSlug] || cleanSlug;
+
+  // Match either by resolved slug, direct slug, or legacy ID
   const tool = TOOLS_DATA.find(
-    (t) => t.slug === slugOrId || t.id === slugOrId
+    (t) => t.slug === targetSlug || t.slug === cleanSlug || t.id === cleanSlug
   );
+
+  // Soft client-side replace if accessed via alias or legacy id
+  useEffect(() => {
+    if (tool && cleanSlug && cleanSlug !== tool.slug) {
+      navigate(`/tools/${tool.slug}`, { replace: true });
+    }
+  }, [tool, cleanSlug, navigate]);
 
   if (!tool) {
     return (

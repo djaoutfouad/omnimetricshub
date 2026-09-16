@@ -238,6 +238,14 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
+      {/* Educational Disclaimer */}
+      <div className="p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-xl text-[11px] text-amber-900 flex items-start gap-2">
+        <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+        <span>
+          <strong>Educational Estimate:</strong> Models an effective tax baseline with pre-tax withholdings for budgeting purposes. This is an informational tool and does not constitute formal legal, accounting, or tax advice. Consult a certified CPA for jurisdiction-specific filings.
+        </span>
+      </div>
+
       {/* Action Footer */}
       <div className="flex items-center justify-between pt-1">
         <button
