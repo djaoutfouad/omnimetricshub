@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ToolItem } from '../types';
 import {
@@ -24,6 +24,9 @@ interface Props {
 }
 
 export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
+  const [currentImgSrc, setCurrentImgSrc] = useState<string | undefined>(tool.personaImageUrl);
+  const [imgFailed, setImgFailed] = useState(false);
+
   const getIcon = () => {
     switch (tool.iconName) {
       case 'CreditCard':
@@ -58,12 +61,21 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
   return (
     <div className="bg-white rounded-3xl border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-lg hover:border-slate-300 transition-all flex flex-col justify-between group overflow-hidden">
       {/* Persona Image Header */}
-      {tool.personaImageUrl && (
+      {tool.personaImageUrl && !imgFailed && (
         <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-slate-900 shrink-0">
           <img
-            src={tool.personaImageUrl}
-            alt={tool.personaRole || tool.name}
-            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+            src={currentImgSrc || tool.personaImageUrl}
+            alt={tool.personaImageAlt || tool.personaRole || tool.name}
+            width={800}
+            height={450}
+            onError={() => {
+              if (tool.personaImageFallbackUrl && currentImgSrc !== tool.personaImageFallbackUrl) {
+                setCurrentImgSrc(tool.personaImageFallbackUrl);
+              } else {
+                setImgFailed(true);
+              }
+            }}
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
             referrerPolicy="no-referrer"
           />

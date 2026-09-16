@@ -49,6 +49,8 @@ export interface ToolItem {
   detailedGuide: ToolGuide;
   relatedToolIds: string[];
   personaImageUrl?: string;
+  personaImageFallbackUrl?: string;
+  personaImageAlt?: string;
   personaRole?: string;
 }
 
