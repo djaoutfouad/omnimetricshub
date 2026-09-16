@@ -576,7 +576,9 @@ Where:
     iconBgColor: 'bg-orange-950/80 border border-orange-800/40',
     iconColor: 'text-orange-400',
     tagColor: 'text-orange-600',
-    personaImageUrl: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80',
+    personaImageUrl: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=800&q=80',
+    personaImageFallbackUrl: '/assets/images/calculators/invoice-late-interest.webp',
+    personaImageAlt: 'Financial accountant reviewing commercial invoices and calculating late payment interest with a calculator',
     personaRole: 'Commercial Credit & Accounts Receivable',
     relatedToolIds: ['calc-freelance', 'calc-fees', 'calc-salary', 'calc-margin'],
     detailedGuide: {
@@ -895,7 +897,9 @@ Where:
     iconBgColor: 'bg-pink-950/80 border border-pink-800/40',
     iconColor: 'text-pink-400',
     tagColor: 'text-pink-600',
-    personaImageUrl: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=800&q=80',
+    personaImageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80',
+    personaImageFallbackUrl: '/assets/images/calculators/payroll-salary.webp',
+    personaImageAlt: 'Payroll manager and compensation director reviewing employee salary and tax withholding figures at an office desk',
     personaRole: 'Payroll Manager & Executive Compensation',
     relatedToolIds: ['calc-freelance', 'calc-compound', 'calc-loan-emi', 'calc-breakeven'],
     detailedGuide: {
