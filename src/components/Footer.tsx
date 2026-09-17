@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { LegalTabType } from './modals/LegalModal';
 import { Mail, ShieldCheck, HeartHandshake } from 'lucide-react';
+import { Logo } from './Logo';
 
 interface Props {
   onOpenCalculator?: (toolId: string) => void;
@@ -20,12 +21,7 @@ export const Footer: React.FC<Props> = ({
         <div className="md:col-span-2 space-y-3">
           <div className="flex items-center gap-2.5">
             <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-black text-xs tracking-tight shadow-sm">
-                OM
-              </div>
-              <div className="font-extrabold text-base text-white tracking-tight">
-                OmniMetrics <span className="text-emerald-400">Hub</span>
-              </div>
+              <Logo theme="dark" size="md" showSubtitle={false} />
             </Link>
           </div>
           <p className="text-slate-400 text-xs max-w-sm leading-relaxed">

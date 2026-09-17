@@ -87,10 +87,12 @@ async function prerender() {
     <meta property="og:description" content="${escapeAttr(meta.description)}" />
     <meta property="og:url" content="${canonicalUrl}" />
     <meta property="og:type" content="${meta.ogType || 'website'}" />
+    <meta property="og:image" content="${meta.ogImage || SITE_CONFIG.defaultOgImage}" />
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeAttr(meta.title)}" />
     <meta name="twitter:description" content="${escapeAttr(meta.description)}" />
+    <meta name="twitter:image" content="${meta.ogImage || SITE_CONFIG.defaultOgImage}" />
     <!-- Schema.org JSON-LD -->
     <script type="application/ld+json" id="json-ld-structured-data">${JSON.stringify(schemaData)}</script>
 `;

@@ -11,9 +11,9 @@ export const SITE_URL: string = (
 export const SITE_CONFIG = {
   name: 'OmniMetrics Hub',
   siteUrl: SITE_URL,
-  logoUrl: `${SITE_URL}/favicon.svg`,
+  logoUrl: `${SITE_URL}/assets/images/logo.png`,
   contactEmail: 'omnimetricshub@gmail.com',
-  defaultOgImage: `${SITE_URL}/favicon.svg`,
+  defaultOgImage: `${SITE_URL}/assets/images/logo.png`,
   emailjs: {
     serviceId: 'service_qfoy2xa',
     templateId: 'template_rza5fvr',

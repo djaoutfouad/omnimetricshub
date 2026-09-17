@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { CurrencySymbol } from '../types';
 import { Search, CheckCircle, ArrowUpRight } from 'lucide-react';
+import { Logo } from './Logo';
 
 interface Props {
   currency: CurrencySymbol;
@@ -25,18 +26,10 @@ export const Header: React.FC<Props> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
         {/* LOGO */}
         <div
-          className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none group shrink-0"
+          className="cursor-pointer select-none group shrink-0"
           onClick={onReset}
         >
-          <div className="w-9 h-9 rounded-xl bg-emerald-600 group-hover:bg-emerald-500 flex items-center justify-center text-white font-black text-sm tracking-tight shadow-sm transition">
-            OM
-          </div>
-          <div>
-            <div className="font-extrabold text-[15px] text-slate-900 tracking-tight leading-none flex items-center gap-1">
-              OmniMetrics <span className="text-emerald-600">Hub</span>
-            </div>
-            <div className="text-[11px] text-slate-400 font-medium">Finance & Decision Tools</div>
-          </div>
+          <Logo size="md" />
         </div>
 
         {/* 2026 BADGE */}

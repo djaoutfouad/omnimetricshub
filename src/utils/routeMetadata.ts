@@ -9,6 +9,7 @@ export interface RouteMeta {
   canonicalPath: string;
   schemaData: Record<string, unknown> | null;
   ogType?: 'website' | 'article';
+  ogImage?: string;
 }
 
 const ALIAS_MAP: Record<string, string> = {

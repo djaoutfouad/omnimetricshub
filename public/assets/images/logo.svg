@@ -1,0 +1,166 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <!-- Background styling if not transparent -->
+    <linearGradient id="omMainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e947a"/>
+      <stop offset="25%" stop-color="#097a61"/>
+      <stop offset="70%" stop-color="#045643"/>
+      <stop offset="100%" stop-color="#023b2d"/>
+    </linearGradient>
+
+    <!-- O Top highlight -->
+    <linearGradient id="oSheen" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#14b8a6"/>
+      <stop offset="35%" stop-color="#0d9488"/>
+      <stop offset="80%" stop-color="#047857"/>
+      <stop offset="100%" stop-color="#064e3b"/>
+    </linearGradient>
+
+    <!-- M Left diagonal facet -->
+    <linearGradient id="mFacet1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#097a61"/>
+      <stop offset="60%" stop-color="#045844"/>
+      <stop offset="100%" stop-color="#02382b"/>
+    </linearGradient>
+
+    <!-- M 3D Fold Crease Shadow -->
+    <linearGradient id="mFoldShadowGrad" x1="0%" y1="0%" x2="100%" y2="60%">
+      <stop offset="0%" stop-color="#01241b" stop-opacity="0.95"/>
+      <stop offset="60%" stop-color="#044334" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#065f46" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- M Right Upward Facet (highlighted) -->
+    <linearGradient id="mFacet2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#04634d"/>
+      <stop offset="50%" stop-color="#088c6e"/>
+      <stop offset="100%" stop-color="#0eab87"/>
+    </linearGradient>
+
+    <!-- M Right Vertical Stem -->
+    <linearGradient id="mStemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#065b47"/>
+      <stop offset="50%" stop-color="#044d3b"/>
+      <stop offset="100%" stop-color="#02382b"/>
+    </linearGradient>
+
+    <!-- Chart Bars Gradient -->
+    <linearGradient id="chartBarGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+
+    <!-- Arrow Gradient -->
+    <linearGradient id="arrowGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#047857"/>
+      <stop offset="60%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+
+    <!-- Soft Drop Shadow for Entire Monogram -->
+    <filter id="logoShadow" x="-15%" y="-15%" width="135%" height="135%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#022c22" flood-opacity="0.18"/>
+    </filter>
+
+    <!-- Internal Shadow for Fold -->
+    <filter id="innerFoldShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="8" dy="12" stdDeviation="14" flood-color="#011e17" flood-opacity="0.38"/>
+    </filter>
+  </defs>
+
+  <rect width="800" height="800" fill="#ffffff" rx="48"/>
+
+  <g transform="translate(0, -10)">
+    <!-- MONOGRAM OM -->
+    <g filter="url(#logoShadow)">
+      <!-- O RING -->
+      <path d="
+        M 275 165
+        A 155 155 0 1 0 405 408
+        L 364 380
+        A 98 98 0 1 1 275 222
+        A 98 98 0 0 1 372 322
+        C 372 334 369 346 364 356
+        L 406 385
+        C 421 361 430 332 430 301
+        A 155 155 0 0 0 275 165 Z"
+        fill="url(#oSheen)" />
+
+      <!-- FINANCIAL GROWTH CHART BARS INSIDE O -->
+      <g id="bars">
+        <!-- Baseline y=380 -->
+        <!-- Bar 1: shortest left -->
+        <rect x="220" y="340" width="24" height="42" rx="5" fill="url(#chartBarGrad)"/>
+        <!-- Bar 2: medium center -->
+        <rect x="254" y="312" width="24" height="70" rx="5" fill="url(#chartBarGrad)"/>
+        <!-- Bar 3: tallest right -->
+        <rect x="288" y="274" width="24" height="108" rx="5" fill="url(#chartBarGrad)"/>
+      </g>
+
+      <!-- UPWARD TRENDLINE ARROW -->
+      <g id="arrow">
+        <!-- Curve arching up -->
+        <path d="M 188 344
+                 C 224 344, 258 316, 328 238"
+              fill="none"
+              stroke="url(#arrowGrad)"
+              stroke-width="12"
+              stroke-linecap="round"/>
+        <!-- Arrowhead pointing up-right -->
+        <path d="M 314 224
+                 L 352 234
+                 L 340 272
+                 L 330 248
+                 Z"
+              fill="url(#arrowGrad)"/>
+      </g>
+
+      <!-- M 3D FOLDED RIBBON -->
+      <g id="m-geometry">
+        <!-- Left diagonal of M, emerging from O -->
+        <path d="
+          M 410 185
+          L 535 365
+          L 578 322
+          L 472 170
+          Z"
+          fill="url(#mFacet1)" />
+
+        <!-- 3D Crease Shadow under the fold -->
+        <polygon points="522,352 578,322 546,386" fill="url(#mFoldShadowGrad)"/>
+
+        <!-- Right upward diagonal facet of M -->
+        <path d="
+          M 535 365
+          L 630 185
+          L 686 185
+          L 578 386
+          Z"
+          fill="url(#mFacet2)" />
+
+        <!-- Right vertical stem of M -->
+        <path d="
+          M 630 185
+          L 686 185
+          L 686 468
+          C 686 484 673 496 657 496
+          L 635 496
+          C 624 496 618 488 618 478
+          L 618 226
+          Z"
+          fill="url(#mStemGrad)" />
+      </g>
+    </g>
+
+    
+    <!-- BRAND NAME: OmniMetrics Hub -->
+    <g id="brand-typography" text-anchor="middle">
+      <text x="400" y="650" font-family="Plus Jakarta Sans, Inter, system-ui, -apple-system, sans-serif" font-size="62" font-weight="800" letter-spacing="-1.5">
+        <tspan fill="#0c161c">OmniMetrics</tspan>
+        <tspan dx="10" fill="#059669">Hub</tspan>
+      </text>
+    </g>
+    
+  </g>
+</svg>
