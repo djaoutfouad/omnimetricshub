@@ -93,17 +93,9 @@ export const BlogIndexPage: React.FC = () => {
   return (
     <ContentWithRails maxWidthClass="max-w-5xl 2xl:max-w-6xl">
       <SeoHead
-        title="Knowledge Base & Mathematical Guides | OmniMetrics Hub"
-        description="Comprehensive, peer-audited educational guides on financial calculation, unit economics, fee structures, and business formulas."
-        keywords={[
-          'financial guides',
-          'pricing formulas',
-          'fee breakdowns',
-          'freelance pricing guide',
-          'roas calculation guide',
-          'break-even math',
-        ]}
-        canonicalPath="/blog"
+        title="Business & Financial Math Guides | OmniMetrics"
+        description="Step-by-step mathematical guides covering payment gateway fees, unit economics, keystone pricing, break-even thresholds, loan EMI, and billing rates."
+        canonicalPath="/blog/"
         schemaData={schemaData}
       />
 
@@ -214,7 +206,7 @@ export const BlogIndexPage: React.FC = () => {
                     </div>
 
                     <h2 className="text-lg font-black text-slate-900 group-hover:text-emerald-700 transition leading-snug">
-                      <Link to={`/blog/${article.slug || article.id}`}>
+                      <Link to={`/blog/${article.slug || article.id}/`}>
                         {article.title}
                       </Link>
                     </h2>
@@ -228,11 +220,11 @@ export const BlogIndexPage: React.FC = () => {
                     {matchingTool && (
                       <div className="flex items-center justify-between text-[11px] bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                         <span className="font-semibold text-slate-600 flex items-center gap-1.5 truncate">
-                          <Calculator className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <Calculator className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                           <span className="truncate">{matchingTool.name}</span>
                         </span>
                         <Link
-                          to={`/tools/${matchingTool.slug}`}
+                          to={`/tools/${matchingTool.slug}/`}
                           className="text-emerald-700 hover:underline font-bold shrink-0 text-[10px]"
                         >
                           Launch
@@ -241,8 +233,8 @@ export const BlogIndexPage: React.FC = () => {
                     )}
 
                     <Link
-                      to={`/blog/${article.slug || article.id}`}
-                      className="flex items-center justify-between text-xs font-bold text-slate-900 group-hover:text-emerald-600 transition"
+                      to={`/blog/${article.slug || article.id}/`}
+                      className="flex items-center justify-between text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition"
                     >
                       <span>Read Full Guide</span>
                       <ArrowRight className="w-3.5 h-3.5" />

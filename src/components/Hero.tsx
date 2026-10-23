@@ -21,10 +21,11 @@ export const Hero: React.FC<Props> = ({ selectedCategory, onSelectCategory }) =>
     <section className="relative rounded-3xl overflow-hidden border border-slate-800/80 shadow-2xl p-8 sm:p-12 md:p-14 text-center max-w-5xl mx-auto mb-8">
       {/* Background Image */}
       <img
-        src="https://images.unsplash.com/photo-1642543492481-44e81e3914a7?auto=format&fit=crop&w=2000&q=80"
+        src="https://images.unsplash.com/photo-1642543492481-44e81e3914a7?auto=format&fit=crop&w=1000&q=75&fm=webp"
         alt="Fintech data analytics and financial workspace"
         className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
         loading="eager"
+        fetchPriority="high"
         referrerPolicy="no-referrer"
       />
 

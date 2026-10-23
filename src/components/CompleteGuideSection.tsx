@@ -13,7 +13,7 @@ export const CompleteGuideSection: React.FC<Props> = ({ onOpenCalculator }) => {
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
           The Complete Guide to Financial Calculations
         </h2>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1.5 font-medium">
+        <p className="text-xs sm:text-sm text-slate-600 mt-1.5 font-medium">
           Essential mathematical frameworks every online business owner, freelancer, and marketer should master.
         </p>
       </div>
@@ -23,7 +23,7 @@ export const CompleteGuideSection: React.FC<Props> = ({ onOpenCalculator }) => {
         <div className="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200/80 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2.5 mb-3.5">
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
                 <CreditCard className="w-4 h-4" />
               </div>
               <h3 className="font-extrabold text-base text-slate-900">
@@ -39,14 +39,14 @@ export const CompleteGuideSection: React.FC<Props> = ({ onOpenCalculator }) => {
               <button
                 type="button"
                 onClick={() => onOpenCalculator('calc-fees')}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+                className="text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
               >
                 Quick Calculator
               </button>
             )}
             <Link
-              to="/tools/payment-gateway-fees"
-              className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1"
+              to="/tools/payment-gateway-fees/"
+              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1"
             >
               Open Full Guide & Math →
             </Link>
@@ -73,13 +73,13 @@ export const CompleteGuideSection: React.FC<Props> = ({ onOpenCalculator }) => {
               <button
                 type="button"
                 onClick={() => onOpenCalculator('calc-margin')}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+                className="text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
               >
                 Quick Calculator
               </button>
             )}
             <Link
-              to="/tools/profit-margin"
+              to="/tools/profit-margin/"
               className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
             >
               Open Full Guide & Math →
@@ -107,13 +107,13 @@ export const CompleteGuideSection: React.FC<Props> = ({ onOpenCalculator }) => {
               <button
                 type="button"
                 onClick={() => onOpenCalculator('calc-breakeven')}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+                className="text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
               >
                 Quick Calculator
               </button>
             )}
             <Link
-              to="/tools/break-even"
+              to="/tools/break-even/"
               className="text-xs font-bold text-amber-600 hover:text-amber-700 hover:underline flex items-center gap-1"
             >
               Open Full Guide & Math →
@@ -141,13 +141,13 @@ export const CompleteGuideSection: React.FC<Props> = ({ onOpenCalculator }) => {
               <button
                 type="button"
                 onClick={() => onOpenCalculator('calc-freelance')}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+                className="text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
               >
                 Quick Calculator
               </button>
             )}
             <Link
-              to="/tools/freelance-rate"
+              to="/tools/freelance-rate/"
               className="text-xs font-bold text-indigo-600 hover:text-indigo-700 hover:underline flex items-center gap-1"
             >
               Open Full Guide & Math →

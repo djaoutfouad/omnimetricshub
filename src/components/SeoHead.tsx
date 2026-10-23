@@ -12,15 +12,14 @@ interface SeoProps {
 export const SeoHead = ({
   title,
   description,
-  keywords,
   canonicalPath = '',
   schemaData,
 }: SeoProps) => {
   useEffect(() => {
-    // Document Title
-    const fullTitle = title.includes('OmniMetrics Hub')
+    // Document Title (kept concise under 58 chars)
+    const fullTitle = title.includes('OmniMetrics')
       ? title
-      : `${title} | OmniMetrics Hub`;
+      : `${title} | OmniMetrics`;
     document.title = fullTitle;
 
     // Helper to set or create meta tag, pruning any duplicates
@@ -42,12 +41,11 @@ export const SeoHead = ({
     // Meta Description
     setMetaTag('name', 'description', description);
 
-    // Meta Keywords
-    if (keywords && keywords.length > 0) {
-      setMetaTag('name', 'keywords', keywords.join(', '));
-    }
+    // Meta Keywords: strictly remove from DOM per modern search engine guidelines
+    const existingKeywords = document.querySelectorAll('meta[name="keywords"]');
+    existingKeywords.forEach((el) => el.remove());
 
-    // Canonical Link - strictly maintain exactly one canonical tag in document.head
+    // Canonical Link - strictly maintain exactly one canonical tag ending with trailing slash
     const canonicalUrl = getAbsoluteUrl(canonicalPath);
     const existingCanonicals = document.querySelectorAll('link[rel="canonical"]');
     if (existingCanonicals.length > 0) {
@@ -67,12 +65,14 @@ export const SeoHead = ({
     setMetaTag('property', 'og:title', fullTitle);
     setMetaTag('property', 'og:description', description);
     setMetaTag('property', 'og:url', canonicalUrl);
-    setMetaTag('property', 'og:type', canonicalPath.startsWith('/guides/') ? 'article' : 'website');
+    setMetaTag('property', 'og:type', canonicalPath.startsWith('/blog/') || canonicalPath.startsWith('/guides/') ? 'article' : 'website');
+    setMetaTag('property', 'og:image', SITE_CONFIG.defaultOgImage);
 
     // Twitter Card Tags
     setMetaTag('name', 'twitter:card', 'summary_large_image');
     setMetaTag('name', 'twitter:title', fullTitle);
     setMetaTag('name', 'twitter:description', description);
+    setMetaTag('name', 'twitter:image', SITE_CONFIG.defaultOgImage);
 
     // JSON-LD Structured Data
     const scriptId = 'json-ld-structured-data';
@@ -110,7 +110,7 @@ export const SeoHead = ({
         ],
       });
     }
-  }, [title, description, keywords, canonicalPath, schemaData]);
+  }, [title, description, canonicalPath, schemaData]);
 
   return null;
 };

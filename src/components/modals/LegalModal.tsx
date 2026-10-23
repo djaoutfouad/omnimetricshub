@@ -109,13 +109,13 @@ export const LegalModal: React.FC<Props> = ({ initialTab, onClose }) => {
               OmniMetrics Hub uses trusted CDNs to deliver assets efficiently: Google Fonts for web typography and Unsplash for editorial imagery. Standard technical headers (IP address and browser user-agent) are processed strictly to fulfill file delivery.
             </p>
 
-            <h4 className="font-bold text-slate-900 text-xs mt-3">4. Advertising Notice</h4>
+            <h3 className="font-bold text-slate-900 text-xs mt-3">4. Advertising Notice</h3>
             <p>
               Third-party advertising is not currently active. Any future advertising integration will comply strictly with Google AdSense policies and include certified consent management controls.
             </p>
 
             <div className="pt-2">
-              <Link to="/privacy" onClick={onClose} className="text-emerald-600 hover:underline font-bold inline-flex items-center gap-1">
+              <Link to="/privacy/" onClick={onClose} className="text-emerald-700 hover:underline font-bold inline-flex items-center gap-1">
                 <span>View Full Privacy Policy Page</span>
                 <ExternalLink className="w-3 h-3" />
               </Link>
@@ -127,30 +127,30 @@ export const LegalModal: React.FC<Props> = ({ initialTab, onClose }) => {
           <div className="space-y-4 text-xs text-slate-600 leading-relaxed">
             <div>
               <h3 className="text-lg font-black text-slate-900">Terms of Service</h3>
-              <p className="text-slate-400 text-[11px]">Effective Date: January 1, 2025 • Reviewed: March 2026</p>
+              <p className="text-slate-500 text-[11px]">Effective Date: January 1, 2025 • Reviewed: March 2026</p>
             </div>
 
             <p>
               By accessing and using OmniMetrics Hub, you agree to comply with and be bound by these terms.
             </p>
 
-            <h4 className="font-bold text-slate-900 text-xs mt-3">1. Informational & Estimation Utility</h4>
+            <h3 className="font-bold text-slate-900 text-xs mt-3">1. Informational & Estimation Utility</h3>
             <p>
               All computational engines, models, formulas, and guides are provided strictly for preliminary informational and educational planning. Real-world business outcomes depend on third-party agreements, tax legislation, and market conditions.
             </p>
 
-            <h4 className="font-bold text-slate-900 text-xs mt-3">2. Permitted Use & IP</h4>
+            <h3 className="font-bold text-slate-900 text-xs mt-3">2. Permitted Use & IP</h3>
             <p>
               OmniMetrics Hub grants you a revocable, non-exclusive license to use our tools. Automated scraping, bulk extraction, or unauthorized mirroring of our software code is prohibited.
             </p>
 
-            <h4 className="font-bold text-slate-900 text-xs mt-3">3. Limitation of Liability</h4>
+            <h3 className="font-bold text-slate-900 text-xs mt-3">3. Limitation of Liability</h3>
             <p>
               The service is provided "as is". OmniMetrics Hub and its authors are not liable for any financial, tax, or commercial outcomes resulting from calculations.
             </p>
 
             <div className="pt-2">
-              <Link to="/terms" onClick={onClose} className="text-emerald-600 hover:underline font-bold inline-flex items-center gap-1">
+              <Link to="/terms/" onClick={onClose} className="text-emerald-700 hover:underline font-bold inline-flex items-center gap-1">
                 <span>View Full Terms of Service Page</span>
                 <ExternalLink className="w-3 h-3" />
               </Link>
@@ -162,7 +162,7 @@ export const LegalModal: React.FC<Props> = ({ initialTab, onClose }) => {
           <div className="space-y-4 text-xs text-slate-600 leading-relaxed">
             <div>
               <h3 className="text-lg font-black text-slate-900">Financial Disclaimer</h3>
-              <p className="text-slate-400 text-[11px]">Effective Date: January 1, 2025 • Reviewed: March 2026</p>
+              <p className="text-slate-500 text-[11px]">Effective Date: January 1, 2025 • Reviewed: March 2026</p>
             </div>
 
             <div className="p-3.5 bg-amber-50 border border-amber-200/80 rounded-2xl text-amber-950 text-xs space-y-1">
@@ -181,7 +181,7 @@ export const LegalModal: React.FC<Props> = ({ initialTab, onClose }) => {
             </p>
 
             <div className="pt-2">
-              <Link to="/disclaimer" onClick={onClose} className="text-emerald-600 hover:underline font-bold inline-flex items-center gap-1">
+              <Link to="/disclaimer/" onClick={onClose} className="text-emerald-700 hover:underline font-bold inline-flex items-center gap-1">
                 <span>View Full Financial Disclaimer Page</span>
                 <ExternalLink className="w-3 h-3" />
               </Link>

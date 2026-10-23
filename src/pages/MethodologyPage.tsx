@@ -61,23 +61,15 @@ export const MethodologyPage: React.FC = () => {
   return (
     <ContentWithRails maxWidthClass="max-w-4xl 2xl:max-w-5xl">
       <SeoHead
-        title="Calculation Methodology & Mathematical Standards | OmniMetrics Hub"
-        description="Learn how OmniMetrics Hub approaches financial, e-commerce, and business mathematics. Transparent formulas, client-side calculation privacy, and strict precision standards."
-        keywords={[
-          'calculation methodology',
-          'financial calculator formulas',
-          'client side math',
-          'business metrics standards',
-          'rounding conventions',
-          'precision finance tools',
-        ]}
-        canonicalPath="/methodology"
+        title="Financial Calculation Methodology | OmniMetrics"
+        description="Learn about our client-side mathematical standards, formula sources, rounding precision rules, and private financial calculation architecture."
+        canonicalPath="/methodology/"
         schemaData={schemaData}
       />
 
       <div className="space-y-10">
         {/* Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-400">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-500">
           <Link to="/" className="hover:text-slate-800 transition font-medium">
             Home
           </Link>
@@ -203,7 +195,7 @@ export const MethodologyPage: React.FC = () => {
             </p>
           </div>
           <Link
-            to="/calculators"
+            to="/calculators/"
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition cursor-pointer"
           >
             <Calculator className="w-4 h-4" />

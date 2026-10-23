@@ -47,20 +47,20 @@ export const SuggestModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <X className="w-4 h-4" />
         </button>
 
-        <div className="flex items-center gap-2 text-emerald-600 mb-1">
+        <div className="flex items-center gap-2 text-emerald-700 mb-1">
           <Sparkles className="w-4 h-4" />
           <span className="text-[11px] font-extrabold uppercase tracking-wider">Community Wishlist</span>
         </div>
         <h3 className="font-extrabold text-lg text-slate-900 mb-1">Suggest a Calculator</h3>
-        <p className="text-xs text-slate-500 mb-4">
+        <p className="text-xs text-slate-600 mb-4">
           Need a specific financial formula or custom industry metric? Let our team know.
         </p>
 
         {submitted ? (
           <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-2">
-            <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
-            <h4 className="font-bold text-sm text-emerald-900">Thank You!</h4>
-            <p className="text-xs text-emerald-700">
+            <CheckCircle2 className="w-8 h-8 text-emerald-700 mx-auto" />
+            <div className="font-bold text-sm text-emerald-950">Thank You!</div>
+            <p className="text-xs text-emerald-800">
               Your suggestion has been logged. Our quant analysts review all submissions weekly.
             </p>
           </div>
@@ -108,7 +108,7 @@ export const SuggestModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
             <button
               type="submit"
-              className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm"
+              className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" /> Submit Suggestion
             </button>

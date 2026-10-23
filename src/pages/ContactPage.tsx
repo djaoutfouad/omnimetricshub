@@ -137,7 +137,7 @@ export const ContactPage: React.FC = () => {
     name: 'Contact OmniMetrics Hub',
     description:
       'Get in touch with the OmniMetrics Hub team for mathematical feedback, advertising inquiries, or calculation suggestions.',
-    url: getAbsoluteUrl('/contact'),
+    url: getAbsoluteUrl('/contact/'),
     mainEntity: {
       '@type': 'Organization',
       name: 'OmniMetrics Hub',
@@ -149,16 +149,15 @@ export const ContactPage: React.FC = () => {
   return (
     <ContentWithRails maxWidthClass="max-w-3xl 2xl:max-w-4xl">
       <SeoHead
-        title="Contact Us & Feedback"
-        description="Contact the OmniMetrics Hub team. Inquiries regarding financial calculation formulas, suggestions, or editorial feedback."
-        keywords={['contact omnimetrics hub', 'support email', 'feedback', 'calculator suggestions']}
-        canonicalPath="/contact"
+        title="Contact Support & Inquiries Team | OmniMetrics"
+        description="Get in touch with the OmniMetrics Hub team for financial formula feedback, mathematical inquiries, calculator suggestions, or editorial support."
+        canonicalPath="/contact/"
         schemaData={schemaData}
       />
 
       <div className="space-y-8">
         {/* Breadcrumbs */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-400">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-500">
         <Link to="/" className="hover:text-slate-800 transition font-medium">
           Home
         </Link>
@@ -338,8 +337,8 @@ export const ContactPage: React.FC = () => {
                 disabled={status === 'sending'}
                 className={`px-5 py-2.5 rounded-xl font-bold text-xs text-white transition shadow-sm flex items-center gap-2 ${
                   status === 'sending'
-                    ? 'bg-emerald-400 cursor-not-allowed'
-                    : 'bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] cursor-pointer'
+                    ? 'bg-emerald-500 cursor-not-allowed'
+                    : 'bg-emerald-700 hover:bg-emerald-600 active:scale-[0.98] cursor-pointer'
                 }`}
               >
                 {status === 'sending' ? (
@@ -360,12 +359,12 @@ export const ContactPage: React.FC = () => {
 
         {/* Email Copy Box */}
         <div className="pt-6 border-t border-slate-100">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+          <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">
             Or Reach Us Directly
           </h3>
           <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-wrap items-center justify-between gap-3">
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
                 Official Contact Email
               </span>
               <a
@@ -386,13 +385,13 @@ export const ContactPage: React.FC = () => {
                     : 'bg-white border-slate-200 hover:bg-slate-50'
                 }`}
               >
-                {copiedEmail ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-500" />}
+                {copiedEmail ? <Check className="w-4 h-4 text-emerald-700" /> : <Copy className="w-4 h-4 text-slate-600" />}
                 <span>{copiedEmail ? 'Email Copied!' : 'Copy Email'}</span>
               </button>
 
               <a
                 href={mailtoLink}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition shadow-sm flex items-center gap-1.5"
+                className="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition shadow-sm flex items-center gap-1.5"
               >
                 <MessageSquare className="w-3.5 h-3.5" />
                 <span>Send Email</span>
@@ -405,7 +404,7 @@ export const ContactPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100 text-xs">
           <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-1.5">
             <div className="flex items-center gap-2 font-bold text-slate-900">
-              <Clock className="w-4 h-4 text-emerald-600" />
+              <Clock className="w-4 h-4 text-emerald-700" />
               <span>Response Standard</span>
             </div>
             <p className="text-slate-600 text-[11px] leading-relaxed">

@@ -65,10 +65,9 @@ export const CalculatorsIndexPage: React.FC<Props> = ({ currency }) => {
   return (
     <ContentWithRails maxWidthClass="max-w-5xl 2xl:max-w-6xl">
       <SeoHead
-        title="All Calculators Directory (12 Free Tools)"
-        description="Explore the complete suite of 12 free financial, profit margin, ROAS, break-even, payment gateway fee, and freelance calculators on OmniMetrics Hub."
-        keywords={['all calculators', 'financial calculator directory', 'business calculators', 'online profit calculator']}
-        canonicalPath="/calculators"
+        title="Free Business Calculators Directory | OmniMetrics"
+        description="Explore our directory of 12 free financial, e-commerce, marketing, freelance, and loan calculators with real-time math and detailed formula guides."
+        canonicalPath="/calculators/"
         schemaData={schemaData}
       />
 
@@ -143,7 +142,7 @@ export const CalculatorsIndexPage: React.FC<Props> = ({ currency }) => {
             {filteredTools.map((tool) => (
               <Link
                 key={tool.id}
-                to={`/tools/${tool.slug}`}
+                to={`/tools/${tool.slug}/`}
                 className="group flex flex-col justify-between p-6 bg-white rounded-3xl border border-slate-200/90 hover:border-slate-400 hover:shadow-lg transition-all"
               >
                 <div className="space-y-3">
@@ -160,7 +159,7 @@ export const CalculatorsIndexPage: React.FC<Props> = ({ currency }) => {
                     <h3 className="font-extrabold text-base text-slate-900 group-hover:text-slate-700 transition">
                       {tool.name}
                     </h3>
-                    <p className="mt-1.5 text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                    <p className="mt-1.5 text-xs text-slate-600 line-clamp-2 leading-relaxed">
                       {tool.description}
                     </p>
                   </div>
@@ -169,7 +168,7 @@ export const CalculatorsIndexPage: React.FC<Props> = ({ currency }) => {
                     {tool.tags.slice(0, 3).map((tag) => (
                       <span
                         key={tag}
-                        className="text-[10px] font-semibold bg-slate-50 text-slate-600 px-2 py-0.5 rounded-lg border border-slate-100"
+                        className="text-[10px] font-semibold bg-slate-50 text-slate-700 px-2 py-0.5 rounded-lg border border-slate-100"
                       >
                         #{tag}
                       </span>
@@ -177,7 +176,7 @@ export const CalculatorsIndexPage: React.FC<Props> = ({ currency }) => {
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-600 group-hover:text-emerald-700">
+                <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-700 group-hover:text-emerald-800">
                   <span>Launch Calculator</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
                 </div>

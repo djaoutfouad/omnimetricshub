@@ -49,12 +49,12 @@ export const ContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <X className="w-4 h-4" />
         </button>
 
-        <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+        <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-3">
           <Mail className="w-5 h-5" />
         </div>
 
         <h3 className="font-extrabold text-xl text-slate-900 mb-1">Get in Touch</h3>
-        <p className="text-xs text-slate-500 mb-5 leading-relaxed">
+        <p className="text-xs text-slate-600 mb-5 leading-relaxed">
           Questions about specific financial formulas, advertising placements, or enterprise integrations? Reach our team anytime.
         </p>
 
@@ -62,7 +62,7 @@ export const ContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
             <div>
               <span className="font-bold text-slate-700 block text-[11px] uppercase tracking-wider">Official Email</span>
-              <a href={mailtoLink} className="text-emerald-600 font-semibold hover:underline text-sm">
+              <a href={mailtoLink} className="text-emerald-700 font-semibold hover:underline text-sm">
                 {email}
               </a>
             </div>
@@ -75,14 +75,14 @@ export const ContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   : 'bg-white border-slate-200 hover:bg-slate-50'
               }`}
             >
-              {copiedEmail ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedEmail ? <Check className="w-3.5 h-3.5 text-emerald-700" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copiedEmail ? 'Copied!' : 'Copy'}</span>
             </button>
           </div>
 
           <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
             <span className="font-bold text-slate-700 block">Response Standard:</span>
-            <p className="text-slate-500 text-[11px] leading-relaxed">
+            <p className="text-slate-600 text-[11px] leading-relaxed">
               We aim to reply to all developer inquiries, tool suggestions, and commercial partnerships within 24-48 business hours.
             </p>
           </div>
@@ -92,7 +92,7 @@ export const ContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <a
             href={mailtoLink}
             onClick={handleDirectEmail}
-            className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs font-bold rounded-xl text-center transition shadow-sm flex items-center justify-center gap-1.5"
+            className="flex-1 py-2.5 bg-emerald-700 hover:bg-emerald-600 active:scale-[0.98] text-white text-xs font-bold rounded-xl text-center transition shadow-sm flex items-center justify-center gap-1.5"
           >
             <MessageSquare className="w-3.5 h-3.5" />
             <span>Send Direct Email</span>

@@ -6,6 +6,7 @@ import { SeoHead } from '../components/SeoHead';
 import { AdSlot } from '../components/AdSlot';
 import { ContentWithRails } from '../components/ContentWithRails';
 import { SITE_URL, getAbsoluteUrl, SITE_CONFIG } from '../config/site';
+import { getRouteMetadata } from '../utils/routeMetadata';
 import { copyTextToClipboard } from '../utils/clipboard';
 import {
   ChevronRight,
@@ -47,7 +48,7 @@ export const GuidePage: React.FC = () => {
 
   useEffect(() => {
     if (article) {
-      const canonicalPath = `/blog/${article.slug || article.id}`;
+      const canonicalPath = `/blog/${article.slug || article.id}/`;
       if (location.pathname !== canonicalPath) {
         navigate(canonicalPath, { replace: true });
       }
@@ -58,9 +59,9 @@ export const GuidePage: React.FC = () => {
     return (
       <ContentWithRails maxWidthClass="max-w-4xl 2xl:max-w-5xl">
         <SeoHead
-          title="Guide Not Found | OmniMetrics Hub"
+          title="Guide Not Found | OmniMetrics"
           description="The financial guide or article you are looking for could not be found."
-          canonicalPath="/blog"
+          canonicalPath="/blog/"
         />
         <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 p-8 space-y-4">
           <BookOpen className="w-12 h-12 text-slate-300 mx-auto" />
@@ -69,7 +70,7 @@ export const GuidePage: React.FC = () => {
             We could not find the educational guide you were looking for. It may have been updated or moved.
           </p>
           <Link
-            to="/blog"
+            to="/blog/"
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -155,31 +156,25 @@ export const GuidePage: React.FC = () => {
     '@graph': schemaGraph,
   };
 
+  const routeMeta = getRouteMetadata(`/blog/${article.slug || article.id}`);
+
   return (
     <ContentWithRails maxWidthClass="max-w-4xl 2xl:max-w-5xl">
       <SeoHead
-        title={article.title}
-        description={article.snippet}
-        keywords={[
-          article.category.toLowerCase(),
-          'financial guide',
-          'pricing formula',
-          'merchant fees',
-          'business math',
-          'break-even analysis',
-        ]}
-        canonicalPath={`/blog/${article.slug || article.id}`}
+        title={routeMeta.title}
+        description={routeMeta.description}
+        canonicalPath={`/blog/${article.slug || article.id}/`}
         schemaData={schemaData}
       />
 
       <div className="space-y-8">
         {/* Breadcrumbs */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-400">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-500">
           <Link to="/" className="hover:text-slate-800 transition font-medium">
             Home
           </Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link to="/blog" className="font-semibold text-slate-500 uppercase tracking-wider text-[10px] hover:text-slate-800 transition">
+          <Link to="/blog/" className="font-semibold text-slate-600 uppercase tracking-wider text-[10px] hover:text-slate-800 transition">
             Guides & Knowledge Base
           </Link>
           <ChevronRight className="w-3.5 h-3.5" />
@@ -346,7 +341,7 @@ export const GuidePage: React.FC = () => {
               <h3 id="guide-related-tools" className="text-lg font-bold text-slate-900">
                 Interactive Calculators for This Topic
               </h3>
-              <Link to="/calculators" className="text-xs font-bold text-slate-500 hover:text-slate-900 transition">
+              <Link to="/calculators/" className="text-xs font-bold text-slate-600 hover:text-slate-900 transition">
                 All 12 Tools →
               </Link>
             </div>
@@ -354,7 +349,7 @@ export const GuidePage: React.FC = () => {
               {relatedTools.map((tool) => (
                 <Link
                   key={tool.id}
-                  to={`/tools/${tool.slug}`}
+                  to={`/tools/${tool.slug}/`}
                   className="group block p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-slate-400 hover:shadow-md transition"
                 >
                   <div className="flex items-center gap-3">
@@ -370,10 +365,10 @@ export const GuidePage: React.FC = () => {
                       </h4>
                     </div>
                   </div>
-                  <p className="mt-2.5 text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                  <p className="mt-2.5 text-xs text-slate-600 line-clamp-2 leading-relaxed">
                     {tool.description}
                   </p>
-                  <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-600">
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-700">
                     <span>Calculate Now</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>
@@ -393,21 +388,21 @@ export const GuidePage: React.FC = () => {
               {relatedArticles.map((relArticle) => (
                 <Link
                   key={relArticle.id}
-                  to={`/blog/${relArticle.slug || relArticle.id}`}
+                  to={`/blog/${relArticle.slug || relArticle.id}/`}
                   className="group flex flex-col justify-between p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-indigo-300 hover:shadow-md transition"
                 >
                   <div className="space-y-2">
                     <span className={`text-[10px] font-extrabold uppercase ${relArticle.tagColorClass}`}>
                       {relArticle.category}
                     </span>
-                    <h4 className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition leading-snug">
+                    <h4 className="font-bold text-sm text-slate-900 group-hover:text-indigo-700 transition leading-snug">
                       {relArticle.title}
                     </h4>
-                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
                       {relArticle.snippet}
                     </p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-600">
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-700">
                     <span>Read Guide</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>

@@ -131,14 +131,14 @@ export const CalculatorModal: React.FC<Props> = ({ tool, currency, onClose }) =>
         {/* Modal Footer with Guide Link & Disclaimer */}
         <div className="mt-5 pt-4 border-t border-slate-100 space-y-3">
           <Link
-            to={`/tools/${tool.slug}`}
+            to={`/tools/${tool.slug}/`}
             onClick={onClose}
             className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition group"
           >
             <span className="flex items-center gap-1.5">
               <span>View Full Educational Guide & Formula Proofs</span>
             </span>
-            <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-800 transition" />
+            <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-800 transition" />
           </Link>
 
           <CalculatorDisclaimer domain={getDisclaimerDomain(tool.id)} />

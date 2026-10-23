@@ -51,18 +51,8 @@ export const HomePage: React.FC<Props> = ({
   return (
     <ContentWithRails maxWidthClass="max-w-5xl 2xl:max-w-6xl">
       <SeoHead
-        title="OmniMetrics Hub | Precision Financial, E-Commerce & Business Calculators"
-        description="Free high-precision financial calculators for founders, freelancers, and marketers. Calculate payment gateway fees, profit margins, break-even point, ROAS, freelance rates, and loan EMI."
-        keywords={[
-          'financial calculators',
-          'business calculator',
-          'payment gateway fees',
-          'profit margin calculator',
-          'roas calculator',
-          'break even calculator',
-          'freelance rate formula',
-          'loan emi calculator',
-        ]}
+        title="Financial & Business Calculators | OmniMetrics"
+        description="Free high-precision financial calculators for founders, freelancers, and businesses. Calculate processing fees, profit margins, ROAS, and freelance rates."
         canonicalPath="/"
       />
 
@@ -77,7 +67,10 @@ export const HomePage: React.FC<Props> = ({
         <AdSlot position="leaderboard" />
 
         {/* Calculators Grid */}
-        <section id="tools-grid" className="scroll-mt-24">
+        <section id="tools-grid" aria-labelledby="tools-grid-heading" className="scroll-mt-24">
+          <h2 id="tools-grid-heading" className="sr-only">
+            Financial and Business Calculators Suite
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTools.map((tool, index) => (
               <React.Fragment key={tool.id}>

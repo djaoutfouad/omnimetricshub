@@ -8,6 +8,7 @@ import { getAllStaticRoutes, getRouteMetadata, TOOL_ALIAS_MAP } from './utils/ro
 import { getAbsoluteUrl, SITE_URL, SITE_CONFIG } from './config/site';
 
 const DIST_DIR = path.resolve(process.cwd(), 'dist');
+const PUBLIC_DIR = path.resolve(process.cwd(), 'public');
 const TEMPLATE_PATH = path.join(DIST_DIR, 'index.html');
 
 async function prerender() {
@@ -75,24 +76,23 @@ async function prerender() {
         ],
       };
 
-    // 3. Build head elements (strictly 1 title, 1 canonical, 1 description)
+    // 3. Build head elements (strictly 1 title, 1 canonical, 1 description, HTML5 void elements without />)
     const headMetaTags = `
     <title>${escapeHtml(meta.title)}</title>
-    <meta name="description" content="${escapeAttr(meta.description)}" />
-    ${meta.keywords && meta.keywords.length > 0 ? `<meta name="keywords" content="${escapeAttr(meta.keywords.join(', '))}" />` : ''}
-    <link rel="canonical" href="${canonicalUrl}" />
+    <meta name="description" content="${escapeAttr(meta.description)}">
+    <link rel="canonical" href="${canonicalUrl}">
     <!-- OpenGraph Tags -->
-    <meta property="og:site_name" content="OmniMetrics Hub" />
-    <meta property="og:title" content="${escapeAttr(meta.title)}" />
-    <meta property="og:description" content="${escapeAttr(meta.description)}" />
-    <meta property="og:url" content="${canonicalUrl}" />
-    <meta property="og:type" content="${meta.ogType || 'website'}" />
-    <meta property="og:image" content="${meta.ogImage || SITE_CONFIG.defaultOgImage}" />
+    <meta property="og:site_name" content="OmniMetrics Hub">
+    <meta property="og:title" content="${escapeAttr(meta.title)}">
+    <meta property="og:description" content="${escapeAttr(meta.description)}">
+    <meta property="og:url" content="${canonicalUrl}">
+    <meta property="og:type" content="${meta.ogType || 'website'}">
+    <meta property="og:image" content="${meta.ogImage || SITE_CONFIG.defaultOgImage}">
     <!-- Twitter Card Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="${escapeAttr(meta.title)}" />
-    <meta name="twitter:description" content="${escapeAttr(meta.description)}" />
-    <meta name="twitter:image" content="${meta.ogImage || SITE_CONFIG.defaultOgImage}" />
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${escapeAttr(meta.title)}">
+    <meta name="twitter:description" content="${escapeAttr(meta.description)}">
+    <meta name="twitter:image" content="${meta.ogImage || SITE_CONFIG.defaultOgImage}">
     <!-- Schema.org JSON-LD -->
     <script type="application/ld+json" id="json-ld-structured-data">${JSON.stringify(schemaData)}</script>
 `;
@@ -126,7 +126,7 @@ async function prerender() {
     renderedCount++;
   }
 
-  // 6. Generate dynamic sitemap.xml in dist/ containing ONLY canonical URLs
+  // 6. Generate dynamic sitemap.xml in dist/ and public/ containing ONLY canonical URLs with trailing slashes
   const indexableRoutes = routes.filter((r) => {
     if (r === '/404') return false;
     // Exclude secondary prefix variants from sitemap (they have canonical links to /tools/ and /blog/)
@@ -158,6 +158,9 @@ ${indexableRoutes
 </urlset>
 `;
   fs.writeFileSync(path.join(DIST_DIR, 'sitemap.xml'), sitemapXml.trim() + '\n', 'utf-8');
+  if (fs.existsSync(PUBLIC_DIR)) {
+    fs.writeFileSync(path.join(PUBLIC_DIR, 'sitemap.xml'), sitemapXml.trim() + '\n', 'utf-8');
+  }
 
   // 7. Generate dynamic robots.txt in dist/ referencing active SITE_URL
   const robotsTxt = `User-agent: *
@@ -166,6 +169,9 @@ Allow: /
 Sitemap: ${getAbsoluteUrl('/sitemap.xml')}
 `;
   fs.writeFileSync(path.join(DIST_DIR, 'robots.txt'), robotsTxt, 'utf-8');
+  if (fs.existsSync(PUBLIC_DIR)) {
+    fs.writeFileSync(path.join(PUBLIC_DIR, 'robots.txt'), robotsTxt, 'utf-8');
+  }
 
   console.log(`✅ Successfully pre-rendered ${renderedCount} pages into dist/`);
   console.log(`✅ Synchronized sitemap.xml and robots.txt with ${SITE_URL}`);

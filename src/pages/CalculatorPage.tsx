@@ -8,7 +8,7 @@ import { AdSlot } from '../components/AdSlot';
 import { ContentWithRails } from '../components/ContentWithRails';
 import { SITE_URL, getAbsoluteUrl } from '../config/site';
 import { copyTextToClipboard } from '../utils/clipboard';
-import { TOOL_ALIAS_MAP } from '../utils/routeMetadata';
+import { TOOL_ALIAS_MAP, getRouteMetadata } from '../utils/routeMetadata';
 import {
   ChevronRight,
   ArrowLeft,
@@ -60,10 +60,10 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
     (t) => t.slug === targetSlug || t.slug === cleanSlug || t.id === cleanSlug
   );
 
-  // Soft client-side replace to canonical /tools/:slug if accessed via alias, legacy id, alternate prefix, or trailing slash
+  // Soft client-side replace to canonical /tools/:slug/ if accessed via alias, legacy id, alternate prefix, or non-trailing slash
   useEffect(() => {
     if (tool) {
-      const canonicalPath = `/tools/${tool.slug}`;
+      const canonicalPath = `/tools/${tool.slug}/`;
       if (location.pathname !== canonicalPath) {
         navigate(canonicalPath, { replace: true });
       }
@@ -208,24 +208,25 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
     ],
   };
 
+  const routeMeta = getRouteMetadata(`/tools/${tool.slug}`);
+
   return (
     <ContentWithRails maxWidthClass="max-w-4xl 2xl:max-w-5xl">
       <SeoHead
-        title={tool.fullTitle}
-        description={tool.metaDescription}
-        keywords={tool.keywords}
-        canonicalPath={`/tools/${tool.slug}`}
+        title={routeMeta.title}
+        description={routeMeta.description}
+        canonicalPath={`/tools/${tool.slug}/`}
         schemaData={schemaData}
       />
 
       <div className="space-y-8 pb-12 sm:pb-6">
         {/* Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-400">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-500">
           <Link to="/" className="hover:text-slate-800 transition font-medium">
             Home
           </Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link to="/" className="font-semibold text-slate-500 uppercase tracking-wider text-[10px] hover:text-slate-800 transition">
+          <Link to="/calculators/" className="font-semibold text-slate-600 uppercase tracking-wider text-[10px] hover:text-slate-800 transition">
             {tool.category}
           </Link>
           <ChevronRight className="w-3.5 h-3.5" />
@@ -435,7 +436,7 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
             {relatedArticles.map((relArticle) => (
               <Link
                 key={relArticle.id}
-                to={`/blog/${relArticle.slug || relArticle.id}`}
+                to={`/blog/${relArticle.slug || relArticle.id}/`}
                 className="bg-white p-5 rounded-2xl border border-slate-200 hover:border-indigo-300 hover:shadow-sm transition flex flex-col justify-between group"
               >
                 <div>
@@ -443,16 +444,16 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
                     <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${relArticle.tagColorClass}`}>
                       {relArticle.category}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-semibold">{relArticle.readTime}</span>
+                    <span className="text-[10px] text-slate-500 font-semibold">{relArticle.readTime}</span>
                   </div>
                   <h4 className="font-bold text-sm text-slate-900 mb-1.5 group-hover:text-indigo-700 transition leading-snug">
                     {relArticle.title}
                   </h4>
-                  <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
                     {relArticle.snippet}
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-600 group-hover:text-indigo-700 transition">
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-700 group-hover:text-indigo-800 transition">
                   <span>Read Full Educational Guide</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
@@ -472,7 +473,7 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
             {relatedTools.map((relTool) => (
               <Link
                 key={relTool.id}
-                to={`/tools/${relTool.slug}`}
+                to={`/tools/${relTool.slug}/`}
                 className="bg-white p-5 rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition flex flex-col justify-between group"
               >
                 <div>
@@ -482,11 +483,11 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
                   <h4 className="font-bold text-sm text-slate-900 mb-1 group-hover:text-emerald-700 transition">
                     {relTool.name}
                   </h4>
-                  <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
                     {relTool.description}
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 group-hover:text-emerald-600 transition">
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 group-hover:text-emerald-700 transition">
                   <span>Open Calculator</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </div>

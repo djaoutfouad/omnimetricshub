@@ -68,8 +68,8 @@ export const ConsentBanner: React.FC = () => {
 
       <div className="flex items-center justify-between pt-0.5 gap-2">
         <Link
-          to="/privacy"
-          className="text-slate-400 hover:text-emerald-400 text-[11px] underline underline-offset-2 transition font-medium"
+          to="/privacy/"
+          className="text-slate-300 hover:text-emerald-400 text-[11px] underline underline-offset-2 transition font-medium"
         >
           Privacy Policy
         </Link>
@@ -84,7 +84,7 @@ export const ConsentBanner: React.FC = () => {
           <button
             type="button"
             onClick={handleAccept}
-            className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold transition shadow-sm cursor-pointer"
+            className="px-3 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-[11px] font-bold transition shadow-sm cursor-pointer"
           >
             Accept
           </button>

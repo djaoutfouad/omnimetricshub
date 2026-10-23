@@ -66,8 +66,8 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
           <img
             src={currentImgSrc || tool.personaImageUrl}
             alt={tool.personaImageAlt || tool.personaRole || tool.name}
-            width={800}
-            height={450}
+            width={480}
+            height={270}
             onError={() => {
               if (tool.personaImageFallbackUrl && currentImgSrc !== tool.personaImageFallbackUrl) {
                 setCurrentImgSrc(tool.personaImageFallbackUrl);
@@ -104,8 +104,8 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
               {getIcon()}
             </div>
             <Link
-              to={`/tools/${tool.slug}`}
-              className="text-slate-400 hover:text-slate-700 transition p-1.5 rounded-lg hover:bg-slate-100"
+              to={`/tools/${tool.slug}/`}
+              className="text-slate-500 hover:text-slate-800 transition p-1.5 rounded-lg hover:bg-slate-100"
               title={`Open dedicated page for ${tool.name}`}
               aria-label={`Open dedicated page for ${tool.name}`}
             >
@@ -120,13 +120,13 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
 
           {/* Title */}
           <h3 className="font-extrabold text-base sm:text-lg text-slate-900 mb-2 group-hover:text-emerald-700 transition leading-snug">
-            <Link to={`/tools/${tool.slug}`}>
+            <Link to={`/tools/${tool.slug}/`}>
               {tool.name}
             </Link>
           </h3>
 
           {/* Description */}
-          <p className="text-xs text-slate-500 leading-relaxed mb-4 line-clamp-3">
+          <p className="text-xs text-slate-600 leading-relaxed mb-4 line-clamp-3">
             {tool.description}
           </p>
 
@@ -135,7 +135,7 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
             {tool.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2.5 py-0.5 rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600 border border-slate-200/60"
+                className="px-2.5 py-0.5 rounded-full bg-slate-100 text-[10px] font-semibold text-slate-700 border border-slate-200/60"
               >
                 {tag}
               </span>
@@ -154,9 +154,10 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
             <ArrowUpRight className="w-3.5 h-3.5" />
           </button>
           <Link
-            to={`/tools/${tool.slug}`}
+            to={`/tools/${tool.slug}/`}
             className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center transition"
-            title="Open Full Page & Formula Guide"
+            title={`Open Full Page & Formula Guide for ${tool.name}`}
+            aria-label={`Guide for ${tool.name}`}
           >
             <span>Guide</span>
           </Link>

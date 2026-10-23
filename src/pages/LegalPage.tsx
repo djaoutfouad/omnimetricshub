@@ -17,21 +17,21 @@ export const LegalPage: React.FC = () => {
     switch (activeTab) {
       case 'privacy':
         return {
-          title: 'Privacy Policy',
-          description: 'OmniMetrics Hub Privacy Policy: Learn about our client-side mathematical execution, local storage preferences, EmailJS contact delivery, and zero financial tracking policy.',
-          canonical: '/privacy',
+          title: 'Privacy Policy & Data Protection | OmniMetrics',
+          description: 'Read our privacy policy: 100% private client-side calculations, zero financial data tracking, local preference cache, and secure email delivery.',
+          canonical: '/privacy/',
         };
       case 'terms':
         return {
-          title: 'Terms of Service',
-          description: 'OmniMetrics Hub Terms of Service: Understand our permitted use guidelines, calculation limitations, intellectual property terms, and service availability.',
-          canonical: '/terms',
+          title: 'Terms of Service & Acceptable Use | OmniMetrics',
+          description: 'Understand the terms of service, acceptable use guidelines, intellectual property rights, and service conditions for using OmniMetrics Hub tools.',
+          canonical: '/terms/',
         };
       case 'disclaimer':
         return {
-          title: 'Financial & Mathematical Disclaimer',
-          description: 'OmniMetrics Hub Financial Disclaimer: Information regarding mathematical approximations, educational scope, tax/accounting limitations, and professional advice recommendations.',
-          canonical: '/disclaimer',
+          title: 'Financial & Math Calculation Disclaimer | OmniMetrics',
+          description: 'Important disclaimer regarding mathematical estimates, educational calculation scope, tax limitations, and seeking licensed professional advice.',
+          canonical: '/disclaimer/',
         };
     }
   };
@@ -41,7 +41,7 @@ export const LegalPage: React.FC = () => {
   const schemaData = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    name: `${meta.title} | OmniMetrics Hub`,
+    name: meta.title,
     description: meta.description,
     url: getAbsoluteUrl(meta.canonical),
     publisher: {
@@ -63,12 +63,12 @@ export const LegalPage: React.FC = () => {
 
       <div className="space-y-8">
         {/* Breadcrumbs */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-400">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-500">
           <Link to="/" className="hover:text-slate-800 transition font-medium">
             Home
           </Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px]">
+          <span className="font-semibold text-slate-600 uppercase tracking-wider text-[10px]">
             Trust & Legal
           </span>
           <ChevronRight className="w-3.5 h-3.5" />
@@ -80,7 +80,7 @@ export const LegalPage: React.FC = () => {
         {/* Tab Navigation */}
         <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3" role="tablist" aria-label="Legal documents">
           <Link
-            to="/privacy"
+            to="/privacy/"
             role="tab"
             aria-selected={activeTab === 'privacy'}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-2xs ${
@@ -93,7 +93,7 @@ export const LegalPage: React.FC = () => {
             <span>Privacy Policy</span>
           </Link>
           <Link
-            to="/terms"
+            to="/terms/"
             role="tab"
             aria-selected={activeTab === 'terms'}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-2xs ${
@@ -106,7 +106,7 @@ export const LegalPage: React.FC = () => {
             <span>Terms of Service</span>
           </Link>
           <Link
-            to="/disclaimer"
+            to="/disclaimer/"
             role="tab"
             aria-selected={activeTab === 'disclaimer'}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-2xs ${

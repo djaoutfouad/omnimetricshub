@@ -19,7 +19,7 @@ export const KnowledgeSection: React.FC<Props> = ({ onSelectArticle }) => {
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 tracking-tight">
           Financial Guides & Merchant Insights
         </h2>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
+        <p className="text-xs sm:text-sm text-slate-600 mt-1.5">
           Actionable mathematical breakdowns written for modern e-commerce founders and independent consultants.
         </p>
       </div>
@@ -35,19 +35,19 @@ export const KnowledgeSection: React.FC<Props> = ({ onSelectArticle }) => {
                 <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${article.tagColorClass}`}>
                   {article.category}
                 </span>
-                <span className="flex items-center gap-1 text-[11px] text-slate-400 font-medium">
+                <span className="flex items-center gap-1 text-[11px] text-slate-500 font-medium">
                   <Clock className="w-3 h-3" />
                   {article.readTime}
                 </span>
               </div>
 
               <h3 className="font-extrabold text-[15px] text-slate-900 group-hover:text-emerald-700 transition leading-snug mb-2">
-                <Link to={`/blog/${article.slug || article.id}`}>
+                <Link to={`/blog/${article.slug || article.id}/`}>
                   {article.title}
                 </Link>
               </h3>
 
-              <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">
+              <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
                 {article.snippet}
               </p>
             </div>
@@ -61,8 +61,8 @@ export const KnowledgeSection: React.FC<Props> = ({ onSelectArticle }) => {
                 Quick Preview
               </button>
               <Link
-                to={`/blog/${article.slug || article.id}`}
-                className="text-xs font-bold text-emerald-600 group-hover:text-emerald-700 flex items-center gap-1 transition"
+                to={`/blog/${article.slug || article.id}/`}
+                className="text-xs font-bold text-emerald-700 group-hover:text-emerald-800 flex items-center gap-1 transition"
               >
                 <span>Read full guide</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
@@ -74,7 +74,7 @@ export const KnowledgeSection: React.FC<Props> = ({ onSelectArticle }) => {
 
       <div className="mt-10 text-center">
         <Link
-          to="/blog"
+          to="/blog/"
           className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm rounded-2xl transition shadow-xs"
         >
           <BookOpen className="w-4 h-4 text-emerald-400" />
