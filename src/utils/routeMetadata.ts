@@ -427,8 +427,8 @@ export function getRouteMetadata(rawPath: string): RouteMeta {
                   url: SITE_CONFIG.logoUrl,
                 },
               },
-              datePublished: '2026-02-15',
-              dateModified: '2026-10-20',
+              ...(article.publishedDate ? { datePublished: article.publishedDate } : {}),
+              ...(article.lastReviewedDate ? { dateModified: article.lastReviewedDate } : {}),
               mainEntityOfPage: canonicalUrl,
             },
             {

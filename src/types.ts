@@ -79,6 +79,8 @@ export interface ArticleItem {
   relatedToolIds?: string[];
   relatedArticleSlugs?: string[];
   faqs?: ToolFaq[];
+  publishedDate?: string;
+  lastReviewedDate?: string;
 }
 
 export interface FaqItem {

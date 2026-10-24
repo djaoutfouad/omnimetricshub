@@ -104,37 +104,42 @@ export const GuidePage: React.FC = () => {
     `/blog/${article.slug || article.id}`
   );
 
-  const schemaGraph: Record<string, unknown>[] = [
-    {
-      '@type': 'Article',
-      '@id': `${articleCanonicalUrl}#article`,
-      headline: article.title,
-      description: article.snippet,
-      url: articleCanonicalUrl,
-      datePublished: '2026-02-15',
-      dateModified: '2026-10-20',
-      inLanguage: 'en-US',
-      mainEntityOfPage: {
-        '@type': 'WebPage',
-        '@id': articleCanonicalUrl,
-      },
-      publisher: {
-        '@type': 'Organization',
-        name: 'OmniMetrics Hub',
-        url: `${SITE_URL}/`,
-        logo: SITE_CONFIG.logoUrl,
-      },
-      author: {
-        '@type': 'Organization',
-        name: 'OmniMetrics Editorial & Analytical Desk',
-        url: `${SITE_URL}/about/`,
-      },
-      about: {
-        '@type': 'Thing',
-        name: article.category,
-      },
+  const articleSchema: Record<string, unknown> = {
+    '@type': 'Article',
+    '@id': `${articleCanonicalUrl}#article`,
+    headline: article.title,
+    description: article.snippet,
+    url: articleCanonicalUrl,
+    inLanguage: 'en-US',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': articleCanonicalUrl,
     },
-  ];
+    publisher: {
+      '@type': 'Organization',
+      name: 'OmniMetrics Hub',
+      url: `${SITE_URL}/`,
+      logo: SITE_CONFIG.logoUrl,
+    },
+    author: {
+      '@type': 'Organization',
+      name: 'OmniMetrics Editorial & Analytical Desk',
+      url: `${SITE_URL}/about/`,
+    },
+    about: {
+      '@type': 'Thing',
+      name: article.category,
+    },
+  };
+
+  if (article.publishedDate) {
+    articleSchema.datePublished = article.publishedDate;
+  }
+  if (article.lastReviewedDate) {
+    articleSchema.dateModified = article.lastReviewedDate;
+  }
+
+  const schemaGraph: Record<string, unknown>[] = [articleSchema];
 
   if (article.faqs && article.faqs.length > 0) {
     schemaGraph.push({
@@ -225,14 +230,18 @@ export const GuidePage: React.FC = () => {
               <span className="font-medium text-slate-400">Author: </span>
               <span className="font-bold text-slate-700">OmniMetrics Editorial & Analytical Desk</span>
             </div>
-            <div>
-              <span className="font-medium text-slate-400">Published: </span>
-              <span className="font-semibold text-slate-700">February 2026</span>
-            </div>
-            <div>
-              <span className="font-medium text-slate-400">Last Reviewed: </span>
-              <span className="font-semibold text-emerald-700">October 2026</span>
-            </div>
+            {article.publishedDate && (
+              <div>
+                <span className="font-medium text-slate-400">Published: </span>
+                <span className="font-semibold text-slate-700">{article.publishedDate}</span>
+              </div>
+            )}
+            {article.lastReviewedDate && (
+              <div>
+                <span className="font-medium text-slate-400">Last Reviewed: </span>
+                <span className="font-semibold text-emerald-700">{article.lastReviewedDate}</span>
+              </div>
+            )}
           </div>
         </header>
 
