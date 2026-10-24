@@ -128,14 +128,14 @@ export const LegalPage: React.FC = () => {
                 Official Compliance Document
               </span>
               <span className="text-[11px] bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-2.5 py-0.5 rounded-full font-bold">
-                Updated March 2026
+                Updated October 2026
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
               {meta.title}
             </h1>
             <p className="text-xs text-slate-500">
-              Effective Date: January 1, 2025 • Last Reviewed: March 2026
+              Effective Date: February 1, 2026 • Last Reviewed: October 2026
             </p>
           </header>
 

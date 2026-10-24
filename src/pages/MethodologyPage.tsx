@@ -180,7 +180,7 @@ export const MethodologyPage: React.FC = () => {
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            We publish complete formula breakdowns and educational step-by-step guides for every single calculator in our Knowledge Base. If you notice any discrepancy or wish to propose an updated merchant rate schedule, contact our quantitative engineering team.
+            We publish complete formula breakdowns and educational step-by-step guides for every single calculator in our Knowledge Base. If you notice any discrepancy or wish to propose an updated merchant rate schedule, contact the OmniMetrics Editorial & Analytical Desk.
           </p>
         </section>
 

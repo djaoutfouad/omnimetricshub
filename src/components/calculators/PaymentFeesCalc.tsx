@@ -216,6 +216,11 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
             step="0.01"
           />
         </div>
+
+        {/* Baseline Rate Assumption Notice */}
+        <p className="text-[11px] text-slate-500 leading-relaxed bg-slate-50 border border-slate-200/80 rounded-xl p-2.5">
+          <span className="font-semibold text-slate-700">Baseline Rate Notice:</span> Default presets reflect standard US domestic baseline rates (e.g., Stripe 2.9% + $0.30, PayPal standard merchant fees). Users can manually adjust percentage and fixed fee rates for international or customized regional transactions.
+        </p>
       </div>
 
       {/* Fee deficit alert */}

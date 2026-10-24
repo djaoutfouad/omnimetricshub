@@ -197,6 +197,11 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
         </button>
       </div>
 
+      {/* Tax Model Clarification Note */}
+      <p className="text-[11px] text-slate-500 leading-relaxed bg-slate-50 border border-slate-200/80 rounded-xl p-2.5">
+        <span className="font-semibold text-slate-700">Tax Model Note:</span> Calculations utilize general progressive withholding models for illustrative educational purposes. Local deductions and regional municipal tax rules should be verified locally.
+      </p>
+
       {/* Primary Results Card */}
       {!isFormValid ? (
         <InvalidInputAlert

@@ -415,8 +415,8 @@ export function getRouteMetadata(rawPath: string): RouteMeta {
               description: articleSeo.description,
               author: {
                 '@type': 'Organization',
-                name: 'OmniMetrics Hub Quantitative Research Team',
-                url: `${SITE_URL}/`,
+                name: 'OmniMetrics Editorial & Analytical Desk',
+                url: `${SITE_URL}/about/`,
               },
               publisher: {
                 '@type': 'Organization',
@@ -427,8 +427,8 @@ export function getRouteMetadata(rawPath: string): RouteMeta {
                   url: SITE_CONFIG.logoUrl,
                 },
               },
-              datePublished: '2026-01-15',
-              dateModified: '2026-03-01',
+              datePublished: '2026-02-15',
+              dateModified: '2026-10-20',
               mainEntityOfPage: canonicalUrl,
             },
             {

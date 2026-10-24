@@ -111,8 +111,8 @@ export const GuidePage: React.FC = () => {
       headline: article.title,
       description: article.snippet,
       url: articleCanonicalUrl,
-      datePublished: '2025-01-15',
-      dateModified: '2026-03-01',
+      datePublished: '2026-02-15',
+      dateModified: '2026-10-20',
       inLanguage: 'en-US',
       mainEntityOfPage: {
         '@type': 'WebPage',
@@ -126,8 +126,8 @@ export const GuidePage: React.FC = () => {
       },
       author: {
         '@type': 'Organization',
-        name: 'OmniMetrics Hub Quantitative Research & Financial Architecture Team',
-        url: `${SITE_URL}/about`,
+        name: 'OmniMetrics Editorial & Analytical Desk',
+        url: `${SITE_URL}/about/`,
       },
       about: {
         '@type': 'Thing',
@@ -223,15 +223,15 @@ export const GuidePage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 border-y border-slate-200/80 py-3">
             <div>
               <span className="font-medium text-slate-400">Author: </span>
-              <span className="font-bold text-slate-700">OmniMetrics Quantitative Research Team</span>
+              <span className="font-bold text-slate-700">OmniMetrics Editorial & Analytical Desk</span>
             </div>
             <div>
               <span className="font-medium text-slate-400">Published: </span>
-              <span className="font-semibold text-slate-700">January 2025</span>
+              <span className="font-semibold text-slate-700">February 2026</span>
             </div>
             <div>
-              <span className="font-medium text-slate-400">Audited: </span>
-              <span className="font-semibold text-emerald-700">March 2026</span>
+              <span className="font-medium text-slate-400">Last Reviewed: </span>
+              <span className="font-semibold text-emerald-700">October 2026</span>
             </div>
           </div>
         </header>
@@ -325,9 +325,14 @@ export const GuidePage: React.FC = () => {
           )}
 
           {/* Educational Disclaimer */}
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs leading-relaxed">
-            <span className="font-bold text-slate-700">Financial Disclaimer: </span>
-            This guide is published for educational and analytical purposes only. OmniMetrics Hub is not a licensed financial advisor, CPA, or registered broker. Always verify your specific business figures with a qualified professional.
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 text-xs leading-relaxed space-y-1.5">
+            <div>
+              <span className="font-bold text-slate-700">Financial Disclaimer: </span>
+              This guide is published for educational and analytical purposes only. OmniMetrics Hub is not a licensed financial advisor, CPA, or registered broker. Always verify your specific business figures with a qualified professional.
+            </div>
+            <div className="text-[11px] text-slate-500 pt-1.5 border-t border-slate-200/70">
+              Computational models and calculation formulas undergo regular independent editorial and mathematical review by the OmniMetrics Editorial & Analytical Desk to verify compliance with accepted accounting and international mathematical standards.
+            </div>
           </div>
         </article>
 

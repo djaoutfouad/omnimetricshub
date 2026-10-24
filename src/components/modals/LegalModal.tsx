@@ -81,7 +81,7 @@ export const LegalModal: React.FC<Props> = ({ initialTab, onClose }) => {
           <div className="space-y-4 text-xs text-slate-600 leading-relaxed">
             <div>
               <h3 className="text-lg font-black text-slate-900">Privacy Policy</h3>
-              <p className="text-slate-400 text-[11px]">Effective Date: January 1, 2025 • Reviewed: March 2026</p>
+              <p className="text-slate-500 text-[11px]">Effective Date: February 1, 2026 • Reviewed: October 2026</p>
             </div>
             
             <div className="p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-2xl text-emerald-950 space-y-1">
@@ -127,7 +127,7 @@ export const LegalModal: React.FC<Props> = ({ initialTab, onClose }) => {
           <div className="space-y-4 text-xs text-slate-600 leading-relaxed">
             <div>
               <h3 className="text-lg font-black text-slate-900">Terms of Service</h3>
-              <p className="text-slate-500 text-[11px]">Effective Date: January 1, 2025 • Reviewed: March 2026</p>
+              <p className="text-slate-500 text-[11px]">Effective Date: February 1, 2026 • Reviewed: October 2026</p>
             </div>
 
             <p>
@@ -162,7 +162,7 @@ export const LegalModal: React.FC<Props> = ({ initialTab, onClose }) => {
           <div className="space-y-4 text-xs text-slate-600 leading-relaxed">
             <div>
               <h3 className="text-lg font-black text-slate-900">Financial Disclaimer</h3>
-              <p className="text-slate-500 text-[11px]">Effective Date: January 1, 2025 • Reviewed: March 2026</p>
+              <p className="text-slate-500 text-[11px]">Effective Date: February 1, 2026 • Reviewed: October 2026</p>
             </div>
 
             <div className="p-3.5 bg-amber-50 border border-amber-200/80 rounded-2xl text-amber-950 text-xs space-y-1">

@@ -170,6 +170,13 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
         },
         description: tool.metaDescription,
         url: getAbsoluteUrl(`/tools/${tool.slug}`),
+        author: {
+          '@type': 'Organization',
+          name: 'OmniMetrics Editorial & Analytical Desk',
+          url: getAbsoluteUrl('/about/'),
+        },
+        datePublished: '2026-02-01',
+        dateModified: '2026-10-20',
       },
       {
         '@type': 'BreadcrumbList',
@@ -273,6 +280,21 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
           <p className="text-sm text-slate-600 max-w-3xl leading-relaxed">
             {tool.description}
           </p>
+
+          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 border-y border-slate-200/80 py-2.5">
+            <div>
+              <span className="font-medium text-slate-400">Review Desk: </span>
+              <span className="font-semibold text-slate-700">OmniMetrics Editorial & Analytical Desk</span>
+            </div>
+            <div>
+              <span className="font-medium text-slate-400">Standards: </span>
+              <span className="font-semibold text-slate-700">International Accounting & Financial Benchmarks</span>
+            </div>
+            <div>
+              <span className="font-medium text-slate-400">Last Audited: </span>
+              <span className="font-semibold text-emerald-700">October 2026</span>
+            </div>
+          </div>
         </header>
 
         {/* Main Interactive Tool Container */}

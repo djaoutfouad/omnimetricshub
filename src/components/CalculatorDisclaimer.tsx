@@ -1,5 +1,5 @@
 import React from 'react';
-import { Info, ShieldAlert } from 'lucide-react';
+import { Info, ShieldAlert, ShieldCheck } from 'lucide-react';
 
 export type DisclaimerDomain =
   | 'payment-fees'
@@ -99,7 +99,7 @@ export const CalculatorDisclaimer: React.FC<Props> = ({ domain, className = '' }
     <div
       role="note"
       aria-label="Calculator Disclaimer"
-      className={`p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/90 text-slate-600 text-xs leading-relaxed space-y-1 ${className}`}
+      className={`p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/90 text-slate-600 text-xs leading-relaxed space-y-2 ${className}`}
     >
       <div className="flex items-center gap-1.5 font-bold text-slate-800 text-[11px] uppercase tracking-wider">
         <Info className="w-3.5 h-3.5 text-slate-500 shrink-0" />
@@ -108,6 +108,12 @@ export const CalculatorDisclaimer: React.FC<Props> = ({ domain, className = '' }
       <p className="text-[11px] text-slate-500 leading-normal pl-5">
         {body}
       </p>
+      <div className="pt-2 border-t border-slate-200/70 text-[10.5px] text-slate-500 leading-normal pl-5 flex items-start gap-1.5">
+        <ShieldCheck className="w-3.5 h-3.5 text-emerald-700 shrink-0 mt-0.5" />
+        <span>
+          <strong>Periodic Audit:</strong> All computational models and calculation formulas undergo regular independent editorial and mathematical review by the OmniMetrics Editorial & Analytical Desk to verify compliance with accepted accounting and international mathematical standards.
+        </span>
+      </div>
     </div>
   );
 };
