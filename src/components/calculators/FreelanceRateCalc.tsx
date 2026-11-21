@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, Clock } from 'lucide-react';
+import { Copy, Check, RefreshCw, Clock, Share2, ArrowRight, Workflow } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -8,6 +9,10 @@ import {
   formatLatinPercent,
   roundToDecimals,
 } from '../../utils/validation';
+import {
+  getValidatedNumericParam,
+  buildShareableCalculatorUrl,
+} from '../../utils/shareableState';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 
 interface Props {
@@ -15,12 +20,34 @@ interface Props {
 }
 
 export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
-  const [takeHomeSalaryStr, setTakeHomeSalaryStr] = useState<string>('75000');
-  const [taxAmountStr, setTaxAmountStr] = useState<string>('22000');
-  const [businessExpensesStr, setBusinessExpensesStr] = useState<string>('8000');
-  const [billableHoursStr, setBillableHoursStr] = useState<string>('1000');
-  const [profitBufferPctStr, setProfitBufferPctStr] = useState<string>('10');
+  const location = useLocation();
+
+  const [takeHomeSalaryStr, setTakeHomeSalaryStr] = useState<string>(() =>
+    getValidatedNumericParam('takeHome', '75000', { min: 0, max: 10000000, allowZero: true })
+  );
+  const [taxAmountStr, setTaxAmountStr] = useState<string>(() =>
+    getValidatedNumericParam('taxes', '22000', { min: 0, max: 10000000, allowZero: true })
+  );
+  const [businessExpensesStr, setBusinessExpensesStr] = useState<string>(() =>
+    getValidatedNumericParam('expenses', '8000', { min: 0, max: 10000000, allowZero: true })
+  );
+  const [billableHoursStr, setBillableHoursStr] = useState<string>(() =>
+    getValidatedNumericParam('hours', '1000', { min: 1, max: 4000, allowZero: false, integerOnly: true })
+  );
+  const [profitBufferPctStr, setProfitBufferPctStr] = useState<string>(() =>
+    getValidatedNumericParam('buffer', '10', { min: 0, max: 100, allowZero: true })
+  );
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => {
+    if (!location.search) return;
+    setTakeHomeSalaryStr(getValidatedNumericParam('takeHome', '75000', { min: 0, max: 10000000, allowZero: true }, location.search));
+    setTaxAmountStr(getValidatedNumericParam('taxes', '22000', { min: 0, max: 10000000, allowZero: true }, location.search));
+    setBusinessExpensesStr(getValidatedNumericParam('expenses', '8000', { min: 0, max: 10000000, allowZero: true }, location.search));
+    setBillableHoursStr(getValidatedNumericParam('hours', '1000', { min: 1, max: 4000, allowZero: false, integerOnly: true }, location.search));
+    setProfitBufferPctStr(getValidatedNumericParam('buffer', '10', { min: 0, max: 100, allowZero: true }, location.search));
+  }, [location.search]);
 
   // Field validations
   const takeHomeField = validateNumericInput(takeHomeSalaryStr, {
@@ -102,6 +129,29 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  const handleShareLink = async () => {
+    if (!isFormValid) return;
+    const url = buildShareableCalculatorUrl(
+      'freelance-rate',
+      {
+        takeHome: safeTakeHome,
+        taxes: safeTax,
+        expenses: safeExpenses,
+        hours: safeBillableHours,
+        buffer: safeBufferPct,
+      },
+      currency
+    );
+    const ok = await copyTextToClipboard(url);
+    if (ok) {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    }
+  };
+
+  const projectInvoiceAmount = weeklyRate > 0 ? weeklyRate : dayRate ?? 100;
+  const paymentFeesWorkflowUrl = `/tools/payment-gateway-fees/?amount=${projectInvoiceAmount.toFixed(2)}`;
 
   return (
     <div className="space-y-4 text-slate-800">
@@ -263,8 +313,29 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
+      {/* Connected Decision Workflow Card */}
+      {isFormValid && projectInvoiceAmount > 0 && (
+        <div className="p-3 bg-violet-50/80 border border-violet-200/90 rounded-2xl space-y-2">
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="font-extrabold text-violet-950 uppercase tracking-wider flex items-center gap-1.5">
+              <Workflow className="w-3.5 h-3.5 text-violet-600" /> Next Step in Your Workflow
+            </span>
+            <span className="text-violet-700 font-semibold">
+              Weekly Retainer: {formatLatinCurrency(projectInvoiceAmount, currency)}
+            </span>
+          </div>
+          <Link
+            to={paymentFeesWorkflowUrl}
+            className="w-full px-3 py-2 rounded-xl bg-white hover:bg-violet-600 text-violet-900 hover:text-white border border-violet-200 hover:border-violet-600 text-xs font-bold flex items-center justify-between transition shadow-2xs group"
+          >
+            <span>Check Gateway Fees on a Project Invoice</span>
+            <ArrowRight className="w-3.5 h-3.5 text-violet-600 group-hover:text-white group-hover:translate-x-0.5 transition" />
+          </Link>
+        </div>
+      )}
+
       {/* Action Footer */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
         <button
           type="button"
           onClick={() => {
@@ -279,20 +350,37 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
           <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
         </button>
 
-        <button
-          type="button"
-          onClick={handleCopy}
-          disabled={!isFormValid}
-          className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-            isFormValid
-              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-              : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-          }`}
-        >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? 'Copied!' : 'Copy Summary'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleShareLink}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
+              isFormValid
+                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+            {linkCopied ? 'Link Copied!' : 'Share Link'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCopy}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
+              isFormValid
+                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? 'Copied!' : 'Copy Summary'}
+          </button>
+        </div>
       </div>
     </div>
   );
 };
+

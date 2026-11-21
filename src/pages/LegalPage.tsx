@@ -150,7 +150,7 @@ export const LegalPage: React.FC = () => {
                   <span>Privacy Summary: 100% Client-Side Computation</span>
                 </div>
                 <p className="text-xs text-emerald-900 leading-relaxed">
-                  OmniMetrics Hub computes all financial, e-commerce, and business calculations directly inside your web browser. No numbers, rates, salaries, or financial figures entered into any calculator are ever collected, logged, or transmitted to any server.
+                  OmniMetrics Hub computes all financial, e-commerce, and business calculations directly inside your web browser. No numbers, rates, salaries, or financial figures entered into any calculator are ever collected, logged, or transmitted to any server. Standard HTTP connection headers (IP address and browser user-agent) are transmitted only to our hosting edge CDN and the disclosed static asset hosts listed in Section 5 (Google Fonts, Unsplash CDN for selected editorial images, and EmailJS when you voluntarily submit the Contact form).
                 </p>
               </div>
 
@@ -232,13 +232,13 @@ export const LegalPage: React.FC = () => {
                 </p>
                 <ul className="list-disc pl-5 space-y-1.5 text-slate-600">
                   <li>
-                    <strong>Google Fonts (Google LLC):</strong> Serves typographic web fonts (such as Inter and Plus Jakarta Sans) to render interface text cleanly across devices. Requests to Google Fonts transmit standard technical headers (IP address and browser user-agent) required to serve the font files.
+                    <strong>Google Fonts (Google LLC):</strong> Serves typographic web fonts (such as Plus Jakarta Sans) via <code>fonts.googleapis.com</code> and <code>fonts.gstatic.com</code>. Requests to Google Fonts transmit standard technical headers (IP address and browser user-agent) required to deliver the font files.
                   </li>
                   <li>
-                    <strong>Unsplash (Unsplash Inc.):</strong> Serves visual editorial imagery and professional persona visual assets. Image assets are loaded directly from Unsplash's global media CDN.
+                    <strong>Unsplash CDN (Unsplash Inc.) &amp; Local Visual Assets:</strong> Selected calculator persona illustrations are hosted locally as first-party WebP assets (<code>/assets/images/calculators/</code>), while remaining editorial and hero imagery is delivered from <code>images.unsplash.com</code> using standard HTTP image requests.
                   </li>
                   <li>
-                    <strong>Hosting & Edge CDN (e.g., Cloudflare Pages):</strong> Automatically processes standard technical HTTP server logs (client IP addresses, request timestamps, and user agents) strictly for technical network routing, edge caching, and DDoS mitigation. These technical logs are not tied to personal identities.
+                    <strong>Hosting &amp; Edge CDN (Cloudflare Pages):</strong> Automatically processes standard technical HTTP server logs (client IP addresses, request timestamps, and user agents) strictly for technical network routing, edge caching, and DDoS mitigation. These technical logs are not tied to personal identities.
                   </li>
                 </ul>
               </section>

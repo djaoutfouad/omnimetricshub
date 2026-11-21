@@ -50,7 +50,8 @@ export const TAX_BENCHMARK_PRESETS = [
 ];
 
 export const STATUTORY_LATE_FEE_TIERS = [
-  { maxDebt: 1000, fee: 40, label: 'Debts up to $1,000 / £1,000 ($40 standard)' },
-  { maxDebt: 10000, fee: 70, label: 'Debts $1,000 – $10,000 / £1,000 – £10,000 ($70 standard)' },
-  { maxDebt: Infinity, fee: 100, label: 'Debts above $10,000 / £10,000 ($100 standard)' },
+  { maxDebt: 999.99, fee: 40, tierLabel: '< £1,000', label: '£40 (Debts under £1,000)' },
+  { maxDebt: 9999.99, fee: 70, tierLabel: '£1,000–£9,999.99', label: '£70 (Debts £1,000–£9,999.99)' },
+  { maxDebt: Infinity, fee: 100, tierLabel: '£10,000+', label: '£100 (Debts £10,000+)' },
 ];
+

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, AlertTriangle, Info } from 'lucide-react';
+import { Copy, Check, RefreshCw, AlertTriangle, Info, Share2, ArrowRight, Workflow } from 'lucide-react';
 import { PAYMENT_GATEWAY_PRESETS } from '../../data/rateDefaults';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
@@ -9,6 +10,11 @@ import {
   formatLatinPercent,
   roundToDecimals,
 } from '../../utils/validation';
+import {
+  getValidatedNumericParam,
+  getValidatedEnumParam,
+  buildShareableCalculatorUrl,
+} from '../../utils/shareableState';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 
 interface Props {
@@ -16,12 +22,34 @@ interface Props {
 }
 
 export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
-  const [mode, setMode] = useState<'forward' | 'reverse'>('forward');
-  const [amountStr, setAmountStr] = useState<string>('100');
-  const [targetNetStr, setTargetNetStr] = useState<string>('100');
-  const [feePercentStr, setFeePercentStr] = useState<string>('2.9');
-  const [fixedFeeStr, setFixedFeeStr] = useState<string>('0.30');
+  const location = useLocation();
+
+  const [mode, setMode] = useState<'forward' | 'reverse'>(() =>
+    getValidatedEnumParam('mode', ['forward', 'reverse'] as const, 'forward')
+  );
+  const [amountStr, setAmountStr] = useState<string>(() =>
+    getValidatedNumericParam('amount', '100', { min: 0.01, max: 100000000, allowZero: false })
+  );
+  const [targetNetStr, setTargetNetStr] = useState<string>(() =>
+    getValidatedNumericParam('targetNet', '100', { min: 0.01, max: 100000000, allowZero: false })
+  );
+  const [feePercentStr, setFeePercentStr] = useState<string>(() =>
+    getValidatedNumericParam('feePercent', '2.9', { min: 0, max: 99.99, allowZero: true })
+  );
+  const [fixedFeeStr, setFixedFeeStr] = useState<string>(() =>
+    getValidatedNumericParam('fixedFee', '0.30', { min: 0, max: 10000, allowZero: true })
+  );
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => {
+    if (!location.search) return;
+    setMode(getValidatedEnumParam('mode', ['forward', 'reverse'] as const, 'forward', location.search));
+    setAmountStr(getValidatedNumericParam('amount', '100', { min: 0.01, max: 100000000, allowZero: false }, location.search));
+    setTargetNetStr(getValidatedNumericParam('targetNet', '100', { min: 0.01, max: 100000000, allowZero: false }, location.search));
+    setFeePercentStr(getValidatedNumericParam('feePercent', '2.9', { min: 0, max: 99.99, allowZero: true }, location.search));
+    setFixedFeeStr(getValidatedNumericParam('fixedFee', '0.30', { min: 0, max: 10000, allowZero: true }, location.search));
+  }, [location.search]);
 
   const presets = PAYMENT_GATEWAY_PRESETS;
 
@@ -83,6 +111,8 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
   const reverseCut = roundToDecimals((reverseInvoice * rateFraction) + safeFixedFee, 2);
   const realizedNet = roundToDecimals(reverseInvoice - reverseCut, 2);
 
+  const activeInvoiceAmount = mode === 'forward' ? safeAmount : reverseInvoice;
+
   const handleCopy = async () => {
     if (!isFormValid) return;
     let text = '';
@@ -97,6 +127,28 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  const handleShareLink = async () => {
+    if (!isFormValid) return;
+    const url = buildShareableCalculatorUrl(
+      'payment-gateway-fees',
+      {
+        mode,
+        amount: safeAmount,
+        targetNet: safeTargetNet,
+        feePercent: safeFeePercent,
+        fixedFee: safeFixedFee,
+      },
+      currency
+    );
+    const ok = await copyTextToClipboard(url);
+    if (ok) {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    }
+  };
+
+  const lateInterestWorkflowUrl = `/tools/late-payment-interest/?principal=${activeInvoiceAmount.toFixed(2)}`;
 
   return (
     <div className="space-y-5 text-slate-800">
@@ -124,11 +176,13 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
 
       {/* Preset pills */}
       <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+        <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
+          <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">
             Processor Rate Presets
           </span>
-          <span className="text-[10px] text-slate-400">US domestic baseline examples</span>
+          <span className="text-[10.5px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-md">
+            US Domestic Standard Benchmarks (Editable)
+          </span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
           {presets.map((p) => {
@@ -218,8 +272,8 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
         </div>
 
         {/* Baseline Rate Assumption Notice */}
-        <p className="text-[11px] text-slate-500 leading-relaxed bg-slate-50 border border-slate-200/80 rounded-xl p-2.5">
-          <span className="font-semibold text-slate-700">Baseline Rate Notice:</span> Default presets reflect standard US domestic baseline rates (e.g., Stripe 2.9% + $0.30, PayPal standard merchant fees). Users can manually adjust percentage and fixed fee rates for international or customized regional transactions.
+        <p className="text-[11px] text-slate-600 leading-relaxed bg-slate-50 border border-slate-200/80 rounded-xl p-2.5">
+          <span className="font-bold text-slate-800">US Domestic Standard Benchmarks (Editable):</span> Default presets reflect standard US domestic baseline rates (e.g., Stripe 2.9% + $0.30, PayPal standard 3.49% + $0.49 merchant fees). International cards, currency conversion (FX), and EEA/UK domestic rates differ. Users can manually adjust percentage and fixed fee rates for international or customized regional transactions.
         </p>
       </div>
 
@@ -282,16 +336,37 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
+      {/* Connected Decision Workflow Card */}
+      {isFormValid && activeInvoiceAmount > 0 && (
+        <div className="p-3 bg-emerald-50/80 border border-emerald-200/90 rounded-2xl space-y-2">
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-1.5">
+              <Workflow className="w-3.5 h-3.5 text-emerald-600" /> Next Step in Your Workflow
+            </span>
+            <span className="text-emerald-700 font-semibold">
+              Invoice: {formatLatinCurrency(activeInvoiceAmount, currency)}
+            </span>
+          </div>
+          <Link
+            to={lateInterestWorkflowUrl}
+            className="w-full px-3 py-2 rounded-xl bg-white hover:bg-emerald-600 text-emerald-900 hover:text-white border border-emerald-200 hover:border-emerald-600 text-xs font-bold flex items-center justify-between transition shadow-2xs group"
+          >
+            <span>Calculate Late Interest on This Invoice Amount</span>
+            <ArrowRight className="w-3.5 h-3.5 text-emerald-600 group-hover:text-white group-hover:translate-x-0.5 transition" />
+          </Link>
+        </div>
+      )}
+
       {/* Preset Reference Footnote */}
-      <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-500 flex items-start gap-2">
-        <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+      <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 flex items-start gap-2">
+        <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
         <span>
-          Presets illustrate standard US domestic card processing schedules. International transactions, currency conversions, and merchant interchange agreements carry distinct rates.
+          Presets represent <strong>US Domestic Standard Benchmarks (Editable)</strong>. Cross-border international cards (+1.0%–1.5%), currency conversion (+1.0%–2.0%), and EEA/UK domestic interchange schedules carry distinct fee structures.
         </span>
       </div>
 
       {/* Action Footer */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
         <button
           type="button"
           onClick={() => {
@@ -305,20 +380,37 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
           <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
         </button>
 
-        <button
-          type="button"
-          onClick={handleCopy}
-          disabled={!isFormValid}
-          className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-            isFormValid
-              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-              : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-          }`}
-        >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? 'Copied!' : 'Copy Summary'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleShareLink}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
+              isFormValid
+                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+            {linkCopied ? 'Link Copied!' : 'Share Link'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCopy}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
+              isFormValid
+                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? 'Copied!' : 'Copy Summary'}
+          </button>
+        </div>
       </div>
     </div>
   );
 };
+

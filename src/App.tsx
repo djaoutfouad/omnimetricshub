@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CurrencySymbol, CategoryType, ToolItem, ArticleItem } from './types';
+import { getInitialCurrencyFromUrl } from './utils/shareableState';
 import { TOOLS_DATA } from './data/tools';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -30,7 +31,12 @@ import { LegalModal, LegalTabType } from './components/modals/LegalModal';
 
 export default function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [currency, setCurrency] = useState<CurrencySymbol>(() => {
+    const urlCurrency = getInitialCurrencyFromUrl();
+    if (urlCurrency) {
+      return urlCurrency;
+    }
     if (typeof window !== 'undefined') {
       try {
         const saved = localStorage.getItem('omni_preferred_currency') as CurrencySymbol;
@@ -43,6 +49,13 @@ export default function App() {
     }
     return '$';
   });
+
+  useEffect(() => {
+    const urlCurrency = getInitialCurrencyFromUrl(location.search);
+    if (urlCurrency) {
+      setCurrency(urlCurrency);
+    }
+  }, [location.search]);
 
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('ALL');
   const [searchQuery, setSearchQuery] = useState('');

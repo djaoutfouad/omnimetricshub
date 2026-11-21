@@ -41,14 +41,15 @@ async function prerender() {
     const meta = getRouteMetadata(route);
     const canonicalUrl = getAbsoluteUrl(meta.canonicalPath);
 
-    // 1. Render App to static HTML string
-    const appHtml = renderToString(
+    // 1. Render App to static HTML string and strip any SSR-hoisted preload links from body
+    const rawAppHtml = renderToString(
       React.createElement(
         MemoryRouter,
         { initialEntries: [route] },
         React.createElement(App)
       )
     );
+    const appHtml = rawAppHtml.replace(/<link\s+[^>]*rel=["']preload["'][^>]*\/?>/gi, '');
 
     // 2. Prepare structured data
     const schemaData =

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, Target } from 'lucide-react';
+import { Copy, Check, RefreshCw, Target, Share2, ArrowRight, Workflow } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -8,6 +9,10 @@ import {
   formatLatinPercent,
   roundToDecimals,
 } from '../../utils/validation';
+import {
+  getValidatedNumericParam,
+  buildShareableCalculatorUrl,
+} from '../../utils/shareableState';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 
 interface Props {
@@ -15,11 +20,30 @@ interface Props {
 }
 
 export const RoasCalc: React.FC<Props> = ({ currency }) => {
-  const [adSpendStr, setAdSpendStr] = useState<string>('1000');
-  const [revenueStr, setRevenueStr] = useState<string>('3500');
-  const [conversionsStr, setConversionsStr] = useState<string>('50');
-  const [cogsStr, setCogsStr] = useState<string>('1000');
+  const location = useLocation();
+
+  const [adSpendStr, setAdSpendStr] = useState<string>(() =>
+    getValidatedNumericParam('spend', '1000', { min: 0, max: 100000000, allowZero: true })
+  );
+  const [revenueStr, setRevenueStr] = useState<string>(() =>
+    getValidatedNumericParam('revenue', '3500', { min: 0, max: 100000000, allowZero: true })
+  );
+  const [conversionsStr, setConversionsStr] = useState<string>(() =>
+    getValidatedNumericParam('conversions', '50', { min: 0, max: 10000000, allowZero: true, integerOnly: true })
+  );
+  const [cogsStr, setCogsStr] = useState<string>(() =>
+    getValidatedNumericParam('cogs', '1000', { min: 0, max: 100000000, allowZero: true })
+  );
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => {
+    if (!location.search) return;
+    setAdSpendStr(getValidatedNumericParam('spend', '1000', { min: 0, max: 100000000, allowZero: true }, location.search));
+    setRevenueStr(getValidatedNumericParam('revenue', '3500', { min: 0, max: 100000000, allowZero: true }, location.search));
+    setConversionsStr(getValidatedNumericParam('conversions', '50', { min: 0, max: 10000000, allowZero: true, integerOnly: true }, location.search));
+    setCogsStr(getValidatedNumericParam('cogs', '1000', { min: 0, max: 100000000, allowZero: true }, location.search));
+  }, [location.search]);
 
   // Field validations
   const adSpendField = validateNumericInput(adSpendStr, {
@@ -117,6 +141,33 @@ export const RoasCalc: React.FC<Props> = ({ currency }) => {
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  const handleShareLink = async () => {
+    if (!isFormValid) return;
+    const url = buildShareableCalculatorUrl(
+      'roas-calculator',
+      {
+        spend: safeAdSpend,
+        revenue: safeRevenue,
+        conversions: safeConversions,
+        cogs: safeCogs,
+      },
+      currency
+    );
+    const ok = await copyTextToClipboard(url);
+    if (ok) {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    }
+  };
+
+  const impliedAov =
+    safeConversions > 0 && safeRevenue > 0
+      ? roundToDecimals(safeRevenue / safeConversions, 2)
+      : null;
+  const conversionRateWorkflowUrl = `/tools/conversion-rate-cpa/?spend=${safeAdSpend.toFixed(2)}${
+    safeConversions > 0 ? `&conversions=${safeConversions}` : ''
+  }${impliedAov !== null ? `&aov=${impliedAov.toFixed(2)}` : ''}`;
 
   return (
     <div className="space-y-5 text-slate-800">
@@ -252,8 +303,29 @@ export const RoasCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
+      {/* Connected Decision Workflow Card */}
+      {isFormValid && safeAdSpend > 0 && (
+        <div className="p-3 bg-rose-50/80 border border-rose-200/90 rounded-2xl space-y-2">
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="font-extrabold text-rose-950 uppercase tracking-wider flex items-center gap-1.5">
+              <Workflow className="w-3.5 h-3.5 text-rose-600" /> Next Step in Your Workflow
+            </span>
+            <span className="text-rose-700 font-semibold">
+              Spend: {formatLatinCurrency(safeAdSpend, currency)} ({safeConversions} orders)
+            </span>
+          </div>
+          <Link
+            to={conversionRateWorkflowUrl}
+            className="w-full px-3 py-2 rounded-xl bg-white hover:bg-rose-600 text-rose-900 hover:text-white border border-rose-200 hover:border-rose-600 text-xs font-bold flex items-center justify-between transition shadow-2xs group"
+          >
+            <span>Analyze Funnel Conversion & CPA</span>
+            <ArrowRight className="w-3.5 h-3.5 text-rose-600 group-hover:text-white group-hover:translate-x-0.5 transition" />
+          </Link>
+        </div>
+      )}
+
       {/* Action Footer */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
         <button
           type="button"
           onClick={() => {
@@ -267,20 +339,37 @@ export const RoasCalc: React.FC<Props> = ({ currency }) => {
           <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
         </button>
 
-        <button
-          type="button"
-          onClick={handleCopy}
-          disabled={!isFormValid}
-          className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-            isFormValid
-              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-              : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-          }`}
-        >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? 'Copied!' : 'Copy Summary'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleShareLink}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
+              isFormValid
+                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+            {linkCopied ? 'Link Copied!' : 'Share Link'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCopy}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
+              isFormValid
+                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? 'Copied!' : 'Copy Summary'}
+          </button>
+        </div>
       </div>
     </div>
   );
 };
+

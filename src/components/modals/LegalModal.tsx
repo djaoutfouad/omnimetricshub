@@ -90,11 +90,11 @@ export const LegalModal: React.FC<Props> = ({ initialTab, onClose }) => {
                 <span>100% Client-Side Calculations</span>
               </div>
               <p className="text-[11px] text-emerald-900">
-                All numbers, pricing variables, salaries, and interest figures input into our calculators run strictly in your web browser. No calculation data is ever collected, recorded, or sent to external servers.
+                All numbers, pricing variables, salaries, and interest figures input into our calculators run strictly in your web browser. No calculation inputs or financial figures are ever collected, recorded, or sent to external servers. Standard HTTP headers are only sent to load web fonts, remaining editorial images, or voluntary contact messages as detailed below.
               </p>
             </div>
 
-            <h4 className="font-bold text-slate-900 text-xs mt-3">1. Contact & Inquiries</h4>
+            <h4 className="font-bold text-slate-900 text-xs mt-3">1. Contact & Inquiries (EmailJS)</h4>
             <p>
               When you send a message through our Contact form, your name, email, and message are securely transmitted via EmailJS directly to our support inbox ({SITE_CONFIG.contactEmail}) solely to respond to your inquiry. We never sell or share contact details with third-party data brokers.
             </p>
@@ -106,7 +106,7 @@ export const LegalModal: React.FC<Props> = ({ initialTab, onClose }) => {
 
             <h4 className="font-bold text-slate-900 text-xs mt-3">3. External Content Delivery Networks (CDNs)</h4>
             <p>
-              OmniMetrics Hub uses trusted CDNs to deliver assets efficiently: Google Fonts for web typography and Unsplash for editorial imagery. Standard technical headers (IP address and browser user-agent) are processed strictly to fulfill file delivery.
+              While several calculator illustrations are served locally from <code>/assets/images/calculators/</code>, OmniMetrics Hub requests external assets solely from Google Fonts (<code>fonts.googleapis.com</code> / <code>fonts.gstatic.com</code>) for web typography and Unsplash CDN (<code>images.unsplash.com</code>) for remaining editorial imagery. Standard technical HTTP headers (IP address and browser user-agent) are processed strictly to fulfill file delivery.
             </p>
 
             <h3 className="font-bold text-slate-900 text-xs mt-3">4. Advertising Notice</h3>

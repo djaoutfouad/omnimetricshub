@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, Info, Calendar } from 'lucide-react';
+import { Copy, Check, RefreshCw, Info, Calendar, Share2 } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -8,6 +9,11 @@ import {
   formatLatinPercent,
   roundToDecimals,
 } from '../../utils/validation';
+import {
+  getValidatedNumericParam,
+  getValidatedEnumParam,
+  buildShareableCalculatorUrl,
+} from '../../utils/shareableState';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 
 interface Props {
@@ -15,11 +21,30 @@ interface Props {
 }
 
 export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
-  const [grossAnnualStr, setGrossAnnualStr] = useState<string>('75000');
-  const [taxRateStr, setTaxRateStr] = useState<string>('22');
-  const [preTaxDeductionsMonthlyStr, setPreTaxDeductionsMonthlyStr] = useState<string>('350');
-  const [paycheckView, setPaycheckView] = useState<'weekly' | 'biweekly' | 'semimonthly' | 'monthly'>('biweekly');
+  const location = useLocation();
+
+  const [grossAnnualStr, setGrossAnnualStr] = useState<string>(() =>
+    getValidatedNumericParam('gross', '75000', { min: 0, max: 100000000, allowZero: true })
+  );
+  const [taxRateStr, setTaxRateStr] = useState<string>(() =>
+    getValidatedNumericParam('taxRate', '22', { min: 0, max: 70, allowZero: true })
+  );
+  const [preTaxDeductionsMonthlyStr, setPreTaxDeductionsMonthlyStr] = useState<string>(() =>
+    getValidatedNumericParam('deductions', '350', { min: 0, max: 100000, allowZero: true })
+  );
+  const [paycheckView, setPaycheckView] = useState<'weekly' | 'biweekly' | 'semimonthly' | 'monthly'>(() =>
+    getValidatedEnumParam('cadence', ['weekly', 'biweekly', 'semimonthly', 'monthly'] as const, 'biweekly')
+  );
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => {
+    if (!location.search) return;
+    setGrossAnnualStr(getValidatedNumericParam('gross', '75000', { min: 0, max: 100000000, allowZero: true }, location.search));
+    setTaxRateStr(getValidatedNumericParam('taxRate', '22', { min: 0, max: 70, allowZero: true }, location.search));
+    setPreTaxDeductionsMonthlyStr(getValidatedNumericParam('deductions', '350', { min: 0, max: 100000, allowZero: true }, location.search));
+    setPaycheckView(getValidatedEnumParam('cadence', ['weekly', 'biweekly', 'semimonthly', 'monthly'] as const, 'biweekly', location.search));
+  }, [location.search]);
 
   // Field validation
   const grossField = validateNumericInput(grossAnnualStr, {
@@ -107,6 +132,25 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
     if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleShareLink = async () => {
+    if (!isFormValid) return;
+    const url = buildShareableCalculatorUrl(
+      'salary-tax',
+      {
+        gross: safeGross,
+        taxRate: safeTaxRate,
+        deductions: safeMonthlyDeductions,
+        cadence: paycheckView,
+      },
+      currency
+    );
+    const ok = await copyTextToClipboard(url);
+    if (ok) {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
     }
   };
 
@@ -198,9 +242,16 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
       </div>
 
       {/* Tax Model Clarification Note */}
-      <p className="text-[11px] text-slate-500 leading-relaxed bg-slate-50 border border-slate-200/80 rounded-xl p-2.5">
-        <span className="font-semibold text-slate-700">Tax Model Note:</span> Calculations utilize general progressive withholding models for illustrative educational purposes. Local deductions and regional municipal tax rules should be verified locally.
-      </p>
+      <div className="text-[11px] text-slate-600 leading-relaxed bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 space-y-1">
+        <div>
+          <span className="font-bold text-slate-800">Model Assumptions (Effective Combined Rate vs. Progressive Tax Brackets):</span>{' '}
+          This calculator applies your entered <strong>combined effective tax rate</strong> directly to your taxable income base (Gross Salary minus Pre-Tax Deductions), rather than automatically computing multi-tier progressive tax brackets.
+        </div>
+        <div>
+          <span className="font-bold text-slate-800">Jurisdiction Note:</span>{' '}
+          Calculations utilize general withholding models for illustrative educational purposes. Federal, state/provincial, regional municipal tax rules, and mandatory social contributions (e.g., FICA, National Insurance) should be verified locally. <strong>Estimate only — not professional tax advice.</strong>
+        </div>
+      </div>
 
       {/* Primary Results Card */}
       {!isFormValid ? (
@@ -265,12 +316,12 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
       <div className="p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-xl text-[11px] text-amber-900 flex items-start gap-2">
         <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
         <span>
-          <strong>Educational Estimate:</strong> Models an effective tax baseline with pre-tax withholdings for budgeting purposes. This is an informational tool and does not constitute formal legal, accounting, or tax advice. Consult a certified CPA for jurisdiction-specific filings.
+          <strong>Estimate only — not professional tax advice:</strong> Models an effective combined tax baseline with pre-tax withholdings for budgeting and educational evaluation only. Consult a certified CPA or local tax authority for jurisdiction-specific filings.
         </span>
       </div>
 
       {/* Action Footer */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
         <button
           type="button"
           onClick={() => {
@@ -284,20 +335,37 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
           <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
         </button>
 
-        <button
-          type="button"
-          onClick={handleCopy}
-          disabled={!isFormValid}
-          className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-            isFormValid
-              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-              : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-          }`}
-        >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? 'Copied!' : 'Copy Summary'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleShareLink}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
+              isFormValid
+                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+            {linkCopied ? 'Link Copied!' : 'Share Link'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCopy}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
+              isFormValid
+                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? 'Copied!' : 'Copy Summary'}
+          </button>
+        </div>
       </div>
     </div>
   );
 };
+

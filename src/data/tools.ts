@@ -7,7 +7,7 @@ export const TOOLS_DATA: ToolItem[] = [
     name: 'Payment Gateway Fees',
     fullTitle: 'Payment Gateway Fee & Invoice Gross-Up Calculator',
     category: 'E-COMMERCE',
-    description: 'Compare transaction processing fees for Stripe, PayPal, and custom gateways, or calculate the exact invoice amount needed to receive your target net payout.',
+    description: 'Compare transaction processing fees for Stripe, PayPal, and custom gateways, or calculate the estimated invoice amount (based on your entered fee structure) needed to receive your target net payout.',
     metaDescription: 'Calculate payment processing fees for Stripe, PayPal, and merchant gateways. Estimate net payouts or solve for the gross invoice amount required to cover transaction costs.',
     keywords: [
       'payment fee calculator',
@@ -23,11 +23,12 @@ export const TOOLS_DATA: ToolItem[] = [
     tagColor: 'text-emerald-700',
     featured: true,
     personaImageUrl: 'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?auto=format&fit=crop&w=480&q=70&fm=webp',
+    personaImageAlt: 'Merchant reviewing digital payment checkout and gateway transaction fees',
     personaRole: 'E-Commerce Merchant & SaaS Billing',
     relatedToolIds: ['calc-margin', 'calc-freelance', 'calc-landed-cost', 'calc-breakeven'],
     detailedGuide: {
-      whatIsIt: 'Payment gateways charge a blended transaction fee consisting of a percentage of the total transaction value plus a fixed assessment fee per charge (such as standard US domestic rates of 2.9% + $0.30 on Stripe or 3.49% + $0.49 on PayPal). When invoicing clients or setting digital product prices, calculating the exact processor deduction prevents unexpected margin erosion.',
-      howItWorks: 'The calculator operates in two modes: Forward mode subtracts the payment processor fee schedule from a customer invoice to show your net settled payout. Reverse mode (gross-up) solves the algebra in reverse to calculate the larger invoice total you must charge so that the remaining amount after processor deductions matches your exact desired take-home dollar figure.',
+      whatIsIt: 'Payment gateways charge a blended transaction fee consisting of a percentage of the total transaction value plus a fixed assessment fee per charge (such as standard US domestic benchmarks of 2.9% + $0.30 on Stripe or 3.49% + $0.49 on PayPal). When invoicing clients or setting digital product prices, estimating the processor deduction under your active fee schedule helps prevent unexpected margin erosion.',
+      howItWorks: 'The calculator operates in two modes: Forward mode subtracts the entered payment processor fee schedule from a customer invoice to estimate your net settled payout. Reverse mode (gross-up) solves the algebra in reverse to estimate the invoice total to charge so that the remaining amount after modeled processor deductions matches your target take-home figure.',
       formulaExplanation: 'In forward calculations, the processing fee equals the transaction amount multiplied by the percentage rate plus the fixed fee. In reverse gross-up calculations, the fixed fee is added to your net target and divided by (1 minus the decimal percentage rate).',
       formulaMath: `Forward Calculation (Net Payout):
 • Processing Fee = (Invoice Amount × Rate%) + Fixed Fee
@@ -38,7 +39,7 @@ Reverse Calculation (Gross-Up Target):
 
 Where:
 • Invoice Amount: Total charged to the customer card
-• Desired Net Payout: Exact cash balance you wish to retain
+• Desired Net Payout: Target net cash balance you wish to retain
 • Rate%: Gateway percentage fee (e.g. 2.9% = 0.029)
 • Fixed Fee: Gateway per-transaction flat fee (e.g. $0.30)`,
       stepByStepExample: `Example: You are billing a client for $1,000.00 of consulting work via Stripe standard processing (2.9% + $0.30) and wish to take home exactly $1,000.00 net.
@@ -105,6 +106,7 @@ Verification:
     iconColor: 'text-blue-400',
     tagColor: 'text-blue-600',
     personaImageUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=480&q=70&fm=webp',
+    personaImageAlt: 'Retail founder analyzing gross profit margin and product markup spreadsheet',
     personaRole: 'Retail Founder & Pricing Manager',
     relatedToolIds: ['calc-breakeven', 'calc-landed-cost', 'calc-fees', 'calc-roas'],
     detailedGuide: {
@@ -169,8 +171,8 @@ If the manufacturer wants a true 70% profit margin on a $40.00 item:
     name: 'Break-Even Point',
     fullTitle: 'Break-Even Point & Unit Volume Analysis Calculator',
     category: 'FINANCE & MARGINS',
-    description: 'Determine the exact unit sales volume and gross revenue required to fully cover fixed operating overheads and per-unit variable costs.',
-    metaDescription: 'Calculate your business break-even point in units and revenue. Accurately analyze fixed overhead, variable unit costs, and contribution margin ratios.',
+    description: 'Determine the minimum unit sales volume required under your cost assumptions and gross revenue needed to cover fixed operating overheads and per-unit variable costs.',
+    metaDescription: 'Calculate your business break-even point in units and revenue. Analyze fixed overhead, variable unit costs, and contribution margin ratios.',
     keywords: [
       'break even calculator',
       'break even point formula',
@@ -184,10 +186,11 @@ If the manufacturer wants a true 70% profit margin on a $40.00 item:
     iconColor: 'text-amber-400',
     tagColor: 'text-amber-600',
     personaImageUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=480&q=70&fm=webp',
+    personaImageAlt: 'Operations lead reviewing business break-even volume and fixed overhead metrics',
     personaRole: 'Operations Lead & Financial Planner',
     relatedToolIds: ['calc-margin', 'calc-landed-cost', 'calc-roas', 'calc-fees'],
     detailedGuide: {
-      whatIsIt: 'Break-even analysis identifies the exact operating milestone where total business revenues equal total accumulated expenses (both fixed overhead and variable unit costs). At the break-even point, net profit is zero; every additional unit sold beyond this milestone generates direct pre-tax contribution profit.',
+      whatIsIt: 'Break-even analysis identifies the operating milestone where total business revenues equal total accumulated expenses (both fixed overhead and variable unit costs) under your cost assumptions. At the break-even point, net profit is zero; every additional unit sold beyond this milestone generates direct pre-tax contribution profit.',
       howItWorks: 'Enter your recurring fixed monthly expenses (rent, salaries, software subscriptions), your per-unit selling price, and your variable cost per unit (materials, shipping, per-order fees). The calculator determines your unit contribution margin, contribution margin ratio, break-even unit threshold, and total break-even revenue.',
       formulaExplanation: 'The unit contribution margin is the selling price minus the variable cost per unit. Dividing total fixed costs by this unit contribution margin gives the break-even volume in units. Multiplying the unit volume by the selling price gives the break-even revenue.',
       formulaMath: `Unit Contribution Margin = Selling Price - Variable Cost per Unit
@@ -262,6 +265,7 @@ The roaster must sell at least 250 bags each month to pay all bills. Bag #251 co
     iconColor: 'text-rose-400',
     tagColor: 'text-rose-600',
     personaImageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=480&q=70&fm=webp',
+    personaImageAlt: 'Paid media buyer evaluating digital ad campaign ROAS and conversion dashboards',
     personaRole: 'Paid Media Buyer & Growth Marketer',
     relatedToolIds: ['calc-cr-cpa', 'calc-ltv', 'calc-margin', 'calc-breakeven'],
     detailedGuide: {
@@ -339,10 +343,11 @@ True Campaign ROI (%) = (True Net Profit / (Total Ad Spend + COGS)) × 100`,
     iconColor: 'text-red-400',
     tagColor: 'text-red-600',
     personaImageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=480&q=70&fm=webp',
+    personaImageAlt: 'Marketing analyst tracking website conversion rate and CPA funnel metrics',
     personaRole: 'Conversion Rate Optimization Specialist',
     relatedToolIds: ['calc-roas', 'calc-ltv', 'calc-margin', 'calc-breakeven'],
     detailedGuide: {
-      whatIsIt: 'Conversion Rate (CR) measures the percentage of website visitors who complete a desired commercial action (such as placing an order, booking a consultation, or submitting a lead form). Pairing Conversion Rate with Cost Per Click (CPC) reveals your exact Cost Per Acquisition (CPA) and highlights marketing funnel efficiency.',
+      whatIsIt: 'Conversion Rate (CR) measures the percentage of website visitors who complete a desired commercial action (such as placing an order, booking a consultation, or submitting a lead form). Pairing Conversion Rate with Cost Per Click (CPC) reveals your estimated Cost Per Acquisition (CPA) and highlights marketing funnel efficiency.',
       howItWorks: 'Enter your total visitor traffic (sessions or clicks), total conversions generated, total ad spend, and optional Average Order Value (AOV). The calculator provides your conversion percentage, Cost Per Acquisition (CPA), Cost Per Click (CPC), total generated revenue, and the required traffic volume needed to generate 100 sales.',
       formulaExplanation: 'Conversion Rate is calculated by dividing total conversions by total visitors and multiplying by 100. CPA is total ad spend divided by conversions (or CPC divided by the conversion rate decimal). CPC is total ad spend divided by total visitors.',
       formulaMath: `Conversion Rate (%) = (Total Conversions / Total Visitors) × 100
@@ -411,6 +416,7 @@ Traffic Required for 100 Sales = 100 / (CR% / 100)`,
     iconColor: 'text-lime-400',
     tagColor: 'text-lime-600',
     personaImageUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=480&q=70&fm=webp',
+    personaImageAlt: 'Supply chain coordinator inspecting imported inventory and freight containers',
     personaRole: 'Supply Chain & Import Coordinator',
     relatedToolIds: ['calc-margin', 'calc-fees', 'calc-breakeven', 'calc-roas'],
     detailedGuide: {
@@ -491,8 +497,8 @@ Verification Check:
     iconBgColor: 'bg-indigo-950/80 border border-indigo-800/40',
     iconColor: 'text-indigo-400',
     tagColor: 'text-indigo-600',
-    personaImageUrl: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=480&q=70&fm=webp',
-    personaImageFallbackUrl: '/assets/images/calculators/freelance-rate.webp',
+    personaImageUrl: '/assets/images/calculators/freelance-rate.webp',
+    personaImageFallbackUrl: '/assets/images/calculators/freelance-rate.jpg',
     personaImageAlt: 'Freelancer reviewing project pricing and billable work at a desk',
     personaRole: 'Independent Consultant & Creative Freelancer',
     relatedToolIds: ['calc-fees', 'calc-late-interest', 'calc-salary', 'calc-margin'],
@@ -576,8 +582,8 @@ Where:
     iconBgColor: 'bg-orange-950/80 border border-orange-800/40',
     iconColor: 'text-orange-400',
     tagColor: 'text-orange-600',
-    personaImageUrl: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=480&q=70&fm=webp',
-    personaImageFallbackUrl: '/assets/images/calculators/invoice-late-interest.webp',
+    personaImageUrl: '/assets/images/calculators/invoice-late-interest.webp',
+    personaImageFallbackUrl: '/assets/images/calculators/invoice-late-interest.jpg',
     personaImageAlt: 'Financial accountant reviewing commercial invoices and calculating late payment interest with a calculator',
     personaRole: 'Commercial Credit & Accounts Receivable',
     relatedToolIds: ['calc-freelance', 'calc-fees', 'calc-salary', 'calc-margin'],
@@ -654,6 +660,7 @@ Where:
     iconColor: 'text-teal-400',
     tagColor: 'text-teal-600',
     personaImageUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=480&q=70&fm=webp',
+    personaImageAlt: 'Portfolio strategist reviewing long-term compound interest investment growth charts',
     personaRole: 'Long-Term Wealth & Portfolio Strategist',
     relatedToolIds: ['calc-loan-emi', 'calc-salary', 'calc-ltv', 'calc-breakeven'],
     detailedGuide: {
@@ -737,6 +744,7 @@ Sensitivity Check (Increasing Starting Principal to $20,000.00):
     iconColor: 'text-cyan-400',
     tagColor: 'text-cyan-600',
     personaImageUrl: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?auto=format&fit=crop&w=480&q=70&fm=webp',
+    personaImageAlt: 'Financial analyst calculating monthly loan EMI amortization schedule',
     personaRole: 'Corporate Debt & Commercial Lending',
     relatedToolIds: ['calc-compound', 'calc-salary', 'calc-breakeven', 'calc-fees'],
     detailedGuide: {
@@ -812,8 +820,8 @@ Total Interest Payable = Total Repayment Amount - Principal Loan Amount`,
     iconBgColor: 'bg-purple-950/80 border border-purple-800/40',
     iconColor: 'text-purple-400',
     tagColor: 'text-purple-600',
-    personaImageUrl: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=480&q=70&fm=webp',
-    personaImageFallbackUrl: '/assets/images/calculators/customer-ltv.webp',
+    personaImageUrl: '/assets/images/calculators/customer-ltv.webp',
+    personaImageFallbackUrl: '/assets/images/calculators/customer-ltv.jpg',
     personaImageAlt: 'Customer retention analytics dashboard showing lifetime value trends',
     personaRole: 'Customer Success & Retention Director',
     relatedToolIds: ['calc-roas', 'calc-cr-cpa', 'calc-margin', 'calc-breakeven'],
@@ -897,8 +905,8 @@ Where:
     iconBgColor: 'bg-pink-950/80 border border-pink-800/40',
     iconColor: 'text-pink-400',
     tagColor: 'text-pink-600',
-    personaImageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=480&q=70&fm=webp',
-    personaImageFallbackUrl: '/assets/images/calculators/payroll-salary.webp',
+    personaImageUrl: '/assets/images/calculators/payroll-salary.webp',
+    personaImageFallbackUrl: '/assets/images/calculators/payroll-salary.jpg',
     personaImageAlt: 'Payroll manager and compensation director reviewing employee salary and tax withholding figures at an office desk',
     personaRole: 'Payroll Manager & Executive Compensation',
     relatedToolIds: ['calc-freelance', 'calc-compound', 'calc-loan-emi', 'calc-breakeven'],

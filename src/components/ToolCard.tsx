@@ -105,9 +105,10 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
             </div>
             <Link
               to={`/tools/${tool.slug}/`}
+              tabIndex={-1}
+              aria-hidden="true"
               className="text-slate-500 hover:text-slate-800 transition p-1.5 rounded-lg hover:bg-slate-100"
               title={`Open dedicated page for ${tool.name}`}
-              aria-label={`Open dedicated page for ${tool.name}`}
             >
               <ExternalLink className="w-4 h-4" />
             </Link>

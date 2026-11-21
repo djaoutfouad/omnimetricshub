@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { ToolItem, CurrencySymbol } from '../../types';
 import { X, ExternalLink } from 'lucide-react';
 import { PaymentFeesCalc } from '../calculators/PaymentFeesCalc';
@@ -23,6 +23,21 @@ interface Props {
 }
 
 export const CalculatorModal: React.FC<Props> = ({ tool, currency, onClose }) => {
+  const location = useLocation();
+  const initialLocationRef = useRef(`${location.pathname}${location.search}`);
+
+  useEffect(() => {
+    if (tool) {
+      initialLocationRef.current = `${location.pathname}${location.search}`;
+    }
+  }, [tool]);
+
+  useEffect(() => {
+    if (tool && `${location.pathname}${location.search}` !== initialLocationRef.current) {
+      onClose();
+    }
+  }, [location.pathname, location.search, tool, onClose]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();

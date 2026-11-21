@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, TrendingUp, Calendar } from 'lucide-react';
+import { Copy, Check, RefreshCw, TrendingUp, Calendar, Share2 } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -8,6 +9,11 @@ import {
   formatLatinPercent,
   roundToDecimals,
 } from '../../utils/validation';
+import {
+  getValidatedNumericParam,
+  getValidatedEnumParam,
+  buildShareableCalculatorUrl,
+} from '../../utils/shareableState';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 
 interface Props {
@@ -15,12 +21,34 @@ interface Props {
 }
 
 export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
-  const [principalStr, setPrincipalStr] = useState<string>('10000');
-  const [monthlyDepositStr, setMonthlyDepositStr] = useState<string>('500');
-  const [annualRateStr, setAnnualRateStr] = useState<string>('8.0');
-  const [yearsStr, setYearsStr] = useState<string>('10');
-  const [depositTiming, setDepositTiming] = useState<'end' | 'beginning'>('end');
+  const location = useLocation();
+
+  const [principalStr, setPrincipalStr] = useState<string>(() =>
+    getValidatedNumericParam('principal', '10000', { min: 0, max: 100000000, allowZero: true })
+  );
+  const [monthlyDepositStr, setMonthlyDepositStr] = useState<string>(() =>
+    getValidatedNumericParam('monthlyDeposit', '500', { min: 0, max: 1000000, allowZero: true })
+  );
+  const [annualRateStr, setAnnualRateStr] = useState<string>(() =>
+    getValidatedNumericParam('rate', '8.0', { min: 0, max: 100, allowZero: true })
+  );
+  const [yearsStr, setYearsStr] = useState<string>(() =>
+    getValidatedNumericParam('years', '10', { min: 1, max: 100, allowZero: false, integerOnly: true })
+  );
+  const [depositTiming, setDepositTiming] = useState<'end' | 'beginning'>(() =>
+    getValidatedEnumParam('timing', ['end', 'beginning'] as const, 'end')
+  );
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => {
+    if (!location.search) return;
+    setPrincipalStr(getValidatedNumericParam('principal', '10000', { min: 0, max: 100000000, allowZero: true }, location.search));
+    setMonthlyDepositStr(getValidatedNumericParam('monthlyDeposit', '500', { min: 0, max: 1000000, allowZero: true }, location.search));
+    setAnnualRateStr(getValidatedNumericParam('rate', '8.0', { min: 0, max: 100, allowZero: true }, location.search));
+    setYearsStr(getValidatedNumericParam('years', '10', { min: 1, max: 100, allowZero: false, integerOnly: true }, location.search));
+    setDepositTiming(getValidatedEnumParam('timing', ['end', 'beginning'] as const, 'end', location.search));
+  }, [location.search]);
 
   // Field validations
   const principalField = validateNumericInput(principalStr, {
@@ -99,6 +127,26 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
     if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleShareLink = async () => {
+    if (!isFormValid) return;
+    const url = buildShareableCalculatorUrl(
+      'compound-interest',
+      {
+        principal: safePrincipal,
+        monthlyDeposit: safeMonthly,
+        rate: safeRate,
+        years: safeYears,
+        timing: depositTiming,
+      },
+      currency
+    );
+    const ok = await copyTextToClipboard(url);
+    if (ok) {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
     }
   };
 
@@ -243,7 +291,7 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
       )}
 
       {/* Action Footer */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
         <button
           type="button"
           onClick={() => {
@@ -258,20 +306,37 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
           <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
         </button>
 
-        <button
-          type="button"
-          onClick={handleCopy}
-          disabled={!isFormValid}
-          className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-            isFormValid
-              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-              : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-          }`}
-        >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? 'Copied!' : 'Copy Summary'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleShareLink}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
+              isFormValid
+                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+            {linkCopied ? 'Link Copied!' : 'Share Link'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCopy}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
+              isFormValid
+                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? 'Copied!' : 'Copy Summary'}
+          </button>
+        </div>
       </div>
     </div>
   );
 };
+

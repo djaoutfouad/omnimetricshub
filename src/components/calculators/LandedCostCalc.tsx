@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, Package, AlertCircle } from 'lucide-react';
+import { Copy, Check, RefreshCw, Package, AlertCircle, Share2, ArrowRight, Workflow } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -8,6 +9,11 @@ import {
   formatLatinPercent,
   roundToDecimals,
 } from '../../utils/validation';
+import {
+  getValidatedNumericParam,
+  getValidatedEnumParam,
+  buildShareableCalculatorUrl,
+} from '../../utils/shareableState';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 
 interface Props {
@@ -15,15 +21,46 @@ interface Props {
 }
 
 export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
-  const [unitCostStr, setUnitCostStr] = useState<string>('12.00');
-  const [freightPerUnitStr, setFreightPerUnitStr] = useState<string>('3.50');
-  const [tariffPercentStr, setTariffPercentStr] = useState<string>('5.0');
-  const [packagingPerUnitStr, setPackagingPerUnitStr] = useState<string>('1.50');
-  const [paymentFeePercentStr, setPaymentFeePercentStr] = useState<string>('2.9');
-  const [paymentFeeFixedStr, setPaymentFeeFixedStr] = useState<string>('0.30');
-  const [targetMarginStr, setTargetMarginStr] = useState<string>('50.0');
-  const [dutyBasis, setDutyBasis] = useState<'FOB' | 'CIF'>('FOB');
+  const location = useLocation();
+
+  const [unitCostStr, setUnitCostStr] = useState<string>(() =>
+    getValidatedNumericParam('unitCost', '12.00', { min: 0, max: 1000000, allowZero: true })
+  );
+  const [freightPerUnitStr, setFreightPerUnitStr] = useState<string>(() =>
+    getValidatedNumericParam('freight', '3.50', { min: 0, max: 100000, allowZero: true })
+  );
+  const [tariffPercentStr, setTariffPercentStr] = useState<string>(() =>
+    getValidatedNumericParam('tariff', '5.0', { min: 0, max: 500, allowZero: true })
+  );
+  const [packagingPerUnitStr, setPackagingPerUnitStr] = useState<string>(() =>
+    getValidatedNumericParam('packaging', '1.50', { min: 0, max: 100000, allowZero: true })
+  );
+  const [paymentFeePercentStr, setPaymentFeePercentStr] = useState<string>(() =>
+    getValidatedNumericParam('feePercent', '2.9', { min: 0, max: 95, allowZero: true })
+  );
+  const [paymentFeeFixedStr, setPaymentFeeFixedStr] = useState<string>(() =>
+    getValidatedNumericParam('feeFixed', '0.30', { min: 0, max: 1000, allowZero: true })
+  );
+  const [targetMarginStr, setTargetMarginStr] = useState<string>(() =>
+    getValidatedNumericParam('targetMargin', '50.0', { min: 0, max: 95, allowZero: true })
+  );
+  const [dutyBasis, setDutyBasis] = useState<'FOB' | 'CIF'>(() =>
+    getValidatedEnumParam('dutyBasis', ['FOB', 'CIF'] as const, 'FOB')
+  );
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => {
+    if (!location.search) return;
+    setUnitCostStr(getValidatedNumericParam('unitCost', '12.00', { min: 0, max: 1000000, allowZero: true }, location.search));
+    setFreightPerUnitStr(getValidatedNumericParam('freight', '3.50', { min: 0, max: 100000, allowZero: true }, location.search));
+    setTariffPercentStr(getValidatedNumericParam('tariff', '5.0', { min: 0, max: 500, allowZero: true }, location.search));
+    setPackagingPerUnitStr(getValidatedNumericParam('packaging', '1.50', { min: 0, max: 100000, allowZero: true }, location.search));
+    setPaymentFeePercentStr(getValidatedNumericParam('feePercent', '2.9', { min: 0, max: 95, allowZero: true }, location.search));
+    setPaymentFeeFixedStr(getValidatedNumericParam('feeFixed', '0.30', { min: 0, max: 1000, allowZero: true }, location.search));
+    setTargetMarginStr(getValidatedNumericParam('targetMargin', '50.0', { min: 0, max: 95, allowZero: true }, location.search));
+    setDutyBasis(getValidatedEnumParam('dutyBasis', ['FOB', 'CIF'] as const, 'FOB', location.search));
+  }, [location.search]);
 
   // Field validation
   const unitCostField = validateNumericInput(unitCostStr, {
@@ -158,6 +195,33 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  const handleShareLink = async () => {
+    if (!isFormValid) return;
+    const url = buildShareableCalculatorUrl(
+      'landed-cost',
+      {
+        unitCost: safeUnitCost,
+        freight: safeFreight,
+        tariff: safeTariff,
+        packaging: safePackaging,
+        targetMargin: safeTargetMargin,
+        feePercent: safeFeePercent,
+        feeFixed: safeFeeFixed,
+        dutyBasis,
+      },
+      currency
+    );
+    const ok = await copyTextToClipboard(url);
+    if (ok) {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    }
+  };
+
+  const profitMarginWorkflowUrl = `/tools/profit-margin/?cost=${totalLandedCost.toFixed(2)}${
+    recommendedPrice !== null ? `&price=${recommendedPrice.toFixed(2)}` : ''
+  }&targetMargin=${safeTargetMargin}`;
 
   return (
     <div className="space-y-4 text-slate-800">
@@ -353,8 +417,29 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
+      {/* Connected Decision Workflow Card */}
+      {isFormValid && totalLandedCost > 0 && (
+        <div className="p-3 bg-emerald-50/80 border border-emerald-200/90 rounded-2xl space-y-2">
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="font-extrabold text-emerald-950 uppercase tracking-wider flex items-center gap-1.5">
+              <Workflow className="w-3.5 h-3.5 text-emerald-600" /> Next Step in Your Workflow
+            </span>
+            <span className="text-emerald-700 font-semibold">
+              Carries {formatLatinCurrency(totalLandedCost, currency)} unit cost
+            </span>
+          </div>
+          <Link
+            to={profitMarginWorkflowUrl}
+            className="w-full px-3 py-2 rounded-xl bg-white hover:bg-emerald-600 text-emerald-900 hover:text-white border border-emerald-200 hover:border-emerald-600 text-xs font-bold flex items-center justify-between transition shadow-2xs group"
+          >
+            <span>Use Total Landed Cost in Profit Margin Calculator</span>
+            <ArrowRight className="w-3.5 h-3.5 text-emerald-600 group-hover:text-white group-hover:translate-x-0.5 transition" />
+          </Link>
+        </div>
+      )}
+
       {/* Action Footer */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
         <button
           type="button"
           onClick={() => {
@@ -372,20 +457,37 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
           <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
         </button>
 
-        <button
-          type="button"
-          onClick={handleCopy}
-          disabled={!isFormValid}
-          className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-            isFormValid
-              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-              : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-          }`}
-        >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? 'Copied!' : 'Copy Summary'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleShareLink}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
+              isFormValid
+                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+            {linkCopied ? 'Link Copied!' : 'Share Link'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCopy}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
+              isFormValid
+                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? 'Copied!' : 'Copy Summary'}
+          </button>
+        </div>
       </div>
     </div>
   );
 };
+

@@ -83,6 +83,7 @@ export const Header: React.FC<Props> = ({
             onChange={(e) => onCurrencyChange(e.target.value as CurrencySymbol)}
             className="bg-slate-100 hover:bg-slate-200/90 rounded-xl py-1.5 px-2.5 border border-slate-200/60 cursor-pointer outline-none font-bold text-slate-800 text-xs transition"
             title="Select Currency"
+            aria-label="Select Currency"
           >
             <option value="$">$ USD</option>
             <option value="€">€ EUR</option>

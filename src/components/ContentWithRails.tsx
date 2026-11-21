@@ -29,12 +29,15 @@ export const ContentWithRails: React.FC<ContentWithRailsProps> = ({
   mainClassName = '',
   maxWidthClass = 'max-w-4xl 2xl:max-w-5xl',
 }) => {
+  // Do not render empty advertisement <aside> landmarks into the DOM while ads are disabled
+  const adsActive = false;
+
   return (
     <div
       className={`w-full max-w-[1480px] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 py-6 flex justify-center items-start gap-6 2xl:gap-8 ${className}`}
     >
-      {/* Left Ad Rail (Visible on xl / 1280px+ viewports only) */}
-      {showRails && showLeftRail && (
+      {/* Left Ad Rail (Rendered only when ads are active on xl / 1280px+ viewports) */}
+      {adsActive && showRails && showLeftRail && (
         <aside
           aria-label="Left Side Advertisement"
           className="hidden xl:flex flex-col w-[160px] 2xl:w-[180px] shrink-0 sticky top-24 select-none empty:hidden"
@@ -48,8 +51,8 @@ export const ContentWithRails: React.FC<ContentWithRailsProps> = ({
         {children}
       </div>
 
-      {/* Right Ad Rail (Visible on xl / 1280px+ viewports only) */}
-      {showRails && showRightRail && (
+      {/* Right Ad Rail (Rendered only when ads are active on xl / 1280px+ viewports) */}
+      {adsActive && showRails && showRightRail && (
         <aside
           aria-label="Right Side Advertisement"
           className="hidden xl:flex flex-col w-[160px] 2xl:w-[180px] shrink-0 sticky top-24 select-none empty:hidden"

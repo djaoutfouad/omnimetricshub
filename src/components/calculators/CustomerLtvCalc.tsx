@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, Users, Info } from 'lucide-react';
+import { Copy, Check, RefreshCw, Users, Info, Share2 } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -8,6 +9,10 @@ import {
   formatLatinPercent,
   roundToDecimals,
 } from '../../utils/validation';
+import {
+  getValidatedNumericParam,
+  buildShareableCalculatorUrl,
+} from '../../utils/shareableState';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 
 interface Props {
@@ -15,12 +20,34 @@ interface Props {
 }
 
 export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
-  const [aovStr, setAovStr] = useState<string>('65');
-  const [frequencyStr, setFrequencyStr] = useState<string>('1.5');
-  const [churnRateStr, setChurnRateStr] = useState<string>('5.0');
-  const [grossMarginStr, setGrossMarginStr] = useState<string>('70');
-  const [cacStr, setCacStr] = useState<string>('120');
+  const location = useLocation();
+
+  const [aovStr, setAovStr] = useState<string>(() =>
+    getValidatedNumericParam('aov', '65', { min: 0.01, max: 1000000, allowZero: false })
+  );
+  const [frequencyStr, setFrequencyStr] = useState<string>(() =>
+    getValidatedNumericParam('frequency', '1.5', { min: 0.01, max: 1000, allowZero: false })
+  );
+  const [churnRateStr, setChurnRateStr] = useState<string>(() =>
+    getValidatedNumericParam('churn', '5.0', { min: 0, max: 100, allowZero: true })
+  );
+  const [grossMarginStr, setGrossMarginStr] = useState<string>(() =>
+    getValidatedNumericParam('margin', '70', { min: 0, max: 100, allowZero: true })
+  );
+  const [cacStr, setCacStr] = useState<string>(() =>
+    getValidatedNumericParam('cac', '120', { min: 0, max: 1000000, allowZero: true })
+  );
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => {
+    if (!location.search) return;
+    setAovStr(getValidatedNumericParam('aov', '65', { min: 0.01, max: 1000000, allowZero: false }, location.search));
+    setFrequencyStr(getValidatedNumericParam('frequency', '1.5', { min: 0.01, max: 1000, allowZero: false }, location.search));
+    setChurnRateStr(getValidatedNumericParam('churn', '5.0', { min: 0, max: 100, allowZero: true }, location.search));
+    setGrossMarginStr(getValidatedNumericParam('margin', '70', { min: 0, max: 100, allowZero: true }, location.search));
+    setCacStr(getValidatedNumericParam('cac', '120', { min: 0, max: 1000000, allowZero: true }, location.search));
+  }, [location.search]);
 
   // Field validation
   const aovField = validateNumericInput(aovStr, {
@@ -125,6 +152,26 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
     if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleShareLink = async () => {
+    if (!isFormValid) return;
+    const url = buildShareableCalculatorUrl(
+      'customer-ltv',
+      {
+        aov: safeAov,
+        frequency: safeFreq,
+        churn: safeChurn,
+        margin: safeMargin,
+        cac: safeCac,
+      },
+      currency
+    );
+    const ok = await copyTextToClipboard(url);
+    if (ok) {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
     }
   };
 
@@ -264,7 +311,7 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
       </div>
 
       {/* Action Footer */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
         <button
           type="button"
           onClick={() => {
@@ -279,20 +326,37 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
           <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
         </button>
 
-        <button
-          type="button"
-          onClick={handleCopy}
-          disabled={!isFormValid}
-          className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-            isFormValid
-              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-              : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-          }`}
-        >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? 'Copied!' : 'Copy Summary'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleShareLink}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
+              isFormValid
+                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
+            {linkCopied ? 'Link Copied!' : 'Share Link'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCopy}
+            disabled={!isFormValid}
+            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
+              isFormValid
+                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
+            }`}
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? 'Copied!' : 'Copy Summary'}
+          </button>
+        </div>
       </div>
     </div>
   );
 };
+
