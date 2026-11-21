@@ -16,8 +16,8 @@ export const ConsentBanner: React.FC = () => {
     try {
       const consent = localStorage.getItem('omni_privacy_consent');
       if (!consent) {
-        // Small timeout so it doesn't pop in abruptly on initial load
-        const timer = setTimeout(() => setIsVisible(true), 800);
+        // Delay client-side mount so the fixed notice never competes as initial mobile LCP element
+        const timer = setTimeout(() => setIsVisible(true), 1500);
         return () => clearTimeout(timer);
       }
     } catch {

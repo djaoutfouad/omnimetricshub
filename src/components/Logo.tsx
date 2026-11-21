@@ -195,21 +195,21 @@ export const Logo: React.FC<LogoProps> = ({
   }
 
   return (
-    <div className={`flex items-center gap-2.5 sm:gap-3 select-none ${className}`}>
-      <OmEmblem size={pixelSize} className="group-hover:scale-105 transition-transform" idPrefix={idPrefix} />
+    <div className={`flex items-center gap-1.5 sm:gap-3 select-none ${className}`}>
+      <OmEmblem size={pixelSize} className="w-8 sm:w-[42px] h-auto group-hover:scale-105 transition-transform" idPrefix={idPrefix} />
 
       <div>
         <div
           className={`font-black tracking-tight leading-none flex items-center gap-1 ${
             isDark ? 'text-white' : 'text-slate-900'
-          } ${size === 'sm' ? 'text-sm' : size === 'lg' ? 'text-xl' : 'text-[16px]'}`}
+          } ${size === 'sm' ? 'text-sm' : size === 'lg' ? 'text-xl' : 'text-[14px] sm:text-[16px]'}`}
         >
           <span>OmniMetrics</span>
           <span className={isDark ? 'text-emerald-400' : 'text-emerald-700'}>Hub</span>
         </div>
         {showSubtitle && (
           <div
-            className={`text-[11px] font-medium leading-tight mt-0.5 ${
+            className={`hidden sm:block text-[11px] font-medium leading-tight mt-0.5 ${
               isDark ? 'text-slate-300' : 'text-slate-600'
             }`}
           >

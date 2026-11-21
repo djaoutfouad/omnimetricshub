@@ -21,9 +21,10 @@ import {
 interface Props {
   tool: ToolItem;
   onLaunch: (tool: ToolItem) => void;
+  priority?: boolean;
 }
 
-export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
+export const ToolCard: React.FC<Props> = ({ tool, onLaunch, priority = false }) => {
   const [currentImgSrc, setCurrentImgSrc] = useState<string | undefined>(tool.personaImageUrl);
   const [imgFailed, setImgFailed] = useState(false);
 
@@ -86,7 +87,8 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
                 }
               }}
               className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
+              loading={priority ? 'eager' : 'lazy'}
+              fetchPriority={priority ? 'high' : undefined}
               decoding="async"
               referrerPolicy="no-referrer"
             />
@@ -115,15 +117,12 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
             >
               {getIcon()}
             </div>
-            <Link
-              to={`/tools/${tool.slug}/`}
-              tabIndex={-1}
+            <span
               aria-hidden="true"
-              className="text-slate-500 hover:text-slate-800 transition p-1.5 rounded-lg hover:bg-slate-100"
-              title={`Open dedicated page for ${tool.name}`}
+              className="text-slate-400 group-hover:text-slate-700 transition p-1.5 rounded-lg"
             >
               <ExternalLink className="w-4 h-4" />
-            </Link>
+            </span>
           </div>
 
           {/* Category Header */}

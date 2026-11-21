@@ -74,7 +74,7 @@ export const HomePage: React.FC<Props> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTools.map((tool, index) => (
               <React.Fragment key={tool.id}>
-                <ToolCard tool={tool} onLaunch={onLaunchTool} />
+                <ToolCard tool={tool} onLaunch={onLaunchTool} priority={index === 0} />
                 {/* Native In-Grid Ad Slot */}
                 {index === 2 && <AdSlot position="in-grid" />}
               </React.Fragment>

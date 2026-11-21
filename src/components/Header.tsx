@@ -22,8 +22,8 @@ export const Header: React.FC<Props> = ({
   onOpenContact,
 }) => {
   return (
-    <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-30 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
+    <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-30 transition-all overflow-x-clip">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-3">
         {/* LOGO */}
         <div
           className="cursor-pointer select-none group shrink-0"
@@ -61,27 +61,28 @@ export const Header: React.FC<Props> = ({
         </nav>
 
         {/* SEARCH BAR */}
-        <div className="flex-1 max-w-xs mx-1 sm:mx-3">
+        <div className="flex-1 min-w-0 max-w-xs mx-0.5 sm:mx-2">
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3.5 top-2.5" />
+            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               id="header-search"
+              aria-label="Search calculators"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Search calculators (e.g. fees, margin, roas, loan)..."
-              className="w-full pl-9 pr-4 py-1.5 bg-slate-100/90 text-xs rounded-full border-0 focus:ring-2 focus:ring-emerald-700 outline-none text-slate-800 font-medium transition placeholder:text-slate-500"
+              placeholder="Search tools..."
+              className="w-full min-w-0 pl-7 sm:pl-9 pr-2.5 sm:pr-4 py-1 sm:py-1.5 bg-slate-100/90 text-[11px] sm:text-xs rounded-full border-0 focus:ring-2 focus:ring-emerald-700 outline-none text-slate-800 font-medium transition placeholder:text-slate-500"
             />
           </div>
         </div>
 
         {/* CURRENCY & CTA */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 text-xs font-semibold text-slate-700 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 text-xs font-semibold text-slate-700 shrink-0">
           {/* Currency Selector */}
           <select
             value={currency}
             onChange={(e) => onCurrencyChange(e.target.value as CurrencySymbol)}
-            className="bg-slate-100 hover:bg-slate-200/90 rounded-xl py-1.5 px-2.5 border border-slate-200/60 cursor-pointer outline-none font-bold text-slate-800 text-xs transition"
+            className="bg-slate-100 hover:bg-slate-200/90 rounded-lg sm:rounded-xl py-1 sm:py-1.5 px-1.5 sm:px-2.5 border border-slate-200/60 cursor-pointer outline-none font-bold text-slate-800 text-[11px] sm:text-xs transition shrink-0"
             title="Select Currency"
             aria-label="Select Currency"
           >
@@ -98,7 +99,8 @@ export const Header: React.FC<Props> = ({
           <button
             type="button"
             onClick={onOpenContact}
-            className="bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-3 sm:px-4 py-1.5 rounded-full transition shadow-xs flex items-center gap-1 cursor-pointer"
+            aria-label="Contact OmniMetrics Hub"
+            className="bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs transition shadow-xs flex items-center gap-1 cursor-pointer shrink-0 whitespace-nowrap"
           >
             <span>Contact</span>
             <ArrowUpRight className="w-3 h-3 hidden sm:inline" />
