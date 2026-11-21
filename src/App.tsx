@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { CurrencySymbol, CategoryType, ToolItem, ArticleItem } from './types';
 import { getInitialCurrencyFromUrl } from './utils/shareableState';
@@ -10,7 +10,7 @@ import { ScrollToTop } from './components/ScrollToTop';
 import { ConsentBanner } from './components/ConsentBanner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Pages
+// Pages (kept synchronous for static SSR prerendering in src/prerender.tsx)
 import { HomePage } from './pages/HomePage';
 import { CalculatorPage } from './pages/CalculatorPage';
 import { CalculatorsIndexPage } from './pages/CalculatorsIndexPage';
@@ -22,12 +22,24 @@ import { ContactPage } from './pages/ContactPage';
 import { LegalPage } from './pages/LegalPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
-// Modals
-import { CalculatorModal } from './components/modals/CalculatorModal';
-import { ArticleModal } from './components/modals/ArticleModal';
-import { SuggestModal } from './components/modals/SuggestModal';
-import { ContactModal } from './components/modals/ContactModal';
-import { LegalModal, LegalTabType } from './components/modals/LegalModal';
+// Lazy-loaded Modals (only loaded on demand when opened by the user on the client)
+import type { LegalTabType } from './components/modals/LegalModal';
+
+const CalculatorModal = React.lazy(() =>
+  import('./components/modals/CalculatorModal').then((m) => ({ default: m.CalculatorModal }))
+);
+const ArticleModal = React.lazy(() =>
+  import('./components/modals/ArticleModal').then((m) => ({ default: m.ArticleModal }))
+);
+const SuggestModal = React.lazy(() =>
+  import('./components/modals/SuggestModal').then((m) => ({ default: m.SuggestModal }))
+);
+const ContactModal = React.lazy(() =>
+  import('./components/modals/ContactModal').then((m) => ({ default: m.ContactModal }))
+);
+const LegalModal = React.lazy(() =>
+  import('./components/modals/LegalModal').then((m) => ({ default: m.LegalModal }))
+);
 
 export default function App() {
   const navigate = useNavigate();
@@ -190,36 +202,56 @@ export default function App() {
       {/* Floating Action Button */}
       <FloatingActionButton onClick={() => setIsSuggestOpen(true)} />
 
-      {/* Calculator Modal */}
-      <CalculatorModal
-        tool={activeTool}
-        currency={currency}
-        onClose={() => setActiveTool(null)}
-      />
+      {/* Calculator Modal (lazy-loaded on demand) */}
+      {activeTool && (
+        <Suspense fallback={null}>
+          <CalculatorModal
+            tool={activeTool}
+            currency={currency}
+            onClose={() => setActiveTool(null)}
+          />
+        </Suspense>
+      )}
 
-      {/* Article Modal */}
-      <ArticleModal
-        article={activeArticle}
-        onClose={() => setActiveArticle(null)}
-      />
+      {/* Article Modal (lazy-loaded on demand) */}
+      {activeArticle && (
+        <Suspense fallback={null}>
+          <ArticleModal
+            article={activeArticle}
+            onClose={() => setActiveArticle(null)}
+          />
+        </Suspense>
+      )}
 
-      {/* Suggest Modal */}
-      <SuggestModal
-        isOpen={isSuggestOpen}
-        onClose={() => setIsSuggestOpen(false)}
-      />
+      {/* Suggest Modal (lazy-loaded on demand) */}
+      {isSuggestOpen && (
+        <Suspense fallback={null}>
+          <SuggestModal
+            isOpen={isSuggestOpen}
+            onClose={() => setIsSuggestOpen(false)}
+          />
+        </Suspense>
+      )}
 
-      {/* Contact Modal */}
-      <ContactModal
-        isOpen={isContactOpen}
-        onClose={() => setIsContactOpen(false)}
-      />
+      {/* Contact Modal (lazy-loaded on demand) */}
+      {isContactOpen && (
+        <Suspense fallback={null}>
+          <ContactModal
+            isOpen={isContactOpen}
+            onClose={() => setIsContactOpen(false)}
+          />
+        </Suspense>
+      )}
 
-      {/* Legal Modal */}
-      <LegalModal
-        initialTab={legalModalTab}
-        onClose={() => setLegalModalTab(null)}
-      />
+      {/* Legal Modal (lazy-loaded on demand) */}
+      {legalModalTab && (
+        <Suspense fallback={null}>
+          <LegalModal
+            initialTab={legalModalTab}
+            onClose={() => setLegalModalTab(null)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

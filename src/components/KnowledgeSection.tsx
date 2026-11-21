@@ -35,13 +35,13 @@ export const KnowledgeSection: React.FC<Props> = ({ onSelectArticle }) => {
                 <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${article.tagColorClass}`}>
                   {article.category}
                 </span>
-                <span className="flex items-center gap-1 text-[11px] text-slate-500 font-medium">
+                <span className="flex items-center gap-1 text-[11px] text-slate-600 font-semibold">
                   <Clock className="w-3 h-3" />
                   {article.readTime}
                 </span>
               </div>
 
-              <h3 className="font-extrabold text-[15px] text-slate-900 group-hover:text-emerald-700 transition leading-snug mb-2">
+              <h3 className="font-extrabold text-[15px] text-slate-900 group-hover:text-emerald-800 transition leading-snug mb-2">
                 <Link to={`/blog/${article.slug || article.id}/`}>
                   {article.title}
                 </Link>
@@ -56,13 +56,13 @@ export const KnowledgeSection: React.FC<Props> = ({ onSelectArticle }) => {
               <button
                 type="button"
                 onClick={() => onSelectArticle(article)}
-                className="text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
+                className="text-xs font-bold text-slate-700 hover:text-slate-900 transition cursor-pointer"
               >
                 Quick Preview
               </button>
               <Link
                 to={`/blog/${article.slug || article.id}/`}
-                className="text-xs font-bold text-emerald-700 group-hover:text-emerald-800 flex items-center gap-1 transition"
+                className="text-xs font-bold text-emerald-800 group-hover:text-emerald-900 flex items-center gap-1 transition"
               >
                 <span>Read full guide</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />

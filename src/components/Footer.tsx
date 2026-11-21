@@ -172,8 +172,8 @@ export const Footer: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 pt-6 border-t border-slate-800 space-y-3 text-[11px] text-slate-400">
-        <p className="text-slate-400 leading-relaxed max-w-4xl">
+      <div className="max-w-6xl mx-auto px-6 pt-6 border-t border-slate-800 space-y-3 text-[11px] text-slate-300">
+        <p className="text-slate-300 leading-relaxed max-w-4xl">
           OmniMetrics computational tools are provided for planning and educational evaluation only, and do not constitute certified legal, tax, or financial advisory.
         </p>
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2 pt-2 border-t border-slate-800/60">

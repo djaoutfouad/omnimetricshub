@@ -76,8 +76,8 @@ export const Hero: React.FC<Props> = ({ selectedCategory, onSelectCategory }) =>
                 onClick={() => onSelectCategory(cat.value)}
                 className={`px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold transition shadow-xs whitespace-nowrap cursor-pointer backdrop-blur-md ${
                   isActive
-                    ? 'bg-emerald-500 text-white border border-emerald-400 shadow-md shadow-emerald-950/50'
-                    : 'bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700/60'
+                    ? 'bg-emerald-700 hover:bg-emerald-800 text-white border border-emerald-500 shadow-md shadow-emerald-950/50'
+                    : 'bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700'
                 }`}
               >
                 {cat.label}

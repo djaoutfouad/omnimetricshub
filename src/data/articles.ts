@@ -8,7 +8,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     category: 'PAYMENTS',
     readTime: '6 min read',
     snippet: 'Every card payment accepted online passes through acquiring processors and card networks that deduct interchange, assessment, and gateway fees before funds settle into your bank account. Learn the gross-up formula to protect your margins.',
-    tagColorClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    tagColorClass: 'bg-emerald-50 text-emerald-800 border border-emerald-200',
     relatedToolIds: ['calc-fees', 'calc-margin', 'calc-freelance'],
     relatedArticleSlugs: ['margin-vs-markup-guide', 'freelancer-pricing-formula'],
     faqs: [
@@ -62,7 +62,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     category: 'PRICING',
     readTime: '6 min read',
     snippet: 'Margin and markup both describe profitability, but are calculated from completely different baselines. Mixing them up causes major pricing errors that erode business cash flow and unit economics.',
-    tagColorClass: 'bg-blue-50 text-blue-700 border border-blue-200',
+    tagColorClass: 'bg-blue-50 text-blue-800 border border-blue-200',
     relatedToolIds: ['calc-margin', 'calc-breakeven', 'calc-landed-cost'],
     relatedArticleSlugs: ['how-to-calculate-break-even', 'landed-cost-and-tariffs-guide'],
     faqs: [
@@ -118,7 +118,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     category: 'MARKETING',
     readTime: '6 min read',
     snippet: 'Learn how to calculate Return on Ad Spend (ROAS), find your campaign Break-Even ROAS threshold, and measure true bottom-line profitability after product COGS and fulfillment expenses.',
-    tagColorClass: 'bg-rose-50 text-rose-700 border border-rose-200',
+    tagColorClass: 'bg-rose-50 text-rose-800 border border-rose-200',
     relatedToolIds: ['calc-roas', 'calc-cr-cpa', 'calc-ltv'],
     relatedArticleSlugs: ['customer-ltv-guide', 'how-to-calculate-break-even'],
     faqs: [
@@ -173,7 +173,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     category: 'FINANCE',
     readTime: '6 min read',
     snippet: 'Determine the operational milestone where total business revenues equal total operating overhead and variable expenses. Master unit contribution margins and safety buffer planning.',
-    tagColorClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+    tagColorClass: 'bg-amber-50 text-amber-800 border border-amber-200',
     relatedToolIds: ['calc-breakeven', 'calc-margin', 'calc-roas'],
     relatedArticleSlugs: ['margin-vs-markup-guide', 'how-to-calculate-roas'],
     faqs: [
@@ -218,7 +218,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     category: 'FREELANCE',
     readTime: '6 min read',
     snippet: 'Salaried employees switching to freelancing frequently underprice themselves by dividing annual salary by 2,080 hours. Learn how factoring non-billable overhead, self-employment taxes, and health coverage stabilizes cash flow.',
-    tagColorClass: 'bg-indigo-50 text-indigo-700 border border-indigo-200',
+    tagColorClass: 'bg-indigo-50 text-indigo-800 border border-indigo-200',
     relatedToolIds: ['calc-freelance', 'calc-fees', 'calc-salary'],
     relatedArticleSlugs: ['payment-gateway-fees-breakdown', 'salary-to-hourly-and-take-home-pay'],
     faqs: [
@@ -272,7 +272,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     category: 'MARKETING',
     readTime: '6 min read',
     snippet: 'Customer Lifetime Value (LTV) is the ultimate metric for subscription and e-commerce growth. Learn how to calculate Profit LTV and benchmark Customer Acquisition Cost (CAC) for sustainable scaling.',
-    tagColorClass: 'bg-purple-50 text-purple-700 border border-purple-200',
+    tagColorClass: 'bg-purple-50 text-purple-800 border border-purple-200',
     relatedToolIds: ['calc-ltv', 'calc-roas', 'calc-cr-cpa'],
     relatedArticleSlugs: ['how-to-calculate-roas', 'margin-vs-markup-guide'],
     faqs: [
@@ -326,7 +326,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     category: 'INVESTING',
     readTime: '6 min read',
     snippet: 'Explore the mathematics of compound interest and recurring monthly contributions. Discover how exponential compounding accelerates wealth creation over multi-year investment horizons.',
-    tagColorClass: 'bg-teal-50 text-teal-700 border border-teal-200',
+    tagColorClass: 'bg-teal-50 text-teal-800 border border-teal-200',
     relatedToolIds: ['calc-compound', 'calc-loan-emi'],
     relatedArticleSlugs: ['understanding-loan-amortization-emi'],
     faqs: [
@@ -381,7 +381,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     category: 'FINANCE',
     readTime: '6 min read',
     snippet: 'Demystify loan amortization math. Understand how Equated Monthly Installments (EMI) allocate payments between interest and principal over time, and how extra payments save thousands in borrowing costs.',
-    tagColorClass: 'bg-amber-50 text-amber-700 border border-amber-200',
+    tagColorClass: 'bg-amber-50 text-amber-800 border border-amber-200',
     relatedToolIds: ['calc-loan-emi', 'calc-compound'],
     relatedArticleSlugs: ['compound-interest-explained', 'how-to-calculate-break-even'],
     faqs: [
@@ -436,7 +436,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     category: 'E-COMMERCE',
     readTime: '6 min read',
     snippet: 'Manufacturing FOB cost is only the beginning. Discover how customs duties, port drayage, ocean freight, cargo insurance, and packaging fees determine true unit profitability for e-commerce imports.',
-    tagColorClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    tagColorClass: 'bg-emerald-50 text-emerald-800 border border-emerald-200',
     relatedToolIds: ['calc-landed-cost', 'calc-margin', 'calc-breakeven'],
     relatedArticleSlugs: ['margin-vs-markup-guide', 'how-to-calculate-break-even'],
     faqs: [
@@ -492,7 +492,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     category: 'FINANCE',
     readTime: '5 min read',
     snippet: 'Late B2B invoice payments drain agency and contractor cash flow. Learn how statutory interest rates, compounding conventions, and fixed debt recovery fees protect your business balance sheet.',
-    tagColorClass: 'bg-indigo-50 text-indigo-700 border border-indigo-200',
+    tagColorClass: 'bg-indigo-50 text-indigo-800 border border-indigo-200',
     relatedToolIds: ['calc-late-interest', 'calc-freelance', 'calc-fees'],
     relatedArticleSlugs: ['freelancer-pricing-formula', 'payment-gateway-fees-breakdown'],
     faqs: [
@@ -545,7 +545,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     category: 'PAYROLL',
     readTime: '6 min read',
     snippet: 'Translate annual gross salary into actual take-home paycheck earnings. Understand federal/state income tax brackets, FICA/social security withholdings, and how hourly wages compare to annual compensation.',
-    tagColorClass: 'bg-teal-50 text-teal-700 border border-teal-200',
+    tagColorClass: 'bg-teal-50 text-teal-800 border border-teal-200',
     relatedToolIds: ['calc-salary', 'calc-freelance', 'calc-compound'],
     relatedArticleSlugs: ['freelancer-pricing-formula', 'compound-interest-explained'],
     faqs: [
@@ -601,7 +601,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     category: 'MARKETING',
     readTime: '6 min read',
     snippet: 'Understand the mathematical mechanics of website conversion rate (CR), cost per click (CPC), and cost per acquisition (CPA). Discover how small conversion rate uplifts create exponential reductions in marketing spend.',
-    tagColorClass: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    tagColorClass: 'bg-emerald-50 text-emerald-800 border border-emerald-200',
     relatedToolIds: ['calc-cr-cpa', 'calc-roas', 'calc-ltv'],
     relatedArticleSlugs: ['how-to-calculate-roas', 'customer-ltv-guide'],
     faqs: [

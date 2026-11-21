@@ -21,10 +21,9 @@ import {
 interface Props {
   tool: ToolItem;
   onLaunch: (tool: ToolItem) => void;
-  priority?: boolean;
 }
 
-export const ToolCard: React.FC<Props> = ({ tool, onLaunch, priority = false }) => {
+export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
   const [currentImgSrc, setCurrentImgSrc] = useState<string | undefined>(tool.personaImageUrl);
   const [imgFailed, setImgFailed] = useState(false);
 
@@ -67,7 +66,7 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch, priority = false }) 
         const isUnsplash = activeSrc.includes('images.unsplash.com');
         const unsplashBase = isUnsplash ? activeSrc.split('?')[0] : '';
         const responsiveSrcSet = isUnsplash
-          ? `${unsplashBase}?auto=format&fit=crop&w=360&q=65&fm=webp 360w, ${unsplashBase}?auto=format&fit=crop&w=480&q=65&fm=webp 480w`
+          ? `${unsplashBase}?auto=format&fit=crop&w=320&q=60&fm=webp 320w, ${unsplashBase}?auto=format&fit=crop&w=480&q=60&fm=webp 480w`
           : undefined;
 
         return (
@@ -75,7 +74,7 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch, priority = false }) 
             <img
               src={activeSrc}
               srcSet={responsiveSrcSet}
-              sizes={isUnsplash ? '(max-width: 640px) 92vw, 400px' : undefined}
+              sizes={isUnsplash ? '(max-width: 640px) 92vw, 380px' : undefined}
               alt={tool.personaImageAlt || tool.personaRole || tool.name}
               width={480}
               height={270}
@@ -87,8 +86,7 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch, priority = false }) 
                 }
               }}
               className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-              loading={priority ? 'eager' : 'lazy'}
-              fetchPriority={priority ? 'high' : undefined}
+              loading="lazy"
               decoding="async"
               referrerPolicy="no-referrer"
             />
@@ -119,7 +117,7 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch, priority = false }) 
             </div>
             <span
               aria-hidden="true"
-              className="text-slate-400 group-hover:text-slate-700 transition p-1.5 rounded-lg"
+              className="text-slate-500 group-hover:text-slate-700 transition p-1.5 rounded-lg"
             >
               <ExternalLink className="w-4 h-4" />
             </span>

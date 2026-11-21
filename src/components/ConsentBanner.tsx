@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Cookie, ShieldCheck, X } from 'lucide-react';
+import { Cookie, X } from 'lucide-react';
 
 /**
  * ConsentBanner Component
- * 
+ *
  * Provides transparent notice regarding client-side calculation execution and essential local storage.
- * Architecture Note: Designed for drop-in integration with Google-certified Consent Management Platforms
- * (CMP supporting IAB TCF v2.2 and Google consent mode v2) when Google AdSense is activated in the future.
+ * Mounts only after the first real user interaction (scroll, pointerdown, or keydown) so it never
+ * competes with initial FCP/LCP paint or triggers layout shift.
  */
 export const ConsentBanner: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -15,11 +15,24 @@ export const ConsentBanner: React.FC = () => {
   useEffect(() => {
     try {
       const consent = localStorage.getItem('omni_privacy_consent');
-      if (!consent) {
-        // Delay client-side mount so the fixed notice never competes as initial mobile LCP element
-        const timer = setTimeout(() => setIsVisible(true), 1500);
-        return () => clearTimeout(timer);
-      }
+      if (consent) return;
+
+      const handleFirstInteraction = () => {
+        setIsVisible(true);
+        cleanup();
+      };
+
+      const cleanup = () => {
+        window.removeEventListener('scroll', handleFirstInteraction);
+        window.removeEventListener('pointerdown', handleFirstInteraction);
+        window.removeEventListener('keydown', handleFirstInteraction);
+      };
+
+      window.addEventListener('scroll', handleFirstInteraction, { passive: true, once: true });
+      window.addEventListener('pointerdown', handleFirstInteraction, { passive: true, once: true });
+      window.addEventListener('keydown', handleFirstInteraction, { passive: true, once: true });
+
+      return cleanup;
     } catch {
       // localStorage may be disabled in restricted sandbox environments
     }
@@ -55,7 +68,7 @@ export const ConsentBanner: React.FC = () => {
         <button
           type="button"
           onClick={handleDecline}
-          className="text-slate-400 hover:text-white p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition cursor-pointer"
+          className="text-slate-300 hover:text-white p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition cursor-pointer"
           aria-label="Close Notice"
         >
           <X className="w-4 h-4" />
@@ -69,7 +82,7 @@ export const ConsentBanner: React.FC = () => {
       <div className="flex items-center justify-between pt-0.5 gap-2">
         <Link
           to="/privacy/"
-          className="text-slate-300 hover:text-emerald-400 text-[11px] underline underline-offset-2 transition font-medium"
+          className="text-slate-300 hover:text-emerald-300 text-[11px] underline underline-offset-2 transition font-medium"
         >
           Privacy Policy
         </Link>
@@ -77,14 +90,14 @@ export const ConsentBanner: React.FC = () => {
           <button
             type="button"
             onClick={handleDecline}
-            className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold transition cursor-pointer border border-slate-700/60"
+            className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold transition cursor-pointer border border-slate-700"
           >
             Essential Only
           </button>
           <button
             type="button"
             onClick={handleAccept}
-            className="px-3 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-[11px] font-bold transition shadow-sm cursor-pointer"
+            className="px-3 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-bold transition shadow-sm cursor-pointer"
           >
             Accept
           </button>
@@ -93,4 +106,3 @@ export const ConsentBanner: React.FC = () => {
     </aside>
   );
 };
-

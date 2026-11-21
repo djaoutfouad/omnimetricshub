@@ -19,7 +19,7 @@ export const FaqSection: React.FC = () => {
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
           Frequently Asked Questions
         </h2>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">
+        <p className="text-xs sm:text-sm text-slate-600 mt-1">
           Clear answers regarding calculation accuracy, client-side data security, and formulas.
         </p>
       </div>
@@ -39,8 +39,8 @@ export const FaqSection: React.FC = () => {
               >
                 <span>{faq.question}</span>
                 <ChevronDown
-                  className={`w-4 h-4 text-slate-400 shrink-0 ml-3 transition-transform duration-200 ${
-                    isOpen ? 'rotate-180 text-emerald-600' : ''
+                  className={`w-4 h-4 text-slate-600 shrink-0 ml-3 transition-transform duration-200 ${
+                    isOpen ? 'rotate-180 text-emerald-700' : ''
                   }`}
                 />
               </button>

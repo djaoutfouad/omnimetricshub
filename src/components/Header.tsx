@@ -63,7 +63,7 @@ export const Header: React.FC<Props> = ({
         {/* SEARCH BAR */}
         <div className="flex-1 min-w-0 max-w-xs mx-0.5 sm:mx-2">
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 text-slate-600 absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               id="header-search"
@@ -71,7 +71,7 @@ export const Header: React.FC<Props> = ({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search tools..."
-              className="w-full min-w-0 pl-7 sm:pl-9 pr-2.5 sm:pr-4 py-1 sm:py-1.5 bg-slate-100/90 text-[11px] sm:text-xs rounded-full border-0 focus:ring-2 focus:ring-emerald-700 outline-none text-slate-800 font-medium transition placeholder:text-slate-500"
+              className="w-full min-w-0 pl-7 sm:pl-9 pr-2.5 sm:pr-4 py-1 sm:py-1.5 bg-slate-100 text-[11px] sm:text-xs rounded-full border-0 focus:ring-2 focus:ring-emerald-700 outline-none text-slate-900 font-medium transition placeholder:text-slate-600"
             />
           </div>
         </div>
@@ -100,7 +100,7 @@ export const Header: React.FC<Props> = ({
             type="button"
             onClick={onOpenContact}
             aria-label="Contact OmniMetrics Hub"
-            className="bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs transition shadow-xs flex items-center gap-1 cursor-pointer shrink-0 whitespace-nowrap"
+            className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs transition shadow-xs flex items-center gap-1 cursor-pointer shrink-0 whitespace-nowrap"
           >
             <span>Contact</span>
             <ArrowUpRight className="w-3 h-3 hidden sm:inline" />
