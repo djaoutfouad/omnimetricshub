@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, Target, AlertCircle, Share2 } from 'lucide-react';
+import { Target, AlertCircle } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -13,7 +13,9 @@ import {
   getValidatedNumericParam,
   buildShareableCalculatorUrl,
 } from '../../utils/shareableState';
+import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
+import { CalculatorActionBar } from '../common/CalculatorActionBar';
 
 interface Props {
   currency: CurrencySymbol;
@@ -166,6 +168,48 @@ export const ConversionRateCpaCalc: React.FC<Props> = ({ currency }) => {
     setAdSpendStr(s.toString());
     setAovStr(a.toString());
   };
+
+  const getReportPayload = (): CalculationReportPayload => ({
+    calculatorId: 'conversion-rate-cpa',
+    calculatorName: 'Conversion Rate & CPA Marketing Funnel Calculator',
+    currency,
+    inputs: [
+      { label: 'Unique Visitors / Clicks', value: safeVisitors.toLocaleString('en-US') },
+      { label: 'Total Conversions / Sales', value: safeConversions.toLocaleString('en-US') },
+      { label: 'Total Campaign Spend', value: formatLatinCurrency(safeAdSpend, currency) },
+      { label: 'Average Order Value (AOV)', value: formatLatinCurrency(safeAov, currency) },
+    ],
+    results: [
+      {
+        label: 'Conversion Rate (CR)',
+        value: crPercent !== null ? formatLatinPercent(crPercent) : 'N/A (zero visitors)',
+        highlight: true,
+      },
+      {
+        label: 'Cost Per Acquisition (CPA)',
+        value: cpa !== null ? formatLatinCurrency(cpa, currency) : 'N/A',
+      },
+      {
+        label: 'Cost Per Click (CPC)',
+        value: cpc !== null ? formatLatinCurrency(cpc, currency) : 'N/A',
+      },
+      {
+        label: 'Estimated Pipeline Revenue',
+        value: `${formatLatinCurrency(grossRevenue, currency)}${roas !== null ? ` (${roas.toFixed(2)}x ROAS)` : ''}`,
+      },
+      {
+        label: 'Traffic Required per 100 Conversions',
+        value:
+          visitorsPer100Conversions !== null
+            ? `${visitorsPer100Conversions.toLocaleString('en-US')} unique visitors`
+            : 'N/A',
+      },
+    ],
+    assumptions: [
+      'Conversion Rate is calculated as Total Conversions divided by Unique Visitors / Clicks.',
+      'Estimated Pipeline Revenue assumes uniform Average Order Value (AOV) across recorded conversions.',
+    ],
+  });
 
   return (
     <div className="space-y-5 text-slate-800">
@@ -323,51 +367,20 @@ export const ConversionRateCpaCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
-      {/* Action Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-        <button
-          type="button"
-          onClick={() => {
-            setVisitorsStr('5000');
-            setConversionsStr('150');
-            setAdSpendStr('600');
-            setAovStr('45');
-          }}
-          className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 font-medium transition cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
-        </button>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShareLink}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
-              isFormValid
-                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-            {linkCopied ? 'Link Copied!' : 'Share Link'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-              isFormValid
-                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Summary'}
-          </button>
-        </div>
-      </div>
+      <CalculatorActionBar
+        isFormValid={isFormValid}
+        copied={copied}
+        linkCopied={linkCopied}
+        onCopySummary={handleCopy}
+        onShareLink={handleShareLink}
+        onResetDefaults={() => {
+          setVisitorsStr('5000');
+          setConversionsStr('150');
+          setAdSpendStr('600');
+          setAovStr('45');
+        }}
+        getReportPayload={getReportPayload}
+      />
     </div>
   );
 };

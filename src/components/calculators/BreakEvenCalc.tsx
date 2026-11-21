@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, AlertTriangle, Share2 } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -13,7 +13,9 @@ import {
   getValidatedNumericParam,
   buildShareableCalculatorUrl,
 } from '../../utils/shareableState';
+import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
+import { CalculatorActionBar } from '../common/CalculatorActionBar';
 
 interface Props {
   currency: CurrencySymbol;
@@ -78,13 +80,13 @@ export const BreakEvenCalc: React.FC<Props> = ({ currency }) => {
       : 0;
 
   // Undefined break-even if contribution margin <= 0
-  const exactBreakEvenUnits = isViable ? safeFixedCosts / contributionMargin : null;
+  const unroundedBreakEvenUnits = isViable ? safeFixedCosts / contributionMargin : null;
   const wholeBreakEvenUnits =
-    exactBreakEvenUnits !== null ? Math.ceil(exactBreakEvenUnits) : null;
+    unroundedBreakEvenUnits !== null ? Math.ceil(unroundedBreakEvenUnits) : null;
 
-  const exactBreakEvenRevenue =
-    exactBreakEvenUnits !== null
-      ? roundToDecimals(exactBreakEvenUnits * safeUnitPrice, 2)
+  const unroundedBreakEvenRevenue =
+    unroundedBreakEvenUnits !== null
+      ? roundToDecimals(unroundedBreakEvenUnits * safeUnitPrice, 2)
       : null;
   const wholeBreakEvenRevenue =
     wholeBreakEvenUnits !== null
@@ -93,6 +95,70 @@ export const BreakEvenCalc: React.FC<Props> = ({ currency }) => {
 
   const safetyBufferUnits =
     wholeBreakEvenUnits !== null ? Math.ceil(wholeBreakEvenUnits * 1.25) : null;
+
+  // Pure SVG Break-Even Line Chart (Total Revenue vs. Total Cost from 0 to 2x Break-Even Units)
+  const breakEvenChart = useMemo(() => {
+    if (!isViable || unroundedBreakEvenUnits === null || wholeBreakEvenUnits === null) {
+      return null;
+    }
+    const width = 440;
+    const height = 170;
+    const padLeft = 46;
+    const padRight = 16;
+    const padTop = 16;
+    const padBottom = 26;
+    const plotW = width - padLeft - padRight;
+    const plotH = height - padTop - padBottom;
+
+    const maxUnits = Math.max(2, wholeBreakEvenUnits * 2);
+    const maxRevenue = maxUnits * safeUnitPrice;
+    const maxTotalCost = safeFixedCosts + maxUnits * safeVariableCost;
+    const maxY = Math.max(1, maxRevenue, maxTotalCost, safeFixedCosts);
+
+    const getX = (u: number) => {
+      const clampedU = Math.max(0, Math.min(maxUnits, Number.isFinite(u) ? u : 0));
+      return roundToDecimals(padLeft + (clampedU / maxUnits) * plotW, 2);
+    };
+    const getY = (val: number) => {
+      const clampedV = Math.max(0, Math.min(maxY, Number.isFinite(val) ? val : 0));
+      return roundToDecimals(padTop + plotH - (clampedV / maxY) * plotH, 2);
+    };
+
+    const x0 = getX(0);
+    const xMax = getX(maxUnits);
+    const xBe = getX(unroundedBreakEvenUnits);
+
+    const y0 = getY(0);
+    const yFixed = getY(safeFixedCosts);
+    const yCostMax = getY(maxTotalCost);
+    const yRevMax = getY(maxRevenue);
+    const yBe = getY(unroundedBreakEvenUnits * safeUnitPrice);
+
+    const lossZonePolygon = `${x0},${y0} ${x0},${yFixed} ${xBe},${yBe}`;
+    const profitZonePolygon = `${xBe},${yBe} ${xMax},${yRevMax} ${xMax},${yCostMax}`;
+
+    return {
+      width,
+      height,
+      padLeft,
+      padRight,
+      padTop,
+      plotW,
+      plotH,
+      maxUnits,
+      maxY,
+      x0,
+      xMax,
+      xBe,
+      y0,
+      yFixed,
+      yCostMax,
+      yRevMax,
+      yBe,
+      lossZonePolygon,
+      profitZonePolygon,
+    };
+  }, [isViable, unroundedBreakEvenUnits, wholeBreakEvenUnits, safeUnitPrice, safeFixedCosts, safeVariableCost]);
 
   const handleCopy = async () => {
     if (!isFormValid) return;
@@ -130,6 +196,55 @@ export const BreakEvenCalc: React.FC<Props> = ({ currency }) => {
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
     }
+  };
+
+  const getReportPayload = (): CalculationReportPayload => ({
+    calculatorName: 'Break-Even Point & Unit Volume Calculator',
+    slug: 'break-even',
+    currency,
+    inputs: [
+      { label: 'Total Fixed Overhead Costs', value: formatLatinCurrency(safeFixedCosts, currency) },
+      { label: 'Selling Price per Unit', value: formatLatinCurrency(safeUnitPrice, currency) },
+      { label: 'Variable Cost per Unit', value: formatLatinCurrency(safeVariableCost, currency) },
+    ],
+    results: [
+      {
+        label: 'Commercial Break-Even Volume (Whole Units)',
+        value: wholeBreakEvenUnits !== null ? `${wholeBreakEvenUnits.toLocaleString('en-US')} units` : 'N/A (Deficit Unit Economics)',
+      },
+      {
+        label: 'Required Sales Revenue at Break-Even',
+        value: wholeBreakEvenRevenue !== null ? formatLatinCurrency(wholeBreakEvenRevenue, currency) : 'N/A',
+      },
+      {
+        label: 'Unit Contribution Margin',
+        value: `${formatLatinCurrency(contributionMargin, currency)} (${formatLatinPercent(contributionRatio)})`,
+      },
+      {
+        label: 'Unrounded Mathematical Figure',
+        value:
+          unroundedBreakEvenUnits !== null && unroundedBreakEvenRevenue !== null
+            ? `${unroundedBreakEvenUnits.toFixed(2)} units (${formatLatinCurrency(unroundedBreakEvenRevenue, currency)})`
+            : 'N/A',
+      },
+      {
+        label: '25% Safety Cushion Target Volume',
+        value:
+          safetyBufferUnits !== null
+            ? `${safetyBufferUnits.toLocaleString('en-US')} units (${formatLatinCurrency(safetyBufferUnits * safeUnitPrice, currency)})`
+            : 'N/A',
+      },
+    ],
+    assumptions: [
+      'Linear cost-volume-profit (CVP) model assuming constant unit selling price and constant unit variable cost across the analyzed volume range.',
+      'Whole-unit commercial target rounds up fractional units (ceiling function) so fixed overhead is fully covered.',
+    ],
+  });
+
+  const formatCompactAxis = (val: number): string => {
+    if (val >= 1000000) return `${currency}${(val / 1000000).toFixed(1)}M`;
+    if (val >= 1000) return `${currency}${(val / 1000).toFixed(0)}k`;
+    return `${currency}${val.toFixed(0)}`;
   };
 
   return (
@@ -210,11 +325,11 @@ export const BreakEvenCalc: React.FC<Props> = ({ currency }) => {
                 </span>
               </div>
 
-              {exactBreakEvenUnits !== null && exactBreakEvenRevenue !== null && (
+              {unroundedBreakEvenUnits !== null && unroundedBreakEvenRevenue !== null && (
                 <div className="flex justify-between items-baseline border-t border-slate-800/60 pt-2 text-xs text-slate-400">
-                  <span>Exact Mathematical Figure:</span>
+                  <span>Unrounded Mathematical Figure:</span>
                   <span className="font-semibold text-slate-200">
-                    {formatLatinCurrency(exactBreakEvenRevenue, currency)} ({exactBreakEvenUnits.toFixed(2)} units)
+                    {formatLatinCurrency(unroundedBreakEvenRevenue, currency)} ({unroundedBreakEvenUnits.toFixed(2)} units)
                   </span>
                 </div>
               )}
@@ -233,6 +348,160 @@ export const BreakEvenCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
+      {/* Pure SVG Break-Even Intersection Line Chart */}
+      {isViable && breakEvenChart && wholeBreakEvenUnits !== null && (
+        <div className="p-3.5 bg-white border border-slate-200 rounded-2xl space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
+            <span className="font-bold text-slate-800">
+              Cost-Volume-Profit Break-Even Chart (0 to {breakEvenChart.maxUnits.toLocaleString('en-US')} units)
+            </span>
+            <div className="flex items-center gap-3 text-[10.5px]">
+              <span className="flex items-center gap-1 text-rose-600 font-semibold">
+                <span className="w-2.5 h-2.5 rounded-xs bg-rose-500 inline-block" /> Total Cost
+              </span>
+              <span className="flex items-center gap-1 text-emerald-700 font-bold">
+                <span className="w-2.5 h-2.5 rounded-xs bg-emerald-500 inline-block" /> Total Revenue
+              </span>
+            </div>
+          </div>
+
+          <svg
+            viewBox={`0 0 ${breakEvenChart.width} ${breakEvenChart.height}`}
+            role="img"
+            aria-label={`Break-even line chart showing Total Revenue intersecting Total Cost at ${wholeBreakEvenUnits.toLocaleString('en-US')} units`}
+            className="w-full h-auto overflow-visible"
+          >
+            {/* Horizontal grid lines */}
+            {[0, 0.5, 1].map((ratio) => {
+              const y = roundToDecimals(breakEvenChart.padTop + breakEvenChart.plotH * (1 - ratio), 2);
+              const val = breakEvenChart.maxY * ratio;
+              return (
+                <g key={ratio}>
+                  <line
+                    x1={breakEvenChart.padLeft}
+                    y1={y}
+                    x2={breakEvenChart.width - breakEvenChart.padRight}
+                    y2={y}
+                    stroke="#e2e8f0"
+                    strokeDasharray={ratio === 0 ? undefined : '3 3'}
+                    strokeWidth="1"
+                  />
+                  <text
+                    x={breakEvenChart.padLeft - 5}
+                    y={y + 3}
+                    textAnchor="end"
+                    className="fill-slate-400 text-[9px] font-semibold"
+                  >
+                    {formatCompactAxis(val)}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Shaded Loss & Profit Zones */}
+            <polygon points={breakEvenChart.lossZonePolygon} fill="rgba(244, 63, 94, 0.14)" />
+            <polygon points={breakEvenChart.profitZonePolygon} fill="rgba(16, 185, 129, 0.16)" />
+
+            {/* Fixed Cost Horizontal Reference */}
+            <line
+              x1={breakEvenChart.x0}
+              y1={breakEvenChart.yFixed}
+              x2={breakEvenChart.xMax}
+              y2={breakEvenChart.yFixed}
+              stroke="#94a3b8"
+              strokeWidth="1"
+              strokeDasharray="3 3"
+            />
+
+            {/* Total Cost Line */}
+            <line
+              x1={breakEvenChart.x0}
+              y1={breakEvenChart.yFixed}
+              x2={breakEvenChart.xMax}
+              y2={breakEvenChart.yCostMax}
+              stroke="#f43f5e"
+              strokeWidth="2.25"
+              strokeLinecap="round"
+            />
+
+            {/* Total Revenue Line */}
+            <line
+              x1={breakEvenChart.x0}
+              y1={breakEvenChart.y0}
+              x2={breakEvenChart.xMax}
+              y2={breakEvenChart.yRevMax}
+              stroke="#10b981"
+              strokeWidth="2.25"
+              strokeLinecap="round"
+            />
+
+            {/* Vertical drop-line at Break-Even Point */}
+            <line
+              x1={breakEvenChart.xBe}
+              y1={breakEvenChart.yBe}
+              x2={breakEvenChart.xBe}
+              y2={breakEvenChart.y0}
+              stroke="#f59e0b"
+              strokeWidth="1.25"
+              strokeDasharray="2 2"
+            />
+
+            {/* Break-Even Intersection Point */}
+            <circle
+              cx={breakEvenChart.xBe}
+              cy={breakEvenChart.yBe}
+              r="4.5"
+              fill="#f59e0b"
+              stroke="#ffffff"
+              strokeWidth="2"
+            />
+
+            {/* Zone & Intersection Badges */}
+            <text
+              x={roundToDecimals(breakEvenChart.x0 + 8, 2)}
+              y={roundToDecimals(breakEvenChart.padTop + 12, 2)}
+              className="fill-rose-600 text-[9px] font-bold"
+            >
+              Loss Zone
+            </text>
+            <text
+              x={roundToDecimals(breakEvenChart.xMax - 8, 2)}
+              y={roundToDecimals(breakEvenChart.padTop + 12, 2)}
+              textAnchor="end"
+              className="fill-emerald-700 text-[9px] font-bold"
+            >
+              Profit Zone
+            </text>
+
+            {/* X-axis unit labels */}
+            <text
+              x={breakEvenChart.x0}
+              y={breakEvenChart.height - 6}
+              textAnchor="start"
+              className="fill-slate-400 text-[9px] font-semibold"
+            >
+              0 units
+            </text>
+            <text
+              x={breakEvenChart.xBe}
+              y={breakEvenChart.height - 6}
+              textAnchor="middle"
+              className="fill-amber-700 text-[9.5px] font-extrabold"
+            >
+              BE: {wholeBreakEvenUnits.toLocaleString('en-US')} units
+            </text>
+            <text
+              x={breakEvenChart.xMax}
+              y={breakEvenChart.height - 6}
+              textAnchor="end"
+              className="fill-slate-500 text-[9px] font-semibold"
+            >
+              {breakEvenChart.maxUnits.toLocaleString('en-US')} units
+            </text>
+          </svg>
+        </div>
+      )}
+
       {/* Recommended Safety Buffer */}
       {isViable && safetyBufferUnits !== null && (
         <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between text-xs">
@@ -246,50 +515,21 @@ export const BreakEvenCalc: React.FC<Props> = ({ currency }) => {
       )}
 
       {/* Action Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-        <button
-          type="button"
-          onClick={() => {
-            setFixedCostsStr('2000');
-            setUnitPriceStr('50');
-            setVariableCostStr('20');
-          }}
-          className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 font-medium transition cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
-        </button>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShareLink}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
-              isFormValid
-                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-            {linkCopied ? 'Link Copied!' : 'Share Link'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-              isFormValid
-                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Summary'}
-          </button>
-        </div>
-      </div>
+      <CalculatorActionBar
+        onReset={() => {
+          setFixedCostsStr('2000');
+          setUnitPriceStr('50');
+          setVariableCostStr('20');
+        }}
+        onCopySummary={handleCopy}
+        onShareLink={handleShareLink}
+        copied={copied}
+        linkCopied={linkCopied}
+        isFormValid={isFormValid}
+        getReportPayload={getReportPayload}
+      />
     </div>
   );
 };
+
 

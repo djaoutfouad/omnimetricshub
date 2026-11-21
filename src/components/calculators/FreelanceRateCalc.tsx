@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, Clock, Share2, ArrowRight, Workflow } from 'lucide-react';
+import { Clock, ArrowRight, Workflow } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -13,7 +13,9 @@ import {
   getValidatedNumericParam,
   buildShareableCalculatorUrl,
 } from '../../utils/shareableState';
+import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
+import { CalculatorActionBar } from '../common/CalculatorActionBar';
 
 interface Props {
   currency: CurrencySymbol;
@@ -152,6 +154,46 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
 
   const projectInvoiceAmount = weeklyRate > 0 ? weeklyRate : dayRate ?? 100;
   const paymentFeesWorkflowUrl = `/tools/payment-gateway-fees/?amount=${projectInvoiceAmount.toFixed(2)}`;
+
+  const getReportPayload = (): CalculationReportPayload => ({
+    calculatorId: 'freelance-rate',
+    calculatorName: 'Freelance Hourly & Project Rate Calculator',
+    currency,
+    inputs: [
+      { label: 'Target Net Personal Pay (Annual)', value: formatLatinCurrency(safeTakeHome, currency) },
+      { label: 'Taxes & Healthcare Reserve (Annual)', value: formatLatinCurrency(safeTax, currency) },
+      { label: 'Business Overhead (Annual)', value: formatLatinCurrency(safeExpenses, currency) },
+      { label: 'Profit & Growth Buffer (%)', value: formatLatinPercent(safeBufferPct) },
+      { label: 'Annual Billable Hours Capacity', value: `${safeBillableHours.toLocaleString('en-US')} hrs/yr` },
+    ],
+    results: [
+      {
+        label: 'Minimum Hourly Rate',
+        value: hourlyRate !== null ? `${formatLatinCurrency(hourlyRate, currency)}/hr` : 'N/A',
+        highlight: true,
+      },
+      {
+        label: 'Standard Day Rate (8 Billable Hours)',
+        value: dayRate !== null ? `${formatLatinCurrency(dayRate, currency)}/day` : 'N/A',
+      },
+      {
+        label: `Weekly Gross Revenue Target (${activeWeeks} Active Weeks)`,
+        value: `${formatLatinCurrency(weeklyRate, currency)}/wk`,
+      },
+      {
+        label: 'Monthly Gross Revenue Target',
+        value: `${formatLatinCurrency(monthlyRate, currency)}/mo`,
+      },
+      {
+        label: 'Total Required Annual Gross Revenue',
+        value: formatLatinCurrency(totalGrossRequired, currency),
+      },
+    ],
+    assumptions: [
+      `Weekly billing benchmarks assume ${activeWeeks} active working weeks per year (allowing 4 weeks for PTO, holidays, and sick leave).`,
+      'Hourly rate divides total required gross revenue (take-home pay + taxes + overhead + profit buffer) by actual client-billable hours.',
+    ],
+  });
 
   return (
     <div className="space-y-4 text-slate-800">
@@ -334,52 +376,21 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
-      {/* Action Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-        <button
-          type="button"
-          onClick={() => {
-            setTakeHomeSalaryStr('75000');
-            setTaxAmountStr('22000');
-            setBusinessExpensesStr('8000');
-            setBillableHoursStr('1000');
-            setProfitBufferPctStr('10');
-          }}
-          className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 font-medium transition cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
-        </button>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShareLink}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
-              isFormValid
-                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-            {linkCopied ? 'Link Copied!' : 'Share Link'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-              isFormValid
-                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Summary'}
-          </button>
-        </div>
-      </div>
+      <CalculatorActionBar
+        isFormValid={isFormValid}
+        copied={copied}
+        linkCopied={linkCopied}
+        onCopySummary={handleCopy}
+        onShareLink={handleShareLink}
+        onResetDefaults={() => {
+          setTakeHomeSalaryStr('75000');
+          setTaxAmountStr('22000');
+          setBusinessExpensesStr('8000');
+          setBillableHoursStr('1000');
+          setProfitBufferPctStr('10');
+        }}
+        getReportPayload={getReportPayload}
+      />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, Target, Share2, ArrowRight, Workflow } from 'lucide-react';
+import { Target, ArrowRight, Workflow } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -13,7 +13,9 @@ import {
   getValidatedNumericParam,
   buildShareableCalculatorUrl,
 } from '../../utils/shareableState';
+import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
+import { CalculatorActionBar } from '../common/CalculatorActionBar';
 
 interface Props {
   currency: CurrencySymbol;
@@ -168,6 +170,46 @@ export const RoasCalc: React.FC<Props> = ({ currency }) => {
   const conversionRateWorkflowUrl = `/tools/conversion-rate-cpa/?spend=${safeAdSpend.toFixed(2)}${
     safeConversions > 0 ? `&conversions=${safeConversions}` : ''
   }${impliedAov !== null ? `&aov=${impliedAov.toFixed(2)}` : ''}`;
+
+  const getReportPayload = (): CalculationReportPayload => ({
+    calculatorId: 'roas-calculator',
+    calculatorName: 'ROAS & Ad Spend Profitability Calculator',
+    currency,
+    inputs: [
+      { label: 'Total Ad Spend', value: formatLatinCurrency(safeAdSpend, currency) },
+      { label: 'Attributed Revenue', value: formatLatinCurrency(safeRevenue, currency) },
+      { label: 'Total Conversions / Orders', value: safeConversions.toLocaleString('en-US') },
+      { label: 'Total Product COGS', value: formatLatinCurrency(safeCogs, currency) },
+    ],
+    results: [
+      {
+        label: 'ROAS Multiplier',
+        value: roasMultiplier !== null ? `${roasMultiplier.toFixed(2)}x (${roasPercent}%)` : 'N/A (zero spend)',
+        highlight: true,
+      },
+      {
+        label: 'Break-Even ROAS Threshold',
+        value: breakEvenRoas !== null ? `${breakEvenRoas.toFixed(2)}x` : 'N/A',
+      },
+      {
+        label: 'Pre-Ad Gross Margin (%)',
+        value: grossMarginPercent !== null ? formatLatinPercent(grossMarginPercent) : 'N/A',
+      },
+      { label: 'Gross Ad Profit (Revenue - Ad Spend)', value: formatLatinCurrency(netAdProfit, currency) },
+      {
+        label: 'Cost Per Acquisition (CPA)',
+        value: cpa !== null ? formatLatinCurrency(cpa, currency) : 'N/A',
+      },
+      {
+        label: 'True Net Profit (After COGS & Ad Spend)',
+        value: `${formatLatinCurrency(netTrueProfit, currency)}${trueRoi !== null ? ` (${formatLatinPercent(trueRoi)} ROI)` : ''}`,
+      },
+    ],
+    assumptions: [
+      'ROAS Multiplier measures gross attributed revenue divided by total advertising spend.',
+      'Break-Even ROAS is derived from pre-advertising product gross margin: 1 / Gross Margin %.',
+    ],
+  });
 
   return (
     <div className="space-y-5 text-slate-800">
@@ -324,51 +366,20 @@ export const RoasCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
-      {/* Action Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-        <button
-          type="button"
-          onClick={() => {
-            setAdSpendStr('1000');
-            setRevenueStr('3500');
-            setConversionsStr('50');
-            setCogsStr('1000');
-          }}
-          className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 font-medium transition cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
-        </button>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShareLink}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
-              isFormValid
-                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-            {linkCopied ? 'Link Copied!' : 'Share Link'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-              isFormValid
-                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Summary'}
-          </button>
-        </div>
-      </div>
+      <CalculatorActionBar
+        isFormValid={isFormValid}
+        copied={copied}
+        linkCopied={linkCopied}
+        onCopySummary={handleCopy}
+        onShareLink={handleShareLink}
+        onResetDefaults={() => {
+          setAdSpendStr('1000');
+          setRevenueStr('3500');
+          setConversionsStr('50');
+          setCogsStr('1000');
+        }}
+        getReportPayload={getReportPayload}
+      />
     </div>
   );
 };

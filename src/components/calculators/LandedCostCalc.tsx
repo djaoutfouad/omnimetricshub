@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, Package, AlertCircle, Share2, ArrowRight, Workflow } from 'lucide-react';
+import { Package, AlertCircle, ArrowRight, Workflow } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -14,7 +14,9 @@ import {
   getValidatedEnumParam,
   buildShareableCalculatorUrl,
 } from '../../utils/shareableState';
+import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
+import { CalculatorActionBar } from '../common/CalculatorActionBar';
 
 interface Props {
   currency: CurrencySymbol;
@@ -222,6 +224,47 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
   const profitMarginWorkflowUrl = `/tools/profit-margin/?cost=${totalLandedCost.toFixed(2)}${
     recommendedPrice !== null ? `&price=${recommendedPrice.toFixed(2)}` : ''
   }&targetMargin=${safeTargetMargin}`;
+
+  const getReportPayload = (): CalculationReportPayload => ({
+    calculatorId: 'landed-cost',
+    calculatorName: 'E-Commerce Unit Landed Cost & Pricing Calculator',
+    currency,
+    inputs: [
+      { label: 'Manufacturing / FOB Unit Cost', value: formatLatinCurrency(safeUnitCost, currency) },
+      { label: 'Freight & Shipping per Unit', value: formatLatinCurrency(safeFreight, currency) },
+      { label: 'Import Customs Duty / Tariff Rate', value: `${formatLatinPercent(safeTariff)} (${dutyBasis} Basis)` },
+      { label: 'Packaging & Prep per Unit', value: formatLatinCurrency(safePackaging, currency) },
+      { label: 'Desired Profit Margin', value: formatLatinPercent(safeTargetMargin) },
+      { label: 'Payment Processor Rate', value: `${formatLatinPercent(safeFeePercent)} + ${formatLatinCurrency(safeFeeFixed, currency)}` },
+    ],
+    results: [
+      {
+        label: 'Recommended Retail Price',
+        value: recommendedPrice !== null ? formatLatinCurrency(recommendedPrice, currency) : 'N/A',
+        highlight: true,
+      },
+      { label: 'Total Landed Cost per Unit', value: formatLatinCurrency(totalLandedCost, currency) },
+      { label: `Calculated Duty Cost (${dutyBasis})`, value: formatLatinCurrency(tariffCost, currency) },
+      {
+        label: 'Net Profit per Unit (After Processor Fees)',
+        value: netProfitPerUnit !== null ? formatLatinCurrency(netProfitPerUnit, currency) : 'N/A',
+      },
+      {
+        label: 'Markup on Landed Cost',
+        value: markupPercent !== null ? formatLatinPercent(markupPercent) : 'N/A',
+      },
+      {
+        label: 'Minimum Break-Even Retail Price',
+        value: breakEvenPrice !== null ? formatLatinCurrency(breakEvenPrice, currency) : 'N/A',
+      },
+    ],
+    assumptions: [
+      dutyBasis === 'FOB'
+        ? 'FOB Customs Basis: Tariff percentage is applied to manufacturing unit cost only.'
+        : 'CIF Customs Basis: Tariff percentage is applied to manufacturing unit cost plus allocated unit freight.',
+      'Recommended Retail Price solves for desired net profit margin after deducting percentage and fixed payment gateway fees.',
+    ],
+  });
 
   return (
     <div className="space-y-4 text-slate-800">
@@ -438,55 +481,24 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
-      {/* Action Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-        <button
-          type="button"
-          onClick={() => {
-            setUnitCostStr('12.00');
-            setFreightPerUnitStr('3.50');
-            setTariffPercentStr('5.0');
-            setPackagingPerUnitStr('1.50');
-            setPaymentFeePercentStr('2.9');
-            setPaymentFeeFixedStr('0.30');
-            setTargetMarginStr('50.0');
-            setDutyBasis('FOB');
-          }}
-          className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 font-medium transition cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
-        </button>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShareLink}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
-              isFormValid
-                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-            {linkCopied ? 'Link Copied!' : 'Share Link'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-              isFormValid
-                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Summary'}
-          </button>
-        </div>
-      </div>
+      <CalculatorActionBar
+        isFormValid={isFormValid}
+        copied={copied}
+        linkCopied={linkCopied}
+        onCopySummary={handleCopy}
+        onShareLink={handleShareLink}
+        onResetDefaults={() => {
+          setUnitCostStr('12.00');
+          setFreightPerUnitStr('3.50');
+          setTariffPercentStr('5.0');
+          setPackagingPerUnitStr('1.50');
+          setPaymentFeePercentStr('2.9');
+          setPaymentFeeFixedStr('0.30');
+          setTargetMarginStr('50.0');
+          setDutyBasis('FOB');
+        }}
+        getReportPayload={getReportPayload}
+      />
     </div>
   );
 };

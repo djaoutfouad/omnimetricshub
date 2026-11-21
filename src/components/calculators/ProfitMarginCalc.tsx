@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, AlertTriangle, Share2, ArrowRight, Workflow } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Workflow } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -13,7 +13,9 @@ import {
   getValidatedNumericParam,
   buildShareableCalculatorUrl,
 } from '../../utils/shareableState';
+import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
+import { CalculatorActionBar } from '../common/CalculatorActionBar';
 
 interface Props {
   currency: CurrencySymbol;
@@ -132,6 +134,47 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
 
   const breakEvenWorkflowUrl = `/tools/break-even/?price=${safePrice.toFixed(2)}&variableCost=${safeCost.toFixed(2)}`;
   const roasWorkflowUrl = `/tools/roas-calculator/?cogs=${safeCost.toFixed(2)}`;
+
+  const getReportPayload = (): CalculationReportPayload => ({
+    calculatorId: 'profit-margin',
+    calculatorName: 'Profit Margin & Markup Calculator',
+    currency,
+    inputs: [
+      { label: 'Unit Cost Price', value: formatLatinCurrency(safeCost, currency) },
+      { label: 'Unit Selling Price', value: formatLatinCurrency(safePrice, currency) },
+      {
+        label: 'Target Margin Goal',
+        value: targetMarginField.isValid ? formatLatinPercent(safeTargetMargin) : 'N/A',
+      },
+    ],
+    results: [
+      {
+        label: isLoss ? 'Gross Loss per Unit' : 'Gross Profit per Unit',
+        value: formatLatinCurrency(grossProfit, currency),
+        highlight: true,
+      },
+      {
+        label: 'Profit Margin (%)',
+        value: marginPct !== null ? formatLatinPercent(marginPct) : 'N/A (selling price is 0)',
+      },
+      {
+        label: 'Markup on Cost (%)',
+        value: markupPct !== null ? formatLatinPercent(markupPct) : 'N/A (cost price is 0)',
+      },
+      {
+        label: 'Price-to-Cost Multiplier',
+        value: priceMultiplier !== null ? `${priceMultiplier.toFixed(2)}x` : 'N/A',
+      },
+      {
+        label: 'Required Selling Price for Target Margin',
+        value: isTargetValid ? formatLatinCurrency(roundedTargetPrice, currency) : 'N/A',
+      },
+    ],
+    assumptions: [
+      'Gross Profit Margin is calculated as (Selling Price - Cost Price) / Selling Price.',
+      'Markup Percentage is calculated as (Selling Price - Cost Price) / Cost Price.',
+    ],
+  });
 
   return (
     <div className="space-y-4 text-slate-800">
@@ -334,50 +377,19 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
-      {/* Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-        <button
-          type="button"
-          onClick={() => {
-            setCostStr('50');
-            setPriceStr('100');
-            setTargetMarginStr('40');
-          }}
-          className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 font-medium transition cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
-        </button>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShareLink}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
-              isFormValid
-                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-            {linkCopied ? 'Link Copied!' : 'Share Link'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-              isFormValid
-                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Summary'}
-          </button>
-        </div>
-      </div>
+      <CalculatorActionBar
+        isFormValid={isFormValid}
+        copied={copied}
+        linkCopied={linkCopied}
+        onCopySummary={handleCopy}
+        onShareLink={handleShareLink}
+        onResetDefaults={() => {
+          setCostStr('50');
+          setPriceStr('100');
+          setTargetMarginStr('40');
+        }}
+        getReportPayload={getReportPayload}
+      />
     </div>
   );
 };

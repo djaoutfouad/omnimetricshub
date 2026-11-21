@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, AlertTriangle, Info, Share2, ArrowRight, Workflow } from 'lucide-react';
+import { AlertTriangle, Info, ArrowRight, Workflow } from 'lucide-react';
 import { PAYMENT_GATEWAY_PRESETS } from '../../data/rateDefaults';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
@@ -15,7 +15,9 @@ import {
   getValidatedEnumParam,
   buildShareableCalculatorUrl,
 } from '../../utils/shareableState';
+import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
+import { CalculatorActionBar } from '../common/CalculatorActionBar';
 
 interface Props {
   currency: CurrencySymbol;
@@ -149,6 +151,52 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
   };
 
   const lateInterestWorkflowUrl = `/tools/late-payment-interest/?principal=${activeInvoiceAmount.toFixed(2)}`;
+
+  const getReportPayload = (): CalculationReportPayload => ({
+    calculatorId: 'payment-gateway-fees',
+    calculatorName: 'Payment Gateway & Invoice Fee Calculator',
+    currency,
+    inputs:
+      mode === 'forward'
+        ? [
+            { label: 'Calculation Mode', value: 'Forward (Invoice to Net Payout)' },
+            { label: 'Invoice / Transaction Amount', value: formatLatinCurrency(safeAmount, currency) },
+            { label: 'Percentage Fee Rate', value: formatLatinPercent(safeFeePercent) },
+            { label: 'Fixed Fee per Transaction', value: formatLatinCurrency(safeFixedFee, currency) },
+          ]
+        : [
+            { label: 'Calculation Mode', value: 'Reverse Gross-Up (Target Net to Invoice)' },
+            { label: 'Desired Take-Home Net Payout', value: formatLatinCurrency(safeTargetNet, currency) },
+            { label: 'Percentage Fee Rate', value: formatLatinPercent(safeFeePercent) },
+            { label: 'Fixed Fee per Transaction', value: formatLatinCurrency(safeFixedFee, currency) },
+          ],
+    results:
+      mode === 'forward'
+        ? [
+            { label: 'Net Settled Payout', value: formatLatinCurrency(forwardNet, currency), highlight: true },
+            { label: 'Processor Fee Cut', value: `-${formatLatinCurrency(forwardCut, currency)}` },
+            { label: 'Effective Processing Rate', value: formatLatinPercent(forwardEffectiveFeePercent) },
+          ]
+        : [
+            {
+              label: 'Required Invoice Amount (Charge Client)',
+              value: canComputeReverse ? formatLatinCurrency(reverseInvoice, currency) : 'N/A',
+              highlight: true,
+            },
+            {
+              label: 'Estimated Processor Fee Deduction',
+              value: canComputeReverse ? `-${formatLatinCurrency(reverseCut, currency)}` : 'N/A',
+            },
+            {
+              label: 'Realized Net Payout After Rounding',
+              value: canComputeReverse ? formatLatinCurrency(realizedNet, currency) : 'N/A',
+            },
+          ],
+    assumptions: [
+      'Presets reflect editable US domestic standard merchant processing benchmarks.',
+      'Cross-border international cards, currency conversion (FX), and regional interchange schedules may carry additional fees.',
+    ],
+  });
 
   return (
     <div className="space-y-5 text-slate-800">
@@ -365,51 +413,20 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
         </span>
       </div>
 
-      {/* Action Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-        <button
-          type="button"
-          onClick={() => {
-            setAmountStr('100');
-            setTargetNetStr('100');
-            setFeePercentStr('2.9');
-            setFixedFeeStr('0.30');
-          }}
-          className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 font-medium transition cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
-        </button>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShareLink}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
-              isFormValid
-                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-            {linkCopied ? 'Link Copied!' : 'Share Link'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-              isFormValid
-                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Summary'}
-          </button>
-        </div>
-      </div>
+      <CalculatorActionBar
+        isFormValid={isFormValid}
+        copied={copied}
+        linkCopied={linkCopied}
+        onCopySummary={handleCopy}
+        onShareLink={handleShareLink}
+        onResetDefaults={() => {
+          setAmountStr('100');
+          setTargetNetStr('100');
+          setFeePercentStr('2.9');
+          setFixedFeeStr('0.30');
+        }}
+        getReportPayload={getReportPayload}
+      />
     </div>
   );
 };

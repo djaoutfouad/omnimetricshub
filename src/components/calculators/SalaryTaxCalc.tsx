@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, Info, Calendar, Share2 } from 'lucide-react';
+import { Info, Calendar } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -14,7 +14,9 @@ import {
   getValidatedEnumParam,
   buildShareableCalculatorUrl,
 } from '../../utils/shareableState';
+import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
+import { CalculatorActionBar } from '../common/CalculatorActionBar';
 
 interface Props {
   currency: CurrencySymbol;
@@ -153,6 +155,36 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
       setTimeout(() => setLinkCopied(false), 2000);
     }
   };
+
+  const getReportPayload = (): CalculationReportPayload => ({
+    calculatorId: 'salary-tax',
+    calculatorName: 'Net Salary & Paycheck Take-Home Calculator',
+    currency,
+    inputs: [
+      { label: 'Gross Annual Salary', value: formatLatinCurrency(safeGross, currency) },
+      { label: 'Combined Effective Tax Rate (%)', value: formatLatinPercent(safeTaxRate) },
+      { label: 'Monthly Pre-Tax Deductions', value: formatLatinCurrency(safeMonthlyDeductions, currency) },
+      { label: 'Annual Pre-Tax Deductions', value: formatLatinCurrency(annualPreTaxDeductions, currency) },
+    ],
+    results: [
+      {
+        label: activePeriodLabel.replace(/:$/, ''),
+        value: formatLatinCurrency(activePeriodNet, currency),
+        highlight: true,
+      },
+      { label: 'Annual Net Take-Home Pay', value: formatLatinCurrency(annualNet, currency) },
+      { label: 'Taxable Income Base (Gross - Pre-Tax)', value: formatLatinCurrency(taxableIncome, currency) },
+      { label: 'Estimated Annual Taxes Withheld', value: `-${formatLatinCurrency(annualTax, currency)}` },
+      { label: 'Weekly Net Paycheck (52/yr)', value: formatLatinCurrency(weeklyNet, currency) },
+      { label: 'Bi-Weekly Net Paycheck (26/yr)', value: formatLatinCurrency(biWeeklyNet, currency) },
+      { label: 'Semi-Monthly Net Paycheck (24/yr)', value: formatLatinCurrency(semiMonthlyNet, currency) },
+      { label: 'Monthly Net Salary (12/yr)', value: formatLatinCurrency(monthlyNet, currency) },
+    ],
+    assumptions: [
+      'Applies your user-entered combined effective tax rate to taxable income (Gross Annual Salary minus Annual Pre-Tax Deductions).',
+      'Does not automatically compute multi-tier progressive tax brackets or localized municipal payroll levies.',
+    ],
+  });
 
   return (
     <div className="space-y-4 text-slate-800">
@@ -320,51 +352,20 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
         </span>
       </div>
 
-      {/* Action Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-        <button
-          type="button"
-          onClick={() => {
-            setGrossAnnualStr('75000');
-            setTaxRateStr('22');
-            setPreTaxDeductionsMonthlyStr('350');
-            setPaycheckView('biweekly');
-          }}
-          className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 font-medium transition cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
-        </button>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShareLink}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
-              isFormValid
-                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-            {linkCopied ? 'Link Copied!' : 'Share Link'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-              isFormValid
-                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Summary'}
-          </button>
-        </div>
-      </div>
+      <CalculatorActionBar
+        isFormValid={isFormValid}
+        copied={copied}
+        linkCopied={linkCopied}
+        onCopySummary={handleCopy}
+        onShareLink={handleShareLink}
+        onResetDefaults={() => {
+          setGrossAnnualStr('75000');
+          setTaxRateStr('22');
+          setPreTaxDeductionsMonthlyStr('350');
+          setPaycheckView('biweekly');
+        }}
+        getReportPayload={getReportPayload}
+      />
     </div>
   );
 };

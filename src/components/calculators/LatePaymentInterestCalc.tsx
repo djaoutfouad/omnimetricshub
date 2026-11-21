@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, Scale, Info, Share2 } from 'lucide-react';
+import { Scale, Info } from 'lucide-react';
 import { STATUTORY_LATE_FEE_TIERS } from '../../data/rateDefaults';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
@@ -15,7 +15,9 @@ import {
   getValidatedNumberEnumParam,
   buildShareableCalculatorUrl,
 } from '../../utils/shareableState';
+import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
+import { CalculatorActionBar } from '../common/CalculatorActionBar';
 
 interface Props {
   currency: CurrencySymbol;
@@ -147,6 +149,42 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
     setCompensationFeeStr('70');
     setDayBasis(365);
   };
+
+  const getReportPayload = (): CalculationReportPayload => ({
+    calculatorId: 'late-payment-interest',
+    calculatorName: 'Late Payment & Overdue Invoice Interest Calculator',
+    currency,
+    inputs: [
+      { label: 'Overdue Invoice Principal', value: formatLatinCurrency(safeInvoice, currency) },
+      { label: 'Annual Simple Interest Rate', value: formatLatinPercent(safeRate) },
+      { label: 'Days Past Due Date', value: `${safeDays.toLocaleString('en-US')} days` },
+      { label: 'Illustrative Debt Recovery Fee', value: formatLatinCurrency(safeFee, currency) },
+      { label: 'Day-Count Convention', value: `Actual/${dayBasis}` },
+    ],
+    results: [
+      {
+        label: 'Total Balance Outstanding',
+        value: formatLatinCurrency(totalBalanceDue, currency),
+        highlight: true,
+      },
+      {
+        label: `Total Accrued Simple Interest (${safeDays.toLocaleString('en-US')} days)`,
+        value: `+${formatLatinCurrency(totalInterest, currency)}`,
+      },
+      {
+        label: 'Daily Interest Accrual Rate',
+        value: `${formatLatinCurrency(dailyInterest, currency)}/day`,
+      },
+      {
+        label: 'Illustrative Recovery Fee Included',
+        value: `+${formatLatinCurrency(safeFee, currency)}`,
+      },
+    ],
+    assumptions: [
+      `Simple commercial interest is calculated on an Actual/${dayBasis} day-count basis without compounding.`,
+      'Statutory reference rates (8% + Central Bank Base Rate) and fixed recovery tiers (£40 / £70 / £100) are editable planning estimates. Verify current published central bank base rates and contractual terms before issuing formal demands.',
+    ],
+  });
 
   return (
     <div className="space-y-4 text-slate-800">
@@ -356,46 +394,15 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
         </div>
       </div>
 
-      {/* Action Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-        <button
-          type="button"
-          onClick={handleReset}
-          className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 font-medium transition cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
-        </button>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShareLink}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
-              isFormValid
-                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-            {linkCopied ? 'Link Copied!' : 'Share Link'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-              isFormValid
-                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Summary'}
-          </button>
-        </div>
-      </div>
+      <CalculatorActionBar
+        isFormValid={isFormValid}
+        copied={copied}
+        linkCopied={linkCopied}
+        onCopySummary={handleCopy}
+        onShareLink={handleShareLink}
+        onResetDefaults={handleReset}
+        getReportPayload={getReportPayload}
+      />
     </div>
   );
 };

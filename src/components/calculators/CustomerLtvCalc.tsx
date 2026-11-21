@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Copy, Check, RefreshCw, Users, Info, Share2 } from 'lucide-react';
+import { Users, Info } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -13,7 +13,9 @@ import {
   getValidatedNumericParam,
   buildShareableCalculatorUrl,
 } from '../../utils/shareableState';
+import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
+import { CalculatorActionBar } from '../common/CalculatorActionBar';
 
 interface Props {
   currency: CurrencySymbol;
@@ -175,6 +177,53 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
     }
   };
 
+  const getReportPayload = (): CalculationReportPayload => ({
+    calculatorId: 'customer-ltv',
+    calculatorName: 'Customer Lifetime Value (LTV) & CAC Ratio Calculator',
+    currency,
+    inputs: [
+      { label: 'Average Order / Contract Value (AOV)', value: formatLatinCurrency(safeAov, currency) },
+      { label: 'Purchase Frequency (Orders / Month)', value: `${safeFreq} orders/mo` },
+      { label: 'Monthly Churn Rate (%)', value: formatLatinPercent(safeChurn) },
+      { label: 'Gross Profit Margin (%)', value: formatLatinPercent(safeMargin) },
+      { label: 'Customer Acquisition Cost (CAC)', value: formatLatinCurrency(safeCac, currency) },
+    ],
+    results: [
+      {
+        label: 'Gross Profit LTV per Customer',
+        value: grossProfitLtv !== null ? formatLatinCurrency(grossProfitLtv, currency) : 'N/A (0% churn)',
+        highlight: true,
+      },
+      {
+        label: 'Gross Revenue LTV (Before Margin)',
+        value: grossRevenueLtv !== null ? formatLatinCurrency(grossRevenueLtv, currency) : 'N/A',
+      },
+      {
+        label: 'Implied Customer Lifespan',
+        value:
+          customerLifespanMonths !== null
+            ? `${customerLifespanMonths} months (${customerLifespanYears} years)`
+            : 'N/A (0% churn)',
+      },
+      {
+        label: 'LTV : CAC Health Ratio',
+        value: ltvCacRatio !== null ? `${ltvCacRatio.toFixed(2)}x` : 'N/A',
+      },
+      {
+        label: 'CAC Payback Horizon',
+        value: paybackMonths !== null ? `${paybackMonths} months` : 'N/A',
+      },
+      {
+        label: 'Recommended Max CAC (3:1 Target)',
+        value: recommendedMaxCac !== null ? formatLatinCurrency(recommendedMaxCac, currency) : 'N/A',
+      },
+    ],
+    assumptions: [
+      'Uses a linear steady-state retention model where average customer lifespan equals 1 / Monthly Churn Rate.',
+      'LTV:CAC Ratio and CAC Payback Horizon are evaluated using Gross Profit LTV rather than top-line revenue.',
+    ],
+  });
+
   return (
     <div className="space-y-4 text-slate-800">
       <div className="grid grid-cols-2 gap-3">
@@ -310,52 +359,21 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
         </span>
       </div>
 
-      {/* Action Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-        <button
-          type="button"
-          onClick={() => {
-            setAovStr('65');
-            setFrequencyStr('1.5');
-            setChurnRateStr('5.0');
-            setGrossMarginStr('70');
-            setCacStr('120');
-          }}
-          className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 font-medium transition cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
-        </button>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShareLink}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer border ${
-              isFormValid
-                ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                : 'bg-slate-100 text-slate-400 border-slate-200 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
-            {linkCopied ? 'Link Copied!' : 'Share Link'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!isFormValid}
-            className={`text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition cursor-pointer ${
-              isFormValid
-                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                : 'bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed'
-            }`}
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Copy Summary'}
-          </button>
-        </div>
-      </div>
+      <CalculatorActionBar
+        isFormValid={isFormValid}
+        copied={copied}
+        linkCopied={linkCopied}
+        onCopySummary={handleCopy}
+        onShareLink={handleShareLink}
+        onResetDefaults={() => {
+          setAovStr('65');
+          setFrequencyStr('1.5');
+          setChurnRateStr('5.0');
+          setGrossMarginStr('70');
+          setCacStr('120');
+        }}
+        getReportPayload={getReportPayload}
+      />
     </div>
   );
 };
