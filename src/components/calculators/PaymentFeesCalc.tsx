@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { AlertTriangle, Info, ArrowRight, Workflow } from 'lucide-react';
+import { AlertTriangle, Info, ArrowRight, Workflow, ArrowLeftRight } from 'lucide-react';
 import { PAYMENT_GATEWAY_PRESETS } from '../../data/rateDefaults';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
@@ -18,6 +18,7 @@ import {
 import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 import { CalculatorActionBar } from '../common/CalculatorActionBar';
+import { AssumptionsSourcesBox } from '../common/AssumptionsSourcesBox';
 
 interface Props {
   currency: CurrencySymbol;
@@ -41,6 +42,9 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
   const [fixedFeeStr, setFixedFeeStr] = useState<string>(() =>
     getValidatedNumericParam('fixedFee', '0.30', { min: 0, max: 10000, allowZero: true })
   );
+  const [isComparing, setIsComparing] = useState<boolean>(false);
+  const [feePercentBStr, setFeePercentBStr] = useState<string>('3.49');
+  const [fixedFeeBStr, setFixedFeeBStr] = useState<string>('0.49');
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
@@ -84,36 +88,80 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
     fieldName: 'Fixed Fee',
   });
 
-  const isFormValid =
+  const feePercentBField = validateNumericInput(feePercentBStr, {
+    min: 0,
+    max: 99.99,
+    allowZero: true,
+    fieldName: 'Gateway B Percentage Fee',
+  });
+
+  const fixedFeeBField = validateNumericInput(fixedFeeBStr, {
+    min: 0,
+    max: 10000,
+    allowZero: true,
+    fieldName: 'Gateway B Fixed Fee',
+  });
+
+  const isScenarioAValid =
     mode === 'forward'
       ? amountField.isValid && feePercentField.isValid && fixedFeeField.isValid
       : targetNetField.isValid && feePercentField.isValid && fixedFeeField.isValid;
+
+  const isScenarioBValid = feePercentBField.isValid && fixedFeeBField.isValid;
+  const isFormValid = isScenarioAValid && (!isComparing || isScenarioBValid);
 
   // Calculations
   const safeAmount = amountField.value ?? 0;
   const safeTargetNet = targetNetField.value ?? 0;
   const safeFeePercent = feePercentField.value ?? 0;
   const safeFixedFee = fixedFeeField.value ?? 0;
+  const safeFeePercentB = feePercentBField.value ?? 0;
+  const safeFixedFeeB = fixedFeeBField.value ?? 0;
 
-  // Forward calculations
+  // Forward calculations (Gateway A)
   const forwardCut = roundToDecimals((safeAmount * (safeFeePercent / 100)) + safeFixedFee, 2);
   const forwardNet = roundToDecimals(Math.max(0, safeAmount - forwardCut), 2);
   const forwardEffectiveFeePercent =
     safeAmount > 0 ? roundToDecimals((forwardCut / safeAmount) * 100, 2) : 0;
-  const isFeeExceedingAmount = isFormValid && safeAmount > 0 && forwardCut >= safeAmount;
+  const isFeeExceedingAmount = isScenarioAValid && safeAmount > 0 && forwardCut >= safeAmount;
 
-  // Reverse calculations: Required Invoice = (Target + Fixed) / (1 - (pct/100))
+  // Forward calculations (Gateway B)
+  const forwardCutB = roundToDecimals((safeAmount * (safeFeePercentB / 100)) + safeFixedFeeB, 2);
+  const forwardNetB = roundToDecimals(Math.max(0, safeAmount - forwardCutB), 2);
+  const forwardEffectiveFeePercentB =
+    safeAmount > 0 ? roundToDecimals((forwardCutB / safeAmount) * 100, 2) : 0;
+
+  // Reverse calculations (Gateway A): Required Invoice = (Target + Fixed) / (1 - (pct/100))
   const rateFraction = safeFeePercent / 100;
   const reverseDenominator = 1 - rateFraction;
-  const canComputeReverse = isFormValid && reverseDenominator > 0;
+  const canComputeReverse = isScenarioAValid && reverseDenominator > 0;
   const rawReverseInvoice = canComputeReverse
     ? (safeTargetNet + safeFixedFee) / reverseDenominator
     : 0;
   const reverseInvoice = roundToDecimals(rawReverseInvoice, 2);
   const reverseCut = roundToDecimals((reverseInvoice * rateFraction) + safeFixedFee, 2);
   const realizedNet = roundToDecimals(reverseInvoice - reverseCut, 2);
+  const reverseEffectiveFeePercent =
+    reverseInvoice > 0 ? roundToDecimals((reverseCut / reverseInvoice) * 100, 2) : 0;
+
+  // Reverse calculations (Gateway B)
+  const rateFractionB = safeFeePercentB / 100;
+  const reverseDenominatorB = 1 - rateFractionB;
+  const canComputeReverseB = isScenarioAValid && isScenarioBValid && reverseDenominatorB > 0;
+  const rawReverseInvoiceB = canComputeReverseB
+    ? (safeTargetNet + safeFixedFeeB) / reverseDenominatorB
+    : 0;
+  const reverseInvoiceB = roundToDecimals(rawReverseInvoiceB, 2);
+  const reverseCutB = roundToDecimals((reverseInvoiceB * rateFractionB) + safeFixedFeeB, 2);
+  const realizedNetB = roundToDecimals(reverseInvoiceB - reverseCutB, 2);
+  const reverseEffectiveFeePercentB =
+    reverseInvoiceB > 0 ? roundToDecimals((reverseCutB / reverseInvoiceB) * 100, 2) : 0;
 
   const activeInvoiceAmount = mode === 'forward' ? safeAmount : reverseInvoice;
+  const activeFeeA = mode === 'forward' ? forwardCut : reverseCut;
+  const activeFeeB = mode === 'forward' ? forwardCutB : reverseCutB;
+  const feeDiffPerTxn = roundToDecimals(Math.abs(activeFeeB - activeFeeA), 2);
+  const feeSavingsPer100 = roundToDecimals(feeDiffPerTxn * 100, 2);
 
   const handleCopy = async () => {
     if (!isFormValid) return;
@@ -200,6 +248,26 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
 
   return (
     <div className="space-y-5 text-slate-800">
+      {/* Compare Scenarios (A vs. B) Toggle Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl">
+        <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+          <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Compare Payment Gateways (A vs. B)</span>
+        </span>
+        <button
+          type="button"
+          onClick={() => setIsComparing((prev) => !prev)}
+          aria-pressed={isComparing}
+          className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer border ${
+            isComparing
+              ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+          }`}
+        >
+          {isComparing ? 'Comparing A vs. B (On)' : 'Compare Scenarios (A vs. B)'}
+        </button>
+      </div>
+
       {/* Mode toggle */}
       <div className="flex bg-slate-100 p-1 rounded-xl gap-1">
         <button
@@ -226,7 +294,7 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
       <div>
         <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
           <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">
-            Processor Rate Presets
+            {isComparing ? 'Gateway A Rate Presets' : 'Processor Rate Presets'}
           </span>
           <span className="text-[10.5px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-md">
             US Domestic Standard Benchmarks (Editable)
@@ -293,7 +361,7 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
         <div className="grid grid-cols-2 gap-3">
           <NumericInputField
             id="pay-fee-percent-input"
-            label="Percentage Fee (%)"
+            label={isComparing ? 'Gateway A Fee (%)' : 'Percentage Fee (%)'}
             value={feePercentStr}
             onChange={setFeePercentStr}
             fieldState={feePercentField}
@@ -307,7 +375,7 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
 
           <NumericInputField
             id="pay-fixed-fee-input"
-            label={`Fixed Fee (${currency})`}
+            label={isComparing ? `Gateway A Fixed (${currency})` : `Fixed Fee (${currency})`}
             value={fixedFeeStr}
             onChange={setFixedFeeStr}
             fieldState={fixedFeeField}
@@ -318,6 +386,66 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
             step="0.01"
           />
         </div>
+
+        {/* Scenario B (Gateway B) Input Panel */}
+        {isComparing && (
+          <div className="p-3.5 bg-indigo-50/60 border border-indigo-200/90 rounded-2xl space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-1.5">
+              <span className="text-[11px] font-extrabold text-indigo-950 uppercase tracking-wider">
+                Gateway B Comparison Rates
+              </span>
+              <div className="flex flex-wrap items-center gap-1">
+                {presets.map((p) => {
+                  const isSelectedB =
+                    feePercentBField.value === p.percentRate && fixedFeeBField.value === p.fixedFee;
+                  return (
+                    <button
+                      key={`b-${p.id}`}
+                      type="button"
+                      onClick={() => {
+                        setFeePercentBStr(p.percentRate.toString());
+                        setFixedFeeBStr(p.fixedFee.toString());
+                      }}
+                      className={`text-[10px] px-2 py-0.5 rounded-md font-bold border transition cursor-pointer ${
+                        isSelectedB
+                          ? 'bg-indigo-600 text-white border-indigo-600'
+                          : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {p.name.split(' ')[0]} ({p.percentRate}%)
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <NumericInputField
+                id="pay-fee-percent-b-input"
+                label="Gateway B Fee (%)"
+                value={feePercentBStr}
+                onChange={setFeePercentBStr}
+                fieldState={feePercentBField}
+                suffix="%"
+                placeholder="3.49"
+                min={0}
+                max={99.99}
+                step="0.01"
+              />
+              <NumericInputField
+                id="pay-fixed-fee-b-input"
+                label={`Gateway B Fixed (${currency})`}
+                value={fixedFeeBStr}
+                onChange={setFixedFeeBStr}
+                fieldState={fixedFeeBField}
+                prefix={currency}
+                placeholder="0.49"
+                min={0}
+                max={10000}
+                step="0.01"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Baseline Rate Assumption Notice */}
         <p className="text-[11px] text-slate-600 leading-relaxed bg-slate-50 border border-slate-200/80 rounded-xl p-2.5">
@@ -384,6 +512,98 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
+      {/* Side-by-Side Scenario Comparison Card (Gateway A vs. Gateway B) */}
+      {isComparing && isFormValid && (mode === 'forward' || (canComputeReverse && canComputeReverseB)) && (
+        <div className="p-4 bg-slate-900 text-white rounded-2xl shadow-inner space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+            <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400">
+              Side-by-Side Gateway Comparison (A vs. B)
+            </span>
+            <span className="text-[11px] text-slate-400">
+              {mode === 'forward'
+                ? `On ${formatLatinCurrency(safeAmount, currency)} Invoice`
+                : `For ${formatLatinCurrency(safeTargetNet, currency)} Target Net`}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Gateway A Column */}
+            <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-extrabold text-emerald-400">Gateway A</span>
+                <span className="text-[11px] text-slate-300 font-semibold">
+                  {formatLatinPercent(safeFeePercent)} + {formatLatinCurrency(safeFixedFee, currency)}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs text-slate-300">
+                <span>Processor Fee:</span>
+                <span className="font-bold text-rose-400">
+                  -{formatLatinCurrency(mode === 'forward' ? forwardCut : reverseCut, currency)}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs text-slate-300">
+                <span>{mode === 'forward' ? 'Net Payout:' : 'Required Invoice:'}</span>
+                <span className="font-extrabold text-white">
+                  {formatLatinCurrency(mode === 'forward' ? forwardNet : reverseInvoice, currency)}
+                </span>
+              </div>
+              <div className="flex justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-700/70">
+                <span>Effective Rate:</span>
+                <span className="font-semibold text-slate-200">
+                  {formatLatinPercent(mode === 'forward' ? forwardEffectiveFeePercent : reverseEffectiveFeePercent)}
+                </span>
+              </div>
+            </div>
+
+            {/* Gateway B Column */}
+            <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-extrabold text-indigo-400">Gateway B</span>
+                <span className="text-[11px] text-slate-300 font-semibold">
+                  {formatLatinPercent(safeFeePercentB)} + {formatLatinCurrency(safeFixedFeeB, currency)}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs text-slate-300">
+                <span>Processor Fee:</span>
+                <span className="font-bold text-rose-400">
+                  -{formatLatinCurrency(mode === 'forward' ? forwardCutB : reverseCutB, currency)}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs text-slate-300">
+                <span>{mode === 'forward' ? 'Net Payout:' : 'Required Invoice:'}</span>
+                <span className="font-extrabold text-white">
+                  {formatLatinCurrency(mode === 'forward' ? forwardNetB : reverseInvoiceB, currency)}
+                </span>
+              </div>
+              <div className="flex justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-700/70">
+                <span>Effective Rate:</span>
+                <span className="font-semibold text-slate-200">
+                  {formatLatinPercent(mode === 'forward' ? forwardEffectiveFeePercentB : reverseEffectiveFeePercentB)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Comparison Verdict Badge */}
+          <div className="p-2.5 rounded-xl bg-emerald-950/70 border border-emerald-700/60 text-xs text-emerald-200 flex flex-wrap items-center justify-between gap-2">
+            {activeFeeA === activeFeeB ? (
+              <span className="font-bold">
+                Verdict: Both Gateway A and Gateway B incur identical processing fees ({formatLatinCurrency(activeFeeA, currency)}) on this transaction.
+              </span>
+            ) : (
+              <>
+                <span className="font-extrabold text-emerald-300">
+                  Verdict: {activeFeeA < activeFeeB ? 'Gateway A' : 'Gateway B'} saves {formatLatinCurrency(feeDiffPerTxn, currency)} per transaction
+                </span>
+                <span className="text-[11px] font-bold bg-emerald-900/90 text-emerald-200 px-2 py-0.5 rounded-md">
+                  Saves {formatLatinCurrency(feeSavingsPer100, currency)} per 100 transactions
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Connected Decision Workflow Card */}
       {isFormValid && activeInvoiceAmount > 0 && (
         <div className="p-3 bg-emerald-50/80 border border-emerald-200/90 rounded-2xl space-y-2">
@@ -413,6 +633,9 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
         </span>
       </div>
 
+      {/* Assumptions & Official References Box */}
+      <AssumptionsSourcesBox calculatorId="payment-gateway-fees" />
+
       <CalculatorActionBar
         isFormValid={isFormValid}
         copied={copied}
@@ -424,6 +647,8 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
           setTargetNetStr('100');
           setFeePercentStr('2.9');
           setFixedFeeStr('0.30');
+          setFeePercentBStr('3.49');
+          setFixedFeeBStr('0.49');
         }}
         getReportPayload={getReportPayload}
       />

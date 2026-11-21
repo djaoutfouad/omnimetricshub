@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { Calculator, ChevronDown, ChevronUp, Table } from 'lucide-react';
+import { Calculator, ChevronDown, ChevronUp, Table, ArrowLeftRight } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -16,6 +16,7 @@ import {
 import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 import { CalculatorActionBar } from '../common/CalculatorActionBar';
+import { AssumptionsSourcesBox } from '../common/AssumptionsSourcesBox';
 
 interface Props {
   currency: CurrencySymbol;
@@ -40,6 +41,9 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
   const [tenureYearsStr, setTenureYearsStr] = useState<string>(() =>
     getValidatedNumericParam('tenure', '30', { min: 0.25, max: 40, allowZero: false })
   );
+  const [isComparing, setIsComparing] = useState<boolean>(false);
+  const [annualRateBStr, setAnnualRateBStr] = useState<string>('5.75');
+  const [tenureYearsBStr, setTenureYearsBStr] = useState<string>('15');
   const [showSchedule, setShowSchedule] = useState(false);
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
@@ -73,7 +77,23 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
     fieldName: 'Loan Tenure (Years)',
   });
 
-  const isFormValid = principalField.isValid && rateField.isValid && tenureField.isValid;
+  const rateBField = validateNumericInput(annualRateBStr, {
+    min: 0,
+    max: 100,
+    allowZero: true,
+    fieldName: 'Offer B Annual Interest Rate (%)',
+  });
+
+  const tenureBField = validateNumericInput(tenureYearsBStr, {
+    min: 0.25,
+    max: 40,
+    allowZero: false,
+    fieldName: 'Offer B Loan Tenure (Years)',
+  });
+
+  const isOfferAValid = principalField.isValid && rateField.isValid && tenureField.isValid;
+  const isOfferBValid = principalField.isValid && rateBField.isValid && tenureBField.isValid;
+  const isFormValid = isOfferAValid && (!isComparing || isOfferBValid);
 
   const safePrincipal = principalField.value ?? 0;
   const safeRate = rateField.value ?? 0;
@@ -92,17 +112,41 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
     emi = safePrincipal / totalMonths;
   }
 
-  const safeEmi = isFormValid ? roundToDecimals(emi, 2) : 0;
-  const totalRepayment = isFormValid
+  const safeEmi = isOfferAValid ? roundToDecimals(emi, 2) : 0;
+  const totalRepayment = isOfferAValid
     ? roundToDecimals(safeEmi * totalMonths, 2)
     : 0;
-  const totalInterest = isFormValid
+  const totalInterest = isOfferAValid
     ? Math.max(0, roundToDecimals(totalRepayment - safePrincipal, 2))
     : 0;
   const principalSharePercent =
     totalRepayment > 0 ? roundToDecimals((safePrincipal / totalRepayment) * 100, 1) : 0;
   const interestSharePercent =
     totalRepayment > 0 ? roundToDecimals((totalInterest / totalRepayment) * 100, 1) : 0;
+
+  // Loan Offer B Calculations
+  const safeRateB = rateBField.value ?? 0;
+  const safeTenureYearsB = tenureBField.value ?? 15;
+  const totalMonthsB = Math.max(1, Math.round(safeTenureYearsB * 12));
+  const monthlyRateB = (safeRateB / 100) / 12;
+
+  let emiB = 0;
+  if (monthlyRateB > 0) {
+    const factorB = Math.pow(1 + monthlyRateB, totalMonthsB);
+    if (Number.isFinite(factorB) && factorB > 1) {
+      emiB = (safePrincipal * monthlyRateB * factorB) / (factorB - 1);
+    }
+  } else if (totalMonthsB > 0) {
+    emiB = safePrincipal / totalMonthsB;
+  }
+
+  const safeEmiB = isOfferBValid ? roundToDecimals(emiB, 2) : 0;
+  const totalRepaymentB = isOfferBValid ? roundToDecimals(safeEmiB * totalMonthsB, 2) : 0;
+  const totalInterestB = isOfferBValid
+    ? Math.max(0, roundToDecimals(totalRepaymentB - safePrincipal, 2))
+    : 0;
+  const emiDiff = roundToDecimals(Math.abs(safeEmiB - safeEmi), 2);
+  const interestSaved = roundToDecimals(Math.abs(totalInterest - totalInterestB), 2);
 
   // Annual Amortization Schedule (verified to reach 0 balance cleanly at term end, including 0% interest)
   const annualSchedule = useMemo<AnnualAmortizationRow[]>(() => {
@@ -258,6 +302,26 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
 
   return (
     <div className="space-y-4 text-slate-800">
+      {/* Compare Scenarios (A vs. B) Toggle Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl">
+        <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+          <ArrowLeftRight className="w-3.5 h-3.5 text-indigo-600" />
+          <span>Compare Loan Offers (A vs. B)</span>
+        </span>
+        <button
+          type="button"
+          onClick={() => setIsComparing((prev) => !prev)}
+          aria-pressed={isComparing}
+          className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer border ${
+            isComparing
+              ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+          }`}
+        >
+          {isComparing ? 'Comparing A vs. B (On)' : 'Compare Scenarios (A vs. B)'}
+        </button>
+      </div>
+
       <div>
         <NumericInputField
           id="loan-principal-input"
@@ -276,7 +340,7 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
       <div className="grid grid-cols-2 gap-3">
         <NumericInputField
           id="loan-rate-input"
-          label="Annual Interest Rate (%)"
+          label={isComparing ? 'Offer A Interest Rate (%)' : 'Annual Interest Rate (%)'}
           value={annualRateStr}
           onChange={setAnnualRateStr}
           fieldState={rateField}
@@ -289,7 +353,7 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
 
         <NumericInputField
           id="loan-tenure-input"
-          label="Tenure (Years, max 40)"
+          label={isComparing ? 'Offer A Tenure (Years)' : 'Tenure (Years, max 40)'}
           value={tenureYearsStr}
           onChange={setTenureYearsStr}
           fieldState={tenureField}
@@ -300,6 +364,41 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
           helperText={`${totalMonths} monthly installments`}
         />
       </div>
+
+      {/* Loan Offer B Inputs */}
+      {isComparing && (
+        <div className="p-3.5 bg-indigo-50/60 border border-indigo-200/90 rounded-2xl space-y-2.5">
+          <div className="text-[11px] font-extrabold text-indigo-950 uppercase tracking-wider">
+            Loan Offer B (Comparison Rate &amp; Term)
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <NumericInputField
+              id="loan-rate-b-input"
+              label="Offer B Interest Rate (%)"
+              value={annualRateBStr}
+              onChange={setAnnualRateBStr}
+              fieldState={rateBField}
+              suffix="%"
+              placeholder="5.75"
+              min={0}
+              max={100}
+              step="0.05"
+            />
+            <NumericInputField
+              id="loan-tenure-b-input"
+              label="Offer B Tenure (Years)"
+              value={tenureYearsBStr}
+              onChange={setTenureYearsBStr}
+              fieldState={tenureBField}
+              placeholder="15"
+              min={0.25}
+              max={40}
+              step="0.5"
+              helperText={`${totalMonthsB} monthly installments`}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Visual Amortization Proportion */}
       {isFormValid && totalRepayment > 0 && (
@@ -494,12 +593,93 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
+      {/* Side-by-Side Loan Offer A vs. Offer B Comparison */}
+      {isComparing && isFormValid && (
+        <div className="p-4 bg-slate-900 text-white rounded-2xl shadow-inner space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+            <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-400">
+              Side-by-Side Loan Comparison (Offer A vs. Offer B)
+            </span>
+            <span className="text-[11px] text-slate-400">
+              Principal: {formatLatinCurrency(safePrincipal, currency)}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="font-extrabold text-indigo-400">Loan Offer A</span>
+                <span className="text-[11px] text-slate-300 font-semibold">
+                  {formatLatinPercent(safeRate)} • {safeTenureYears} yrs
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-300">Monthly EMI:</span>
+                <span className="font-extrabold text-white">{formatLatinCurrency(safeEmi, currency)}/mo</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-300">Total Interest:</span>
+                <span className="font-bold text-rose-400">+{formatLatinCurrency(totalInterest, currency)}</span>
+              </div>
+              <div className="flex justify-between pt-1 border-t border-slate-700/70">
+                <span className="text-slate-400">Total Repayment:</span>
+                <span className="font-semibold text-slate-200">{formatLatinCurrency(totalRepayment, currency)}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="font-extrabold text-emerald-400">Loan Offer B</span>
+                <span className="text-[11px] text-slate-300 font-semibold">
+                  {formatLatinPercent(safeRateB)} • {safeTenureYearsB} yrs
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-300">Monthly EMI:</span>
+                <span className="font-extrabold text-white">{formatLatinCurrency(safeEmiB, currency)}/mo</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-300">Total Interest:</span>
+                <span className="font-bold text-rose-400">+{formatLatinCurrency(totalInterestB, currency)}</span>
+              </div>
+              <div className="flex justify-between pt-1 border-t border-slate-700/70">
+                <span className="text-slate-400">Total Repayment:</span>
+                <span className="font-semibold text-slate-200">{formatLatinCurrency(totalRepaymentB, currency)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Comparison Verdict Badge */}
+          <div className="p-2.5 rounded-xl bg-indigo-950/80 border border-indigo-700/60 text-xs text-indigo-100 flex flex-wrap items-center justify-between gap-2">
+            {totalInterest === totalInterestB && safeEmi === safeEmiB ? (
+              <span className="font-bold">
+                Verdict: Both Loan Offer A and Loan Offer B have identical monthly payments and total interest costs.
+              </span>
+            ) : (
+              <>
+                <span className="font-extrabold text-emerald-300">
+                  Verdict: {totalInterestB < totalInterest ? 'Loan Offer B' : 'Loan Offer A'} saves {formatLatinCurrency(interestSaved, currency)} in total interest
+                </span>
+                <span className="text-[11px] font-bold bg-indigo-900/90 text-indigo-200 px-2 py-0.5 rounded-md">
+                  Monthly EMI Δ: {formatLatinCurrency(emiDiff, currency)}/mo
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Assumptions & Official References Box */}
+      <AssumptionsSourcesBox calculatorId="loan-emi" />
+
       {/* Action Footer */}
       <CalculatorActionBar
         onReset={() => {
           setPrincipalStr('250000');
           setAnnualRateStr('6.5');
           setTenureYearsStr('30');
+          setAnnualRateBStr('5.75');
+          setTenureYearsBStr('15');
         }}
         onCopySummary={handleCopy}
         onShareLink={handleShareLink}

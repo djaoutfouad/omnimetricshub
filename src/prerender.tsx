@@ -129,7 +129,7 @@ async function prerender() {
 
   // 6. Generate dynamic sitemap.xml in dist/ and public/ containing ONLY canonical URLs with trailing slashes
   const indexableRoutes = routes.filter((r) => {
-    if (r === '/404') return false;
+    if (r === '/404' || r === '/tools' || r === '/guides') return false;
     // Exclude secondary prefix variants from sitemap (they have canonical links to /tools/ and /blog/)
     if (r.startsWith('/calculators/')) return false;
     if (r.startsWith('/calculator/')) return false;

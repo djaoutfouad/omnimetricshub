@@ -17,6 +17,7 @@ import {
 import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 import { CalculatorActionBar } from '../common/CalculatorActionBar';
+import { AssumptionsSourcesBox } from '../common/AssumptionsSourcesBox';
 
 interface Props {
   currency: CurrencySymbol;
@@ -597,6 +598,9 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
           )}
         </div>
       )}
+
+      {/* Assumptions & Official References Box */}
+      <AssumptionsSourcesBox calculatorId="compound-interest" />
 
       {/* Action Footer */}
       <CalculatorActionBar

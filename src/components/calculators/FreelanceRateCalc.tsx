@@ -16,6 +16,7 @@ import {
 import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 import { CalculatorActionBar } from '../common/CalculatorActionBar';
+import { AssumptionsSourcesBox } from '../common/AssumptionsSourcesBox';
 
 interface Props {
   currency: CurrencySymbol;
@@ -375,6 +376,9 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
           </Link>
         </div>
       )}
+
+      {/* Assumptions & Official References Box */}
+      <AssumptionsSourcesBox calculatorId="freelance-rate" />
 
       <CalculatorActionBar
         isFormValid={isFormValid}

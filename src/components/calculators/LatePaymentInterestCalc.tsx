@@ -18,6 +18,7 @@ import {
 import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 import { CalculatorActionBar } from '../common/CalculatorActionBar';
+import { AssumptionsSourcesBox } from '../common/AssumptionsSourcesBox';
 
 interface Props {
   currency: CurrencySymbol;
@@ -393,6 +394,9 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
           <strong>Important Disclaimers:</strong> This tool calculates simple commercial interest as an illustrative reference for business invoices. UK statutory debt recovery tiers (£40 for &lt; £1,000, £70 for £1,000–£9,999.99, £100 for £10,000+) and the 8% + Central Bank Base Rate benchmark are editable estimates. Verify current official Bank of England / ECB base rates and consult legal counsel before issuing formal statutory demands.
         </div>
       </div>
+
+      {/* Assumptions & Official References Box */}
+      <AssumptionsSourcesBox calculatorId="late-payment-interest" />
 
       <CalculatorActionBar
         isFormValid={isFormValid}

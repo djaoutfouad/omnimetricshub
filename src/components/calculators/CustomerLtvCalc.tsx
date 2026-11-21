@@ -16,6 +16,7 @@ import {
 import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 import { CalculatorActionBar } from '../common/CalculatorActionBar';
+import { AssumptionsSourcesBox } from '../common/AssumptionsSourcesBox';
 
 interface Props {
   currency: CurrencySymbol;
@@ -358,6 +359,9 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
           <strong>Linear Model Specification:</strong> This calculation utilizes standard steady-state retention models (`Lifespan = 1 / Churn`). If monthly churn is 0%, customer lifespan is infinite and LTV is mathematically undefined (N/A).
         </span>
       </div>
+
+      {/* Assumptions & Official References Box */}
+      <AssumptionsSourcesBox calculatorId="customer-ltv" />
 
       <CalculatorActionBar
         isFormValid={isFormValid}

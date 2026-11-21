@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CurrencySymbol } from '../../types';
-import { AlertTriangle, ArrowRight, Workflow } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Workflow, ArrowLeftRight } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import {
   validateNumericInput,
@@ -16,6 +16,7 @@ import {
 import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 import { CalculatorActionBar } from '../common/CalculatorActionBar';
+import { AssumptionsSourcesBox } from '../common/AssumptionsSourcesBox';
 
 interface Props {
   currency: CurrencySymbol;
@@ -33,6 +34,9 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
   const [targetMarginStr, setTargetMarginStr] = useState<string>(() =>
     getValidatedNumericParam('targetMargin', '40', { min: 0.1, max: 99.9, allowZero: false })
   );
+  const [isComparing, setIsComparing] = useState<boolean>(false);
+  const [costBStr, setCostBStr] = useState<string>('45');
+  const [priceBStr, setPriceBStr] = useState<string>('110');
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
@@ -65,23 +69,41 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
     fieldName: 'Target Margin Goal',
   });
 
-  const isFormValid = costField.isValid && priceField.isValid;
+  const costBField = validateNumericInput(costBStr, {
+    min: 0,
+    max: 100000000,
+    allowZero: true,
+    fieldName: 'Option B Cost Price',
+  });
+
+  const priceBField = validateNumericInput(priceBStr, {
+    min: 0,
+    max: 100000000,
+    allowZero: true,
+    fieldName: 'Option B Selling Price',
+  });
+
+  const isOptionAValid = costField.isValid && priceField.isValid;
+  const isOptionBValid = costBField.isValid && priceBField.isValid;
+  const isFormValid = isOptionAValid && (!isComparing || isOptionBValid);
 
   const safeCost = costField.value ?? 0;
   const safePrice = priceField.value ?? 0;
   const safeTargetMargin = targetMarginField.value ?? 0;
+  const safeCostB = costBField.value ?? 0;
+  const safePriceB = priceBField.value ?? 0;
 
   const grossProfit = roundToDecimals(safePrice - safeCost, 2);
-  const isLoss = isFormValid && safePrice > 0 && safeCost > safePrice;
+  const isLoss = isOptionAValid && safePrice > 0 && safeCost > safePrice;
 
   // Margin requires selling price > 0
-  const isMarginDefined = isFormValid && safePrice > 0;
+  const isMarginDefined = isOptionAValid && safePrice > 0;
   const marginPct = isMarginDefined
     ? roundToDecimals((grossProfit / safePrice) * 100, 1)
     : null;
 
   // Markup requires cost > 0
-  const isMarkupDefined = isFormValid && safeCost > 0;
+  const isMarkupDefined = isOptionAValid && safeCost > 0;
   const markupPct = isMarkupDefined
     ? roundToDecimals((grossProfit / safeCost) * 100, 1)
     : null;
@@ -89,6 +111,26 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
   const priceMultiplier = isMarkupDefined
     ? roundToDecimals(safePrice / safeCost, 2)
     : null;
+
+  // Option B calculations
+  const grossProfitB = roundToDecimals(safePriceB - safeCostB, 2);
+  const marginPctB =
+    isOptionBValid && safePriceB > 0
+      ? roundToDecimals((grossProfitB / safePriceB) * 100, 1)
+      : null;
+  const markupPctB =
+    isOptionBValid && safeCostB > 0
+      ? roundToDecimals((grossProfitB / safeCostB) * 100, 1)
+      : null;
+  const profitDiff = roundToDecimals(grossProfitB - grossProfit, 2);
+  const marginDiff =
+    marginPct !== null && marginPctB !== null
+      ? roundToDecimals(marginPctB - marginPct, 1)
+      : null;
+  const markupDiff =
+    markupPct !== null && markupPctB !== null
+      ? roundToDecimals(markupPctB - markupPct, 1)
+      : null;
 
   // Target margin calculation: Required Price = Cost / (1 - targetMargin/100)
   const isTargetValid = targetMarginField.isValid && safeCost > 0;
@@ -178,10 +220,30 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
 
   return (
     <div className="space-y-4 text-slate-800">
+      {/* Compare Scenarios (A vs. B) Toggle Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl">
+        <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+          <ArrowLeftRight className="w-3.5 h-3.5 text-blue-600" />
+          <span>Compare Pricing Options (A vs. B)</span>
+        </span>
+        <button
+          type="button"
+          onClick={() => setIsComparing((prev) => !prev)}
+          aria-pressed={isComparing}
+          className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer border ${
+            isComparing
+              ? 'bg-blue-600 text-white border-blue-600 shadow-2xs'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+          }`}
+        >
+          {isComparing ? 'Comparing A vs. B (On)' : 'Compare Scenarios (A vs. B)'}
+        </button>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <NumericInputField
           id="margin-cost-input"
-          label={`Cost Price (${currency})`}
+          label={isComparing ? `Option A Cost Price (${currency})` : `Cost Price (${currency})`}
           value={costStr}
           onChange={setCostStr}
           fieldState={costField}
@@ -195,7 +257,7 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
 
         <NumericInputField
           id="margin-price-input"
-          label={`Selling Price (${currency})`}
+          label={isComparing ? `Option A Selling Price (${currency})` : `Selling Price (${currency})`}
           value={priceStr}
           onChange={setPriceStr}
           fieldState={priceField}
@@ -207,6 +269,41 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
           helperText={safePrice === 0 && priceField.isValid ? 'Zero price makes margin undefined (N/A)' : undefined}
         />
       </div>
+
+      {/* Option B Inputs */}
+      {isComparing && (
+        <div className="p-3.5 bg-blue-50/60 border border-blue-200/90 rounded-2xl space-y-2.5">
+          <div className="text-[11px] font-extrabold text-blue-950 uppercase tracking-wider">
+            Pricing Option B (Comparison Scenario)
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <NumericInputField
+              id="margin-cost-b-input"
+              label={`Option B Cost Price (${currency})`}
+              value={costBStr}
+              onChange={setCostBStr}
+              fieldState={costBField}
+              prefix={currency}
+              placeholder="0.00"
+              min={0}
+              max={100000000}
+              step="any"
+            />
+            <NumericInputField
+              id="margin-price-b-input"
+              label={`Option B Selling Price (${currency})`}
+              value={priceBStr}
+              onChange={setPriceBStr}
+              fieldState={priceBField}
+              prefix={currency}
+              placeholder="0.00"
+              min={0}
+              max={100000000}
+              step="any"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Visual Revenue Share Bar */}
       {isFormValid && safePrice > 0 && marginPct !== null && (
@@ -347,6 +444,87 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
         </div>
       </div>
 
+      {/* Side-by-Side Pricing Option A vs. Option B Comparison */}
+      {isComparing && isFormValid && (
+        <div className="p-4 bg-slate-900 text-white rounded-2xl shadow-inner space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+            <span className="text-xs font-extrabold uppercase tracking-wider text-blue-400">
+              Side-by-Side Pricing Comparison (A vs. B)
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="font-extrabold text-emerald-400">Pricing Option A</span>
+                <span className="text-[11px] text-slate-400">
+                  Cost {formatLatinCurrency(safeCost, currency)} → {formatLatinCurrency(safePrice, currency)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-300">Gross Profit / Unit:</span>
+                <span className="font-bold text-white">{formatLatinCurrency(grossProfit, currency)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-300">Profit Margin:</span>
+                <span className="font-bold text-emerald-400">
+                  {marginPct !== null ? formatLatinPercent(marginPct) : 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-300">Markup on Cost:</span>
+                <span className="font-bold text-purple-300">
+                  {markupPct !== null ? formatLatinPercent(markupPct) : 'N/A'}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 space-y-1.5 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="font-extrabold text-blue-400">Pricing Option B</span>
+                <span className="text-[11px] text-slate-400">
+                  Cost {formatLatinCurrency(safeCostB, currency)} → {formatLatinCurrency(safePriceB, currency)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-300">Gross Profit / Unit:</span>
+                <span className="font-bold text-white">{formatLatinCurrency(grossProfitB, currency)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-300">Profit Margin:</span>
+                <span className="font-bold text-blue-400">
+                  {marginPctB !== null ? formatLatinPercent(marginPctB) : 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-300">Markup on Cost:</span>
+                <span className="font-bold text-purple-300">
+                  {markupPctB !== null ? formatLatinPercent(markupPctB) : 'N/A'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Verdict Badge */}
+          <div className="p-2.5 rounded-xl bg-blue-950/80 border border-blue-700/60 text-xs text-blue-100 flex flex-wrap items-center justify-between gap-2">
+            {grossProfit === grossProfitB ? (
+              <span className="font-bold">
+                Verdict: Both Pricing Option A and Option B generate identical gross profit ({formatLatinCurrency(grossProfit, currency)}/unit).
+              </span>
+            ) : (
+              <>
+                <span className="font-extrabold text-blue-300">
+                  Verdict: {grossProfitB > grossProfit ? 'Option B' : 'Option A'} yields +{formatLatinCurrency(Math.abs(profitDiff), currency)} more profit per unit
+                </span>
+                <span className="text-[11px] font-bold bg-blue-900/90 text-blue-200 px-2 py-0.5 rounded-md">
+                  Margin Δ: {marginDiff !== null ? `${marginDiff > 0 ? '+' : ''}${marginDiff.toFixed(1)}%` : 'N/A'} | Markup Δ: {markupDiff !== null ? `${markupDiff > 0 ? '+' : ''}${markupDiff.toFixed(1)}%` : 'N/A'}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Connected Decision Workflow Card */}
       {isFormValid && safePrice > 0 && (
         <div className="p-3 bg-blue-50/80 border border-blue-200/90 rounded-2xl space-y-2">
@@ -377,6 +555,9 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
         </div>
       )}
 
+      {/* Assumptions & Official References Box */}
+      <AssumptionsSourcesBox calculatorId="profit-margin" />
+
       <CalculatorActionBar
         isFormValid={isFormValid}
         copied={copied}
@@ -387,6 +568,8 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
           setCostStr('50');
           setPriceStr('100');
           setTargetMarginStr('40');
+          setCostBStr('45');
+          setPriceBStr('110');
         }}
         getReportPayload={getReportPayload}
       />

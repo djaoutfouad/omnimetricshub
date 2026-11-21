@@ -17,6 +17,7 @@ import {
 import { CalculationReportPayload } from '../../utils/exportReport';
 import { NumericInputField, InvalidInputAlert } from '../common/NumericInputField';
 import { CalculatorActionBar } from '../common/CalculatorActionBar';
+import { AssumptionsSourcesBox } from '../common/AssumptionsSourcesBox';
 
 interface Props {
   currency: CurrencySymbol;
@@ -351,6 +352,9 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
           <strong>Estimate only — not professional tax advice:</strong> Models an effective combined tax baseline with pre-tax withholdings for budgeting and educational evaluation only. Consult a certified CPA or local tax authority for jurisdiction-specific filings.
         </span>
       </div>
+
+      {/* Assumptions & Official References Box */}
+      <AssumptionsSourcesBox calculatorId="salary-tax" />
 
       <CalculatorActionBar
         isFormValid={isFormValid}

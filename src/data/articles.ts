@@ -172,7 +172,7 @@ export const ARTICLES_DATA: ArticleItem[] = [
     title: 'How to Calculate Your Business Break-Even Point in Units and Revenue',
     category: 'FINANCE',
     readTime: '6 min read',
-    snippet: 'Determine the exact operational milestone where total business revenues equal total operating overhead and variable expenses. Master unit contribution margins and safety buffer planning.',
+    snippet: 'Determine the operational milestone where total business revenues equal total operating overhead and variable expenses. Master unit contribution margins and safety buffer planning.',
     tagColorClass: 'bg-amber-50 text-amber-700 border border-amber-200',
     relatedToolIds: ['calc-breakeven', 'calc-margin', 'calc-roas'],
     relatedArticleSlugs: ['margin-vs-markup-guide', 'how-to-calculate-roas'],
