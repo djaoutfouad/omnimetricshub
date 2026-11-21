@@ -18,21 +18,40 @@ const CATEGORIES: { label: string; value: CategoryType }[] = [
 
 export const Hero: React.FC<Props> = ({ selectedCategory, onSelectCategory }) => {
   return (
-    <section className="relative rounded-3xl overflow-hidden border border-slate-800/80 shadow-2xl p-8 sm:p-12 md:p-14 text-center max-w-5xl mx-auto mb-8">
-      {/* Background Image (preloaded with high priority in document <head>) */}
-      <img
-        src="https://images.unsplash.com/photo-1642543492481-44e81e3914a7?auto=format&fit=crop&w=1000&q=75&fm=webp"
-        alt="Fintech data analytics and financial workspace"
-        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
-        loading="eager"
-        referrerPolicy="no-referrer"
+    <section className="relative rounded-3xl overflow-hidden bg-slate-950 border border-slate-800/80 shadow-2xl p-8 sm:p-12 md:p-14 text-center max-w-5xl mx-auto mb-8">
+      {/* Zero-latency CSS & SVG Fintech Mesh + Geometric Grid Backdrop */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-15%,rgba(16,185,129,0.22),rgba(15,23,42,0.92)_65%,rgba(2,6,23,1)_100%)] pointer-events-none"
       />
+      <svg
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full opacity-[0.14] pointer-events-none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <pattern id="hero-fintech-grid" width="36" height="36" patternUnits="userSpaceOnUse">
+            <path
+              d="M 36 0 L 0 0 0 36"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="0.75"
+              className="text-emerald-400/50"
+            />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#hero-fintech-grid)" />
+      </svg>
 
-      {/* Dark gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/90 via-slate-900/95 to-slate-950" />
-
-      {/* Atmospheric lighting accents */}
-      <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Bottom vignette fade & atmospheric lighting accents */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/40 to-slate-950/95 pointer-events-none"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-emerald-500/12 rounded-full blur-3xl pointer-events-none"
+      />
 
       {/* Content */}
       <div className="relative z-10 max-w-3xl mx-auto">

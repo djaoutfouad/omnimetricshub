@@ -61,24 +61,35 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
   return (
     <div className="bg-white rounded-3xl border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-lg hover:border-slate-300 transition-all flex flex-col justify-between group overflow-hidden">
       {/* Persona Image Header */}
-      {tool.personaImageUrl && !imgFailed && (
-        <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-slate-900 shrink-0">
-          <img
-            src={currentImgSrc || tool.personaImageUrl}
-            alt={tool.personaImageAlt || tool.personaRole || tool.name}
-            width={480}
-            height={270}
-            onError={() => {
-              if (tool.personaImageFallbackUrl && currentImgSrc !== tool.personaImageFallbackUrl) {
-                setCurrentImgSrc(tool.personaImageFallbackUrl);
-              } else {
-                setImgFailed(true);
-              }
-            }}
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-            loading="lazy"
-            referrerPolicy="no-referrer"
-          />
+      {tool.personaImageUrl && !imgFailed && (() => {
+        const activeSrc = currentImgSrc || tool.personaImageUrl;
+        const isUnsplash = activeSrc.includes('images.unsplash.com');
+        const unsplashBase = isUnsplash ? activeSrc.split('?')[0] : '';
+        const responsiveSrcSet = isUnsplash
+          ? `${unsplashBase}?auto=format&fit=crop&w=360&q=65&fm=webp 360w, ${unsplashBase}?auto=format&fit=crop&w=480&q=65&fm=webp 480w`
+          : undefined;
+
+        return (
+          <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-slate-900 shrink-0">
+            <img
+              src={activeSrc}
+              srcSet={responsiveSrcSet}
+              sizes={isUnsplash ? '(max-width: 640px) 92vw, 400px' : undefined}
+              alt={tool.personaImageAlt || tool.personaRole || tool.name}
+              width={480}
+              height={270}
+              onError={() => {
+                if (tool.personaImageFallbackUrl && currentImgSrc !== tool.personaImageFallbackUrl) {
+                  setCurrentImgSrc(tool.personaImageFallbackUrl);
+                } else {
+                  setImgFailed(true);
+                }
+              }}
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+              decoding="async"
+              referrerPolicy="no-referrer"
+            />
           {/* Subtle bottom gradient overlay for readability & transition */}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
 
@@ -92,7 +103,8 @@ export const ToolCard: React.FC<Props> = ({ tool, onLaunch }) => {
             </div>
           )}
         </div>
-      )}
+        );
+      })()}
 
       <div className="p-5 sm:p-6 flex flex-col justify-between flex-1">
         <div>
