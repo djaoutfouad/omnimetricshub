@@ -3,10 +3,13 @@
  * Single source of truth for base canonical domain and absolute URLs.
  * To change domain in the future, update VITE_SITE_URL in .env or modify the default fallback here.
  */
-export const SITE_URL: string = (
-  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SITE_URL) ||
-  'https://omnimetricshub.pages.dev'
-).replace(/\/+$/, '');
+const rawEnvSiteUrl =
+  (typeof import.meta !== 'undefined' &&
+    (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_SITE_URL) ||
+  (typeof process !== 'undefined' && process.env?.VITE_SITE_URL) ||
+  'https://omnimetricshub.pages.dev';
+
+export const SITE_URL: string = rawEnvSiteUrl.trim().replace(/\/+$/, '');
 
 export const SITE_CONFIG = {
   name: 'OmniMetrics Hub',
