@@ -129,7 +129,7 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
 
   const handleCopy = async () => {
     if (!isFormValid) return;
-    const text = `Net Salary & Paycheck Breakdown:\n- Gross Annual Salary: ${formatLatinCurrency(safeGross, currency)}\n- Annual Pre-Tax Deductions: ${formatLatinCurrency(annualPreTaxDeductions, currency)}\n- Taxable Income Base: ${formatLatinCurrency(taxableIncome, currency)}\n- Estimated Tax Rate: ${formatLatinPercent(safeTaxRate)} (${formatLatinCurrency(annualTax, currency)} withheld)\n- Annual Net Take-Home: ${formatLatinCurrency(annualNet, currency)}\n- Weekly Paycheck (52 wks): ${formatLatinCurrency(weeklyNet, currency)}/wk\n- Bi-Weekly Paycheck (26 wks): ${formatLatinCurrency(biWeeklyNet, currency)}/period\n- Semi-Monthly Paycheck (24 wks): ${formatLatinCurrency(semiMonthlyNet, currency)}/period\n- Monthly Net Salary: ${formatLatinCurrency(monthlyNet, currency)}/mo`;
+    const text = `Net Salary & Paycheck Breakdown:\n- Gross Annual Salary: ${formatLatinCurrency(safeGross, currency)}\n- Annual Pre-Tax Deductions: ${formatLatinCurrency(annualPreTaxDeductions, currency)}\n- Taxable Income Base: ${formatLatinCurrency(taxableIncome, currency)}\n- Estimated Tax Rate: ${formatLatinPercent(safeTaxRate)} (${formatLatinCurrency(annualTax, currency)} withheld)\n- Annual Net Take-Home: ${formatLatinCurrency(annualNet, currency)}\n- Weekly Paycheck (52 pay periods/yr): ${formatLatinCurrency(weeklyNet, currency)}/wk\n- Bi-Weekly Paycheck (26 pay periods/yr): ${formatLatinCurrency(biWeeklyNet, currency)}/period\n- Semi-Monthly Paycheck (24 pay periods/yr): ${formatLatinCurrency(semiMonthlyNet, currency)}/period\n- Monthly Net Salary (12 pay periods/yr): ${formatLatinCurrency(monthlyNet, currency)}/mo`;
 
     const ok = await copyTextToClipboard(text);
     if (ok) {
@@ -175,7 +175,7 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
       },
       { label: 'Annual Net Take-Home Pay', value: formatLatinCurrency(annualNet, currency) },
       { label: 'Taxable Income Base (Gross - Pre-Tax)', value: formatLatinCurrency(taxableIncome, currency) },
-      { label: 'Estimated Annual Taxes Withheld', value: `-${formatLatinCurrency(annualTax, currency)}` },
+      { label: 'Estimated Annual Taxes Withheld', value: annualTax > 0 ? `-${formatLatinCurrency(annualTax, currency)}` : formatLatinCurrency(0, currency) },
       { label: 'Weekly Net Paycheck (52/yr)', value: formatLatinCurrency(weeklyNet, currency) },
       { label: 'Bi-Weekly Net Paycheck (26/yr)', value: formatLatinCurrency(biWeeklyNet, currency) },
       { label: 'Semi-Monthly Net Paycheck (24/yr)', value: formatLatinCurrency(semiMonthlyNet, currency) },
@@ -277,7 +277,7 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
       {/* Tax Model Clarification Note */}
       <div className="text-[11px] text-slate-600 leading-relaxed bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 space-y-1">
         <div>
-          <span className="font-bold text-slate-800">Model Assumptions (Effective Combined Rate vs. Progressive Tax Brackets):</span>{' '}
+          <span className="font-bold text-slate-800">2026 Jurisdiction-Agnostic Effective-Rate Model (Effective Combined Rate vs. Progressive Tax Brackets):</span>{' '}
           This calculator applies your entered <strong>combined effective tax rate</strong> directly to your taxable income base (Gross Salary minus Pre-Tax Deductions), rather than automatically computing multi-tier progressive tax brackets.
         </div>
         <div>
@@ -338,9 +338,9 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
       {/* Info on Pre-tax Advantage */}
       {annualPreTaxDeductions > 0 && isFormValid && (
         <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 flex items-start gap-2">
-          <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+          <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
           <span>
-            Pre-tax deductions ({formatLatinCurrency(annualPreTaxDeductions, currency)}/yr) reduce your taxable income base dollar-for-dollar, saving an estimated {formatLatinCurrency(taxSavingsFromDeductions, currency)} in taxes annually compared to after-tax contributions.
+            Pre-tax deductions ({formatLatinCurrency(annualPreTaxDeductions, currency)}/yr) reduce your taxable income base directly (under this flat effective-rate model), saving an estimated {formatLatinCurrency(taxSavingsFromDeductions, currency)} in taxes annually compared to after-tax contributions.
           </span>
         </div>
       )}

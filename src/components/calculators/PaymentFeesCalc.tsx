@@ -222,7 +222,7 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
       mode === 'forward'
         ? [
             { label: 'Net Settled Payout', value: formatLatinCurrency(forwardNet, currency), highlight: true },
-            { label: 'Processor Fee Cut', value: `-${formatLatinCurrency(forwardCut, currency)}` },
+            { label: 'Processor Fee Cut', value: forwardCut > 0 ? `-${formatLatinCurrency(forwardCut, currency)}` : formatLatinCurrency(0, currency) },
             { label: 'Effective Processing Rate', value: formatLatinPercent(forwardEffectiveFeePercent) },
           ]
         : [
@@ -233,7 +233,7 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
             },
             {
               label: 'Estimated Processor Fee Deduction',
-              value: canComputeReverse ? `-${formatLatinCurrency(reverseCut, currency)}` : 'N/A',
+              value: canComputeReverse ? (reverseCut > 0 ? `-${formatLatinCurrency(reverseCut, currency)}` : formatLatinCurrency(0, currency)) : 'N/A',
             },
             {
               label: 'Realized Net Payout After Rounding',
@@ -260,7 +260,7 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
           aria-pressed={isComparing}
           className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer border ${
             isComparing
-              ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
+              ? 'bg-emerald-700 text-white border-emerald-700 shadow-2xs'
               : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
           }`}
         >
@@ -319,8 +319,8 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
                 }`}
               >
                 <div className="truncate">{p.name}</div>
-                <div className="text-[10px] text-slate-400">
-                  {p.percentRate}% + {currency}{p.fixedFee.toFixed(2)}
+                <div className="text-[10px] text-slate-500">
+                  {p.percentRate}% + ${p.fixedFee.toFixed(2)} USD
                 </div>
               </button>
             );

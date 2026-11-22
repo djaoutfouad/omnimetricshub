@@ -169,7 +169,7 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
     ],
     results: [
       {
-        label: 'Minimum Hourly Rate',
+        label: 'Suggested Minimum Hourly Rate (Estimated)',
         value: hourlyRate !== null ? `${formatLatinCurrency(hourlyRate, currency)}/hr` : 'N/A',
         highlight: true,
       },
@@ -224,7 +224,7 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
           min={0}
           max={10000000}
           step="any"
-          helperText="Self-employment tax & health coverage"
+          helperText="Manual annual estimate (not auto-recalculated)"
         />
       </div>
 
@@ -272,9 +272,10 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
               value={billableHoursStr}
               onChange={(e) => setBillableHoursStr(e.target.value)}
               aria-label="Annual Billable Hours (type directly)"
+              aria-invalid={!billableHoursField.isValid}
               className="w-20 px-2 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold text-right text-violet-700 outline-none focus:ring-2 focus:ring-violet-500"
             />
-            <span className="text-[11px] font-semibold text-slate-500">
+            <span className="text-[11px] font-semibold text-slate-600">
               hrs/yr (~{(safeBillableHours / activeWeeks).toFixed(1)} hrs/wk across {activeWeeks} wks)
             </span>
           </div>
@@ -290,9 +291,9 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
           aria-label="Annual Billable Hours slider"
           className="w-full accent-violet-600 cursor-pointer"
         />
-        <div className="flex justify-between text-[10px] text-slate-400">
+        <div className="flex justify-between text-[10px] text-slate-600">
           <span>Part-time (500 hrs)</span>
-          <span className="font-semibold text-slate-600">Balanced (1,000 hrs)</span>
+          <span className="font-semibold text-slate-700">Balanced (1,000 hrs)</span>
           <span>Max Capacity (1,500 hrs)</span>
         </div>
         {!billableHoursField.isValid && (
@@ -311,8 +312,8 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
             <>
               <div className="flex justify-between items-baseline">
                 <div>
-                  <div className="text-xs font-bold text-slate-300">Minimum Hourly Rate:</div>
-                  <div className="text-[11px] text-slate-400">Baseline to achieve target take-home salary</div>
+                  <div className="text-xs font-bold text-slate-300">Suggested Minimum Hourly Rate (Estimated):</div>
+                  <div className="text-[11px] text-slate-400">Baseline to achieve target take-home salary (Taxes &amp; Healthcare are user-entered manual estimates)</div>
                 </div>
                 <span className="font-black text-violet-400 text-2xl tracking-tight">
                   {formatLatinCurrency(hourlyRate, currency)}

@@ -114,10 +114,14 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
 
   const safeEmi = isOfferAValid ? roundToDecimals(emi, 2) : 0;
   const totalRepayment = isOfferAValid
-    ? roundToDecimals(safeEmi * totalMonths, 2)
+    ? monthlyRate === 0
+      ? roundToDecimals(safePrincipal, 2)
+      : roundToDecimals(safeEmi * totalMonths, 2)
     : 0;
   const totalInterest = isOfferAValid
-    ? Math.max(0, roundToDecimals(totalRepayment - safePrincipal, 2))
+    ? monthlyRate === 0
+      ? 0
+      : Math.max(0, roundToDecimals(totalRepayment - safePrincipal, 2))
     : 0;
   const principalSharePercent =
     totalRepayment > 0 ? roundToDecimals((safePrincipal / totalRepayment) * 100, 1) : 0;
@@ -141,11 +145,18 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
   }
 
   const safeEmiB = isOfferBValid ? roundToDecimals(emiB, 2) : 0;
-  const totalRepaymentB = isOfferBValid ? roundToDecimals(safeEmiB * totalMonthsB, 2) : 0;
-  const totalInterestB = isOfferBValid
-    ? Math.max(0, roundToDecimals(totalRepaymentB - safePrincipal, 2))
+  const totalRepaymentB = isOfferBValid
+    ? monthlyRateB === 0
+      ? roundToDecimals(safePrincipal, 2)
+      : roundToDecimals(safeEmiB * totalMonthsB, 2)
     : 0;
-  const emiDiff = roundToDecimals(Math.abs(safeEmiB - safeEmi), 2);
+  const totalInterestB = isOfferBValid
+    ? monthlyRateB === 0
+      ? 0
+      : Math.max(0, roundToDecimals(totalRepaymentB - safePrincipal, 2))
+    : 0;
+  const emiSignedDiff = roundToDecimals(safeEmiB - safeEmi, 2);
+  const emiDiff = Math.abs(emiSignedDiff);
   const interestSaved = roundToDecimals(Math.abs(totalInterest - totalInterestB), 2);
 
   // Annual Amortization Schedule (verified to reach 0 balance cleanly at term end, including 0% interest)
@@ -265,6 +276,7 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
   };
 
   const getReportPayload = (): CalculationReportPayload => ({
+    calculatorId: 'loan-emi',
     calculatorName: 'Loan & Monthly EMI Amortization Calculator',
     slug: 'loan-emi',
     currency,
@@ -661,7 +673,7 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
                   Verdict: {totalInterestB < totalInterest ? 'Loan Offer B' : 'Loan Offer A'} saves {formatLatinCurrency(interestSaved, currency)} in total interest
                 </span>
                 <span className="text-[11px] font-bold bg-indigo-900/90 text-indigo-200 px-2 py-0.5 rounded-md">
-                  Monthly EMI Δ: {formatLatinCurrency(emiDiff, currency)}/mo
+                  Offer B EMI: {emiSignedDiff > 0 ? '+' : emiSignedDiff < 0 ? '-' : ''}{formatLatinCurrency(emiDiff, currency)}/mo vs A
                 </span>
               </>
             )}
@@ -674,7 +686,7 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
 
       {/* Action Footer */}
       <CalculatorActionBar
-        onReset={() => {
+        onResetDefaults={() => {
           setPrincipalStr('250000');
           setAnnualRateStr('6.5');
           setTenureYearsStr('30');

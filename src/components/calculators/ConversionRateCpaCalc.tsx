@@ -118,10 +118,10 @@ export const ConversionRateCpaCalc: React.FC<Props> = ({ currency }) => {
       ? roundToDecimals(grossRevenue / safeAdSpend, 2)
       : null;
 
-  // Traffic requirement per 100 conversions
+  // Traffic requirement per 100 conversions (from unrounded inputs)
   const visitorsPer100Conversions =
-    crPercent !== null && crPercent > 0
-      ? Math.ceil(100 / (crPercent / 100))
+    isFormValid && safeVisitors > 0 && safeConversions > 0
+      ? Math.ceil((100 * safeVisitors) / safeConversions - 1e-9)
       : null;
 
   const handleCopy = async () => {
@@ -216,7 +216,7 @@ export const ConversionRateCpaCalc: React.FC<Props> = ({ currency }) => {
     <div className="space-y-5 text-slate-800">
       {/* Preset Quick Chips */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-        <span className="text-[11px] font-bold text-slate-400 shrink-0">Benchmarks:</span>
+        <span className="text-[11px] font-bold text-slate-600 shrink-0">Benchmarks:</span>
         <button
           type="button"
           onClick={() => setPreset(5000, 125, 500, 60)}

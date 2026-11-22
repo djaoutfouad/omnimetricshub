@@ -102,22 +102,26 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
   const safeCac = cacField.value ?? 0;
 
   // Monthly revenue per customer (ARPU) = AOV * monthly order frequency
-  const monthlyRevenuePerCustomer = roundToDecimals(safeAov * safeFreq, 2);
+  const rawMonthlyRevenuePerCustomer = safeAov * safeFreq;
+  const monthlyRevenuePerCustomer = roundToDecimals(rawMonthlyRevenuePerCustomer, 2);
 
   // Customer Lifespan in Months = 1 / (monthly churn rate %)
   // When churn = 0, lifespan is infinite (undefined / N/A in linear model)
   const hasChurn = safeChurn > 0;
-  const customerLifespanMonths = hasChurn ? roundToDecimals(1 / (safeChurn / 100), 1) : null;
-  const customerLifespanYears = customerLifespanMonths !== null ? roundToDecimals(customerLifespanMonths / 12, 1) : null;
+  const rawLifespanMonths = hasChurn ? 1 / (safeChurn / 100) : null;
+  const customerLifespanMonths =
+    rawLifespanMonths !== null ? roundToDecimals(rawLifespanMonths, 1) : null;
+  const customerLifespanYears =
+    rawLifespanMonths !== null ? roundToDecimals(rawLifespanMonths / 12, 1) : null;
 
-  // Revenue LTV vs Gross Profit LTV
+  // Revenue LTV vs Gross Profit LTV (computed from unrounded lifespan)
+  const rawGrossRevenueLtv =
+    rawLifespanMonths !== null ? rawMonthlyRevenuePerCustomer * rawLifespanMonths : null;
   const grossRevenueLtv =
-    customerLifespanMonths !== null
-      ? roundToDecimals(monthlyRevenuePerCustomer * customerLifespanMonths, 2)
-      : null;
+    rawGrossRevenueLtv !== null ? roundToDecimals(rawGrossRevenueLtv, 2) : null;
   const grossProfitLtv =
-    grossRevenueLtv !== null
-      ? roundToDecimals(grossRevenueLtv * (safeMargin / 100), 2)
+    rawGrossRevenueLtv !== null
+      ? roundToDecimals(rawGrossRevenueLtv * (safeMargin / 100), 2)
       : null;
 
   // LTV:CAC Ratio based on Gross Profit LTV
@@ -353,10 +357,10 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
       )}
 
       {/* Linear Model Notice */}
-      <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-500 flex items-start gap-2">
-        <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+      <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 flex items-start gap-2">
+        <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
         <span>
-          <strong>Linear Model Specification:</strong> This calculation utilizes standard steady-state retention models (`Lifespan = 1 / Churn`). If monthly churn is 0%, customer lifespan is infinite and LTV is mathematically undefined (N/A).
+          <strong>Linear Model Specification:</strong> This calculation utilizes standard steady-state retention models (<code className="px-1 py-0.5 bg-slate-200/70 rounded text-slate-800 font-mono text-[10.5px]">Lifespan = 1 / Churn</code>). If monthly churn is 0%, customer lifespan is infinite and LTV is mathematically undefined (N/A).
         </span>
       </div>
 

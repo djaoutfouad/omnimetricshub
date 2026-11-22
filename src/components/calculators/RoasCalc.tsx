@@ -111,10 +111,10 @@ export const RoasCalc: React.FC<Props> = ({ currency }) => {
       ? roundToDecimals((grossProductProfit / safeRevenue) * 100, 1)
       : null;
 
-  // Break-Even ROAS = 1 / (Gross Margin % / 100) -> 100 / grossMarginPercent
+  // Break-Even ROAS computed from unrounded values: Revenue / (Revenue - COGS)
   const breakEvenRoas =
-    grossMarginPercent !== null && grossMarginPercent > 0
-      ? roundToDecimals(100 / grossMarginPercent, 2)
+    isFormValid && safeRevenue > safeCogs
+      ? roundToDecimals(safeRevenue / (safeRevenue - safeCogs), 2)
       : null;
 
   // True Net Profit (after Ad Spend and COGS)
@@ -335,14 +335,12 @@ export const RoasCalc: React.FC<Props> = ({ currency }) => {
             </div>
           </div>
 
-          {safeCogs > 0 && (
-            <div className="border-t border-slate-800 pt-2.5 flex justify-between items-baseline text-xs">
-              <span className="text-slate-300">True Net Profit (After COGS & Spend):</span>
-              <span className={`font-bold ${netTrueProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                {formatLatinCurrency(netTrueProfit, currency)} {trueRoi !== null ? `(${formatLatinPercent(trueRoi)} ROI)` : ''}
-              </span>
-            </div>
-          )}
+          <div className="border-t border-slate-800 pt-2.5 flex justify-between items-baseline text-xs">
+            <span className="text-slate-300">True Net Profit (After COGS & Spend):</span>
+            <span className={`font-bold ${netTrueProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              {formatLatinCurrency(netTrueProfit, currency)} {trueRoi !== null ? `(${formatLatinPercent(trueRoi)} ROI)` : ''}
+            </span>
+          </div>
         </div>
       )}
 

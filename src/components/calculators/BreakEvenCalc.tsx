@@ -83,7 +83,7 @@ export const BreakEvenCalc: React.FC<Props> = ({ currency }) => {
   // Undefined break-even if contribution margin <= 0
   const unroundedBreakEvenUnits = isViable ? safeFixedCosts / contributionMargin : null;
   const wholeBreakEvenUnits =
-    unroundedBreakEvenUnits !== null ? Math.ceil(unroundedBreakEvenUnits) : null;
+    unroundedBreakEvenUnits !== null ? Math.ceil(unroundedBreakEvenUnits - 1e-9) : null;
 
   const unroundedBreakEvenRevenue =
     unroundedBreakEvenUnits !== null
@@ -200,6 +200,7 @@ export const BreakEvenCalc: React.FC<Props> = ({ currency }) => {
   };
 
   const getReportPayload = (): CalculationReportPayload => ({
+    calculatorId: 'break-even',
     calculatorName: 'Break-Even Point & Unit Volume Calculator',
     slug: 'break-even',
     currency,
@@ -520,7 +521,7 @@ export const BreakEvenCalc: React.FC<Props> = ({ currency }) => {
 
       {/* Action Footer */}
       <CalculatorActionBar
-        onReset={() => {
+        onResetDefaults={() => {
           setFixedCostsStr('2000');
           setUnitPriceStr('50');
           setVariableCostStr('20');

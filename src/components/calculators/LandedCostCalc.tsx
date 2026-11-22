@@ -351,7 +351,7 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
           aria-pressed={isComparing}
           className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer border ${
             isComparing
-              ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
+              ? 'bg-emerald-700 text-white border-emerald-700 shadow-2xs'
               : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
           }`}
         >
@@ -411,7 +411,7 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
               onClick={() => setDutyBasis('FOB')}
               className={`px-2 py-0.5 rounded text-[10px] font-bold transition cursor-pointer ${
                 dutyBasis === 'FOB'
-                  ? 'bg-emerald-600 text-white'
+                  ? 'bg-emerald-700 text-white'
                   : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
               }`}
             >
@@ -422,7 +422,7 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
               onClick={() => setDutyBasis('CIF')}
               className={`px-2 py-0.5 rounded text-[10px] font-bold transition cursor-pointer ${
                 dutyBasis === 'CIF'
-                  ? 'bg-emerald-600 text-white'
+                  ? 'bg-emerald-700 text-white'
                   : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
               }`}
             >

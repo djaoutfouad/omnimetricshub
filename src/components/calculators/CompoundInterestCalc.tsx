@@ -40,7 +40,7 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
     getValidatedNumericParam('monthlyDeposit', '500', { min: 0, max: 1000000, allowZero: true })
   );
   const [annualRateStr, setAnnualRateStr] = useState<string>(() =>
-    getValidatedNumericParam('rate', '8.0', { min: 0, max: 100, allowZero: true })
+    getValidatedNumericParam('rate', '8.0', { min: 0, max: 50, allowZero: true })
   );
   const [yearsStr, setYearsStr] = useState<string>(() =>
     getValidatedNumericParam('years', '10', { min: 1, max: 100, allowZero: false, integerOnly: true })
@@ -56,7 +56,7 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
     if (!location.search) return;
     setPrincipalStr(getValidatedNumericParam('principal', '10000', { min: 0, max: 100000000, allowZero: true }, location.search));
     setMonthlyDepositStr(getValidatedNumericParam('monthlyDeposit', '500', { min: 0, max: 1000000, allowZero: true }, location.search));
-    setAnnualRateStr(getValidatedNumericParam('rate', '8.0', { min: 0, max: 100, allowZero: true }, location.search));
+    setAnnualRateStr(getValidatedNumericParam('rate', '8.0', { min: 0, max: 50, allowZero: true }, location.search));
     setYearsStr(getValidatedNumericParam('years', '10', { min: 1, max: 100, allowZero: false, integerOnly: true }, location.search));
     setDepositTiming(getValidatedEnumParam('timing', ['end', 'beginning'] as const, 'end', location.search));
   }, [location.search]);
@@ -78,7 +78,7 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
 
   const rateField = validateNumericInput(annualRateStr, {
     min: 0,
-    max: 100,
+    max: 50,
     allowZero: true,
     fieldName: 'Annual Interest / Return (%)',
   });
@@ -122,9 +122,16 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
     fvDeposits = safeMonthly * totalMonths;
   }
 
-  const finalBalance = isFormValid ? roundToDecimals(fvPrincipal + fvDeposits, 2) : 0;
+  const rawFinalBalance = fvPrincipal + fvDeposits;
+  const finalBalance =
+    isFormValid && Number.isFinite(rawFinalBalance)
+      ? roundToDecimals(rawFinalBalance, 2)
+      : 0;
   const totalPrincipalDeposits = roundToDecimals(safePrincipal + (safeMonthly * totalMonths), 2);
-  const totalInterestEarned = isFormValid ? roundToDecimals(finalBalance - totalPrincipalDeposits, 2) : 0;
+  const totalInterestEarned =
+    isFormValid && Number.isFinite(rawFinalBalance)
+      ? roundToDecimals(Math.max(0, finalBalance - totalPrincipalDeposits), 2)
+      : 0;
   const principalSharePercent =
     finalBalance > 0 ? roundToDecimals((totalPrincipalDeposits / finalBalance) * 100, 1) : 0;
   const interestSharePercent =
@@ -251,6 +258,7 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
   };
 
   const getReportPayload = (): CalculationReportPayload => ({
+    calculatorId: 'compound-interest',
     calculatorName: 'Compound Interest & Wealth Growth Calculator',
     slug: 'compound-interest',
     currency,
@@ -283,8 +291,12 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
   });
 
   const formatCompactAxis = (val: number): string => {
-    if (val >= 1000000) return `${currency}${(val / 1000000).toFixed(1)}M`;
-    if (val >= 1000) return `${currency}${(val / 1000).toFixed(0)}k`;
+    if (!Number.isFinite(val)) return 'N/A';
+    if (val >= 1e15) return `${currency}${val.toExponential(1)}`;
+    if (val >= 1e12) return `${currency}${(val / 1e12).toFixed(1)}T`;
+    if (val >= 1e9) return `${currency}${(val / 1e9).toFixed(1)}B`;
+    if (val >= 1e6) return `${currency}${(val / 1e6).toFixed(1)}M`;
+    if (val >= 1e3) return `${currency}${(val / 1e3).toFixed(0)}k`;
     return `${currency}${val.toFixed(0)}`;
   };
 
@@ -328,7 +340,7 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
           suffix="%"
           placeholder="8.0"
           min={0}
-          max={100}
+          max={50}
           step="0.1"
         />
 
@@ -425,6 +437,10 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
               </span>
             </div>
           </div>
+
+          <div className="border-t border-slate-800/70 pt-2 text-[10.5px] text-slate-400">
+            Hypothetical constant nominal return — excludes volatility, fees, inflation, and taxes.
+          </div>
         </div>
       )}
 
@@ -433,7 +449,7 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
         <div className="p-3.5 bg-white border border-slate-200 rounded-2xl space-y-2.5">
           <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
             <span className="font-bold text-slate-800">
-              Compound Trajectory ({safeYears}-{safeYears === 1 ? 'Year' : 'Year'} Horizon)
+              Compound Trajectory ({safeYears}-Year Horizon)
             </span>
             <div className="flex items-center gap-3 text-[10.5px]">
               <span className="flex items-center gap-1 text-slate-600 font-semibold">
@@ -604,7 +620,7 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
 
       {/* Action Footer */}
       <CalculatorActionBar
-        onReset={() => {
+        onResetDefaults={() => {
           setPrincipalStr('10000');
           setMonthlyDepositStr('500');
           setAnnualRateStr('8.0');

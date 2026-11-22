@@ -231,7 +231,7 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
               className="px-2 py-0.5 rounded-md bg-white border border-slate-200 hover:border-orange-400 text-[10px] font-bold text-slate-700 cursor-pointer transition"
               title="Set illustrative 8% + 4.75% base rate benchmark (12.75%)"
             >
-              8% + 4.75% Base (12.75%)
+              Illustrative 12.75% (8% + 4.75% ex.)
             </button>
             <button
               type="button"
@@ -296,7 +296,7 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
       <div className="p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-1 text-[11px]">
           <span className="font-bold text-slate-700">
-            UK Statutory Debt Recovery Compensation Tiers (Editable Presets):
+            UK Statutory Debt Recovery Compensation Tiers (GBP £ Fixed Sums):
           </span>
           {safeInvoice > 0 && (
             <button
@@ -304,7 +304,7 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
               onClick={() => setCompensationFeeStr(suggestedTierFee.toString())}
               className="text-[10.5px] font-bold text-orange-700 hover:underline cursor-pointer"
             >
-              Auto-match invoice tier ({currency}{suggestedTierFee})
+              Auto-match UK statutory tier (£{suggestedTierFee})
             </button>
           )}
         </div>
@@ -322,7 +322,7 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
                     : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                <div className="font-bold">£{tier.fee} ({currency}{tier.fee})</div>
+                <div className="font-bold">£{tier.fee} (UK Statutory)</div>
                 <div className="text-[10px] text-slate-500">{tier.tierLabel}</div>
               </button>
             );
@@ -340,6 +340,11 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
             <div className="text-[10px] text-slate-500">Interest only</div>
           </button>
         </div>
+        {currency !== '£' && (
+          <p className="text-[10.5px] text-slate-600">
+            Note: UK statutory fixed recovery sums (£40, £70, £100) are legally denominated in GBP (£) and are illustrative only when modeling invoices in {currency}.
+          </p>
+        )}
       </div>
 
       {/* Main Results Card */}

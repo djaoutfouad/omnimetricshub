@@ -94,7 +94,7 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
   const safePriceB = priceBField.value ?? 0;
 
   const grossProfit = roundToDecimals(safePrice - safeCost, 2);
-  const isLoss = isOptionAValid && safePrice > 0 && safeCost > safePrice;
+  const isLoss = isOptionAValid && safeCost > safePrice;
 
   // Margin requires selling price > 0
   const isMarginDefined = isOptionAValid && safePrice > 0;
@@ -175,7 +175,8 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
   };
 
   const breakEvenWorkflowUrl = `/tools/break-even/?price=${safePrice.toFixed(2)}&variableCost=${safeCost.toFixed(2)}`;
-  const roasWorkflowUrl = `/tools/roas-calculator/?cogs=${safeCost.toFixed(2)}`;
+  const sampleOrders = 50;
+  const roasWorkflowUrl = `/tools/roas-calculator/?conversions=${sampleOrders}&revenue=${(safePrice * sampleOrders).toFixed(2)}&cogs=${(safeCost * sampleOrders).toFixed(2)}`;
 
   const getReportPayload = (): CalculationReportPayload => ({
     calculatorId: 'profit-margin',
@@ -517,7 +518,7 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
                   Verdict: {grossProfitB > grossProfit ? 'Option B' : 'Option A'} yields +{formatLatinCurrency(Math.abs(profitDiff), currency)} more profit per unit
                 </span>
                 <span className="text-[11px] font-bold bg-blue-900/90 text-blue-200 px-2 py-0.5 rounded-md">
-                  Margin Δ: {marginDiff !== null ? `${marginDiff > 0 ? '+' : ''}${marginDiff.toFixed(1)}%` : 'N/A'} | Markup Δ: {markupDiff !== null ? `${markupDiff > 0 ? '+' : ''}${markupDiff.toFixed(1)}%` : 'N/A'}
+                  Margin Δ (B vs A): {marginDiff !== null ? `${marginDiff > 0 ? '+' : ''}${marginDiff.toFixed(1)}%` : 'N/A'} | Markup Δ (B vs A): {markupDiff !== null ? `${markupDiff > 0 ? '+' : ''}${markupDiff.toFixed(1)}%` : 'N/A'}
                 </span>
               </>
             )}
@@ -548,7 +549,7 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
               to={roasWorkflowUrl}
               className="w-full px-3 py-2 rounded-xl bg-white hover:bg-blue-600 text-blue-900 hover:text-white border border-blue-200 hover:border-blue-600 text-xs font-bold flex items-center justify-between transition shadow-2xs group"
             >
-              <span>Model Ad Profitability in ROAS Calculator</span>
+              <span>Model Ad Profitability in ROAS Calculator (50-Order Sample)</span>
               <ArrowRight className="w-3.5 h-3.5 text-blue-600 group-hover:text-white group-hover:translate-x-0.5 transition" />
             </Link>
           </div>
