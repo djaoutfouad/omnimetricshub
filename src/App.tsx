@@ -155,27 +155,27 @@ export default function App() {
             />
             <Route
               path="/blog/:slugOrId"
-              element={<GuidePage />}
+              element={<GuidePage key={location.pathname} />}
             />
             <Route
               path="/tools/:slugOrId"
-              element={<CalculatorPage currency={currency} />}
+              element={<CalculatorPage key={`${location.pathname}${location.search}`} currency={currency} />}
             />
             <Route
               path="/calculators/:slugOrId"
-              element={<CalculatorPage currency={currency} />}
+              element={<CalculatorPage key={`${location.pathname}${location.search}`} currency={currency} />}
             />
             <Route
               path="/calculator/:slugOrId"
-              element={<CalculatorPage currency={currency} />}
+              element={<CalculatorPage key={`${location.pathname}${location.search}`} currency={currency} />}
             />
             <Route
               path="/guides/:slugOrId"
-              element={<GuidePage />}
+              element={<GuidePage key={location.pathname} />}
             />
             <Route
               path="/articles/:slugOrId"
-              element={<GuidePage />}
+              element={<GuidePage key={location.pathname} />}
             />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/methodology" element={<MethodologyPage />} />

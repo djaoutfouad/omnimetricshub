@@ -61,7 +61,7 @@ export const SuggestModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <CheckCircle2 className="w-8 h-8 text-emerald-700 mx-auto" />
             <div className="font-bold text-sm text-emerald-950">Thank You!</div>
             <p className="text-xs text-emerald-800">
-              Your suggestion has been logged. Our quant analysts review all submissions weekly.
+              Your suggestion has been noted. The OmniMetrics Hub team reviews all calculator suggestions regularly.
             </p>
           </div>
         ) : (

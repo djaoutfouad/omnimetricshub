@@ -199,8 +199,8 @@ export const ContactPage: React.FC = () => {
             <h2 className="text-lg font-extrabold text-slate-900">
               Send a Message
             </h2>
-            <p className="text-xs text-slate-500 leading-relaxed mt-0.5">
-              Fill out the form below to reach our mathematical research and engineering team.
+            <p className="text-xs text-slate-600 leading-relaxed mt-0.5">
+              Fill out the form below to reach the OmniMetrics Hub team.
             </p>
           </div>
         </div>
@@ -208,19 +208,19 @@ export const ContactPage: React.FC = () => {
         {/* Contact Form Status */}
         {status === 'success' ? (
           <div className="p-6 sm:p-8 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
-            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-7 h-7" />
             </div>
             <div className="space-y-1">
               <h3 className="text-base font-extrabold text-emerald-950">Message Sent Successfully!</h3>
               <p className="text-xs text-emerald-800 max-w-md mx-auto leading-relaxed">
-                Thank you for contacting OmniMetrics Hub. Our quantitative analysts and support team have received your transmission and will review it promptly.
+                Thank you for contacting OmniMetrics Hub. Our support team has received your message and will review it promptly.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setStatus('idle')}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Send Another Message</span>

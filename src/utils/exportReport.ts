@@ -27,14 +27,27 @@ export interface CalculationReportPayload {
 export const REPORT_ESTIMATE_DISCLAIMER =
   'Estimate based on user inputs and stated assumptions — for planning purposes only, not financial, legal, or tax advice.';
 
+export const CSV_REPORT_ESTIMATE_DISCLAIMER =
+  'Estimate based on user inputs and stated assumptions - for planning purposes only, not financial, legal, or tax advice.';
+
+/**
+ * Ensures any currency string formatted as "$-2.00" or "€-2.00" is normalized to "-$2.00" / "-€2.00".
+ */
+function normalizeNegativeCurrency(text: string): string {
+  return text.replace(/(^|\s)(C\$|A\$|\$|€|£|¥|₹)-(\d)/g, '$1-$2$3');
+}
+
 function escapeCsvCell(value: string | number | null | undefined): string {
-  const str = String(value ?? '').replace(/\r?\n/g, ' ').trim();
+  const str = normalizeNegativeCurrency(String(value ?? ''))
+    .replace(/\r?\n/g, ' ')
+    .replace(/[\u2014\u2013]/g, '-')
+    .trim();
   const escaped = str.replace(/"/g, '""');
   return `"${escaped}"`;
 }
 
 function escapeHtml(value: string | number | null | undefined): string {
-  return String(value ?? '')
+  return normalizeNegativeCurrency(String(value ?? ''))
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -67,7 +80,7 @@ export function exportCalculationCsv(report: CalculationReportPayload): void {
   const currencyCode = currencySymbolToCode(report.currency);
   const lines: string[] = [];
 
-  lines.push([escapeCsvCell('OmniMetrics Hub — Financial Decision Report'), escapeCsvCell('')].join(','));
+  lines.push([escapeCsvCell('OmniMetrics Hub - Financial Decision Report'), escapeCsvCell('')].join(','));
   lines.push([escapeCsvCell('Calculator Name'), escapeCsvCell(report.calculatorName)].join(','));
   lines.push([escapeCsvCell('Date Generated'), escapeCsvCell(dateStr)].join(','));
   lines.push([escapeCsvCell('Currency'), escapeCsvCell(`${currencyCode} (${report.currency})`)].join(','));
@@ -102,7 +115,7 @@ export function exportCalculationCsv(report: CalculationReportPayload): void {
     lines.push('');
   }
 
-  lines.push([escapeCsvCell('DISCLAIMER'), escapeCsvCell(REPORT_ESTIMATE_DISCLAIMER)].join(','));
+  lines.push([escapeCsvCell('DISCLAIMER'), escapeCsvCell(CSV_REPORT_ESTIMATE_DISCLAIMER)].join(','));
 
   // Prepend UTF-8 BOM (\uFEFF) so Microsoft Excel renders €, £, ¥, ₹ cleanly
   const csvContent = '\uFEFF' + lines.join('\r\n');

@@ -226,11 +226,12 @@ export function formatLatinCurrency(
   if (!Number.isFinite(rounded) || isNaN(rounded)) {
     return 'N/A';
   }
-  const formatted = rounded.toLocaleString('en-US', {
+  const isNegative = rounded < 0;
+  const formatted = Math.abs(rounded).toLocaleString('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
-  return `${currencySymbol}${formatted}`;
+  return isNegative ? `-${currencySymbol}${formatted}` : `${currencySymbol}${formatted}`;
 }
 
 /**

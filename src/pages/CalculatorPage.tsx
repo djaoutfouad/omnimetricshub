@@ -51,8 +51,10 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
   const location = useLocation();
   const [copiedLink, setCopiedLink] = useState(false);
 
-  // Clean raw slug and resolve any legacy/alternate aliases (e.g. profit-margin-markup -> profit-margin)
-  const cleanSlug = (slugOrId || '').trim().replace(/\/+$/, '');
+  // Derive raw slug from useParams() with fallback to location.pathname on every render
+  const pathSegments = location.pathname.split('/').filter(Boolean);
+  const rawSlug = slugOrId || pathSegments[1] || '';
+  const cleanSlug = rawSlug.trim().replace(/\/+$/, '');
   const targetSlug = TOOL_ALIAS_MAP[cleanSlug] || cleanSlug;
 
   // Match either by resolved slug, direct slug, or legacy ID
@@ -60,15 +62,15 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
     (t) => t.slug === targetSlug || t.slug === cleanSlug || t.id === cleanSlug
   );
 
-  // Soft client-side replace to canonical /tools/:slug/ if accessed via alias, legacy id, alternate prefix, or non-trailing slash
+  // Soft client-side replace to canonical /tools/:slug/ while strictly preserving location.search query parameters
   useEffect(() => {
     if (tool) {
       const canonicalPath = `/tools/${tool.slug}/`;
       if (location.pathname !== canonicalPath) {
-        navigate(canonicalPath, { replace: true });
+        navigate(`${canonicalPath}${location.search}`, { replace: true });
       }
     }
-  }, [tool, location.pathname, navigate]);
+  }, [tool, location.pathname, location.search, navigate]);
 
   if (!tool) {
     return (
@@ -79,7 +81,7 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
         </p>
         <Link
           to="/"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition shadow-sm"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs transition shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Return to All Calculators</span>
@@ -88,32 +90,34 @@ export const CalculatorPage: React.FC<Props> = ({ currency }) => {
     );
   }
 
+  const calcInstanceKey = `${tool.id}-${location.search}`;
+
   const renderCalculatorComponent = () => {
     switch (tool.id) {
       case 'calc-fees':
-        return <PaymentFeesCalc currency={currency} />;
+        return <PaymentFeesCalc key={calcInstanceKey} currency={currency} />;
       case 'calc-margin':
-        return <ProfitMarginCalc currency={currency} />;
+        return <ProfitMarginCalc key={calcInstanceKey} currency={currency} />;
       case 'calc-breakeven':
-        return <BreakEvenCalc currency={currency} />;
+        return <BreakEvenCalc key={calcInstanceKey} currency={currency} />;
       case 'calc-roas':
-        return <RoasCalc currency={currency} />;
+        return <RoasCalc key={calcInstanceKey} currency={currency} />;
       case 'calc-cr-cpa':
-        return <ConversionRateCpaCalc currency={currency} />;
+        return <ConversionRateCpaCalc key={calcInstanceKey} currency={currency} />;
       case 'calc-landed-cost':
-        return <LandedCostCalc currency={currency} />;
+        return <LandedCostCalc key={calcInstanceKey} currency={currency} />;
       case 'calc-freelance':
-        return <FreelanceRateCalc currency={currency} />;
+        return <FreelanceRateCalc key={calcInstanceKey} currency={currency} />;
       case 'calc-late-interest':
-        return <LatePaymentInterestCalc currency={currency} />;
+        return <LatePaymentInterestCalc key={calcInstanceKey} currency={currency} />;
       case 'calc-compound':
-        return <CompoundInterestCalc currency={currency} />;
+        return <CompoundInterestCalc key={calcInstanceKey} currency={currency} />;
       case 'calc-loan-emi':
-        return <LoanEmiCalc currency={currency} />;
+        return <LoanEmiCalc key={calcInstanceKey} currency={currency} />;
       case 'calc-ltv':
-        return <CustomerLtvCalc currency={currency} />;
+        return <CustomerLtvCalc key={calcInstanceKey} currency={currency} />;
       case 'calc-salary':
-        return <SalaryTaxCalc currency={currency} />;
+        return <SalaryTaxCalc key={calcInstanceKey} currency={currency} />;
       default:
         return <div className="p-4 text-xs text-slate-500">Calculator under maintenance.</div>;
     }
