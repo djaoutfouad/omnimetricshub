@@ -294,7 +294,7 @@ export const LandedCostCalc: React.FC<Props> = ({ currency }) => {
 
   const profitMarginWorkflowUrl = `/tools/profit-margin/?cost=${totalLandedCost.toFixed(2)}${
     recommendedPrice !== null ? `&price=${recommendedPrice.toFixed(2)}` : ''
-  }&targetMargin=${safeTargetMargin}`;
+  }&targetMargin=${Math.max(0.1, safeTargetMargin)}`;
 
   const getReportPayload = (): CalculationReportPayload => ({
     calculatorId: 'landed-cost',

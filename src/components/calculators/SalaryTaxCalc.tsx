@@ -321,7 +321,7 @@ export const SalaryTaxCalc: React.FC<Props> = ({ currency }) => {
             <div>
               <span className="text-slate-400 block text-[11px]">Taxes Withheld ({formatLatinPercent(safeTaxRate)}):</span>
               <span className="font-bold text-rose-400 text-sm">
-                -{formatLatinCurrency(annualTax, currency)}
+                {annualTax > 0 ? '-' : ''}{formatLatinCurrency(annualTax, currency)}
               </span>
             </div>
           </div>

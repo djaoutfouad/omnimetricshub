@@ -300,6 +300,12 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
     return `${currency}${val.toFixed(0)}`;
   };
 
+  const formatDisplayCurrency = (val: number): string => {
+    if (!Number.isFinite(val)) return 'N/A';
+    if (Math.abs(val) >= 1e15) return formatCompactAxis(val);
+    return formatLatinCurrency(val, currency);
+  };
+
   return (
     <div className="space-y-4 text-slate-800">
       <div className="grid grid-cols-2 gap-3">
@@ -389,7 +395,7 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
         <div>
           <div className="flex justify-between text-[11px] font-semibold text-slate-500 mb-1">
             <span>Principal Invested ({formatLatinPercent(principalSharePercent)})</span>
-            <span className="text-emerald-600 font-bold">Compound Growth ({formatLatinPercent(interestSharePercent)})</span>
+            <span className="text-emerald-700 font-bold">Compound Growth ({formatLatinPercent(interestSharePercent)})</span>
           </div>
           <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden flex">
             <div
@@ -416,10 +422,12 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
               <div className="text-xs font-bold text-slate-300 flex items-center gap-1">
                 <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> Projected Portfolio Value:
               </div>
-              <div className="text-[11px] text-slate-400">Total accumulated balance after {safeYears} years</div>
+              <div className="text-[11px] text-slate-400">
+                Total accumulated balance after {safeYears} {safeYears === 1 ? 'year' : 'years'}
+              </div>
             </div>
             <span className="font-black text-emerald-400 text-2xl tracking-tight">
-              {formatLatinCurrency(finalBalance, currency)}
+              {formatDisplayCurrency(finalBalance)}
             </span>
           </div>
 
@@ -427,13 +435,13 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
             <div>
               <span className="text-slate-400 block text-[11px]">Total Principal Invested:</span>
               <span className="font-bold text-slate-200 text-sm">
-                {formatLatinCurrency(totalPrincipalDeposits, currency)}
+                {formatDisplayCurrency(totalPrincipalDeposits)}
               </span>
             </div>
             <div>
               <span className="text-slate-400 block text-[11px]">Total Compound Interest:</span>
               <span className="font-bold text-emerald-400 text-sm">
-                +{formatLatinCurrency(totalInterestEarned, currency)}
+                {totalInterestEarned > 0 ? '+' : ''}{formatDisplayCurrency(totalInterestEarned)}
               </span>
             </div>
           </div>
@@ -576,7 +584,7 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
             className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 transition cursor-pointer"
           >
             <span className="flex items-center gap-1.5">
-              <Table className="w-3.5 h-3.5 text-emerald-600" />
+              <Table className="w-3.5 h-3.5 text-emerald-700" />
               Year-by-Year Growth Schedule ({safeYears} {safeYears === 1 ? 'Year' : 'Years'})
             </span>
             {showSchedule ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
@@ -598,13 +606,13 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
                     <tr key={row.year} className="hover:bg-slate-50/80">
                       <td className="py-1.5 px-3 font-semibold text-slate-700">Year {row.year}</td>
                       <td className="py-1.5 px-3 text-right text-slate-600 tabular-nums">
-                        {formatLatinCurrency(row.totalContributions, currency)}
+                        {formatDisplayCurrency(row.totalContributions)}
                       </td>
-                      <td className="py-1.5 px-3 text-right text-emerald-600 font-semibold tabular-nums">
-                        +{formatLatinCurrency(row.totalInterest, currency)}
+                      <td className="py-1.5 px-3 text-right text-emerald-700 font-semibold tabular-nums">
+                        {row.totalInterest > 0 ? '+' : ''}{formatDisplayCurrency(row.totalInterest)}
                       </td>
                       <td className="py-1.5 px-3 text-right font-bold text-slate-900 tabular-nums">
-                        {formatLatinCurrency(row.endingBalance, currency)}
+                        {formatDisplayCurrency(row.endingBalance)}
                       </td>
                     </tr>
                   ))}

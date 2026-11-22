@@ -170,7 +170,7 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
       },
       {
         label: `Total Accrued Simple Interest (${safeDays.toLocaleString('en-US')} days)`,
-        value: `+${formatLatinCurrency(totalInterest, currency)}`,
+        value: totalInterest > 0 ? `+${formatLatinCurrency(totalInterest, currency)}` : formatLatinCurrency(0, currency),
       },
       {
         label: 'Daily Interest Accrual Rate',
@@ -178,7 +178,7 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
       },
       {
         label: 'Illustrative Recovery Fee Included',
-        value: `+${formatLatinCurrency(safeFee, currency)}`,
+        value: safeFee > 0 ? `+${formatLatinCurrency(safeFee, currency)}` : formatLatinCurrency(0, currency),
       },
     ],
     assumptions: [
@@ -298,7 +298,7 @@ export const LatePaymentInterestCalc: React.FC<Props> = ({ currency }) => {
           <span className="font-bold text-slate-700">
             UK Statutory Debt Recovery Compensation Tiers (GBP £ Fixed Sums):
           </span>
-          {safeInvoice > 0 && (
+          {currency === '£' && safeInvoice > 0 && (
             <button
               type="button"
               onClick={() => setCompensationFeeStr(suggestedTierFee.toString())}

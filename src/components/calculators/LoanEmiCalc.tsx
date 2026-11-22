@@ -287,7 +287,10 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
     ],
     results: [
       { label: 'Estimated Monthly Payment (EMI)', value: formatLatinCurrency(safeEmi, currency) },
-      { label: 'Total Interest Payable', value: `+${formatLatinCurrency(totalInterest, currency)} (${formatLatinPercent(interestSharePercent)})` },
+      {
+        label: 'Total Interest Payable',
+        value: `${totalInterest > 0 ? '+' : ''}${formatLatinCurrency(totalInterest, currency)} (${formatLatinPercent(interestSharePercent)})`,
+      },
       { label: 'Total Principal + Interest Repayment', value: formatLatinCurrency(totalRepayment, currency) },
     ],
     assumptions: [
@@ -307,8 +310,11 @@ export const LoanEmiCalc: React.FC<Props> = ({ currency }) => {
   });
 
   const formatCompactAxis = (val: number): string => {
-    if (val >= 1000000) return `${currency}${(val / 1000000).toFixed(1)}M`;
-    if (val >= 1000) return `${currency}${(val / 1000).toFixed(0)}k`;
+    if (!Number.isFinite(val)) return 'N/A';
+    if (val >= 1e12) return `${currency}${(val / 1e12).toFixed(1)}T`;
+    if (val >= 1e9) return `${currency}${(val / 1e9).toFixed(1)}B`;
+    if (val >= 1e6) return `${currency}${(val / 1e6).toFixed(1)}M`;
+    if (val >= 1e3) return `${currency}${(val / 1e3).toFixed(0)}k`;
     return `${currency}${val.toFixed(0)}`;
   };
 

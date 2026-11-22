@@ -341,7 +341,7 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
         <div role="alert" className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-800">
           <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
           <div>
-            <span className="font-bold">Operational Loss Alert:</span> Cost price ({formatLatinCurrency(safeCost, currency)}) exceeds selling price ({formatLatinCurrency(safePrice, currency)}). Every unit sold results in a loss of {formatLatinCurrency(Math.abs(grossProfit), currency)} ({marginPct !== null ? `${Math.abs(marginPct).toFixed(1)}% negative margin` : ''}).
+            <span className="font-bold">Operational Loss Alert:</span> Cost price ({formatLatinCurrency(safeCost, currency)}) exceeds selling price ({formatLatinCurrency(safePrice, currency)}). Every unit sold results in a loss of {formatLatinCurrency(Math.abs(grossProfit), currency)}{marginPct !== null ? ` (${Math.abs(marginPct).toFixed(1)}% negative margin)` : ''}.
           </div>
         </div>
       )}

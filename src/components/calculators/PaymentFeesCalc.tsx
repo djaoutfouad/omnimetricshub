@@ -123,7 +123,8 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
   const forwardNet = roundToDecimals(Math.max(0, safeAmount - forwardCut), 2);
   const forwardEffectiveFeePercent =
     safeAmount > 0 ? roundToDecimals((forwardCut / safeAmount) * 100, 2) : 0;
-  const isFeeExceedingAmount = isScenarioAValid && safeAmount > 0 && forwardCut >= safeAmount;
+  const isFeeExceedingAmount =
+    mode === 'forward' && isScenarioAValid && safeAmount > 0 && forwardCut >= safeAmount;
 
   // Forward calculations (Gateway B)
   const forwardCutB = roundToDecimals((safeAmount * (safeFeePercentB / 100)) + safeFixedFeeB, 2);
@@ -473,7 +474,7 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
               <div className="flex justify-between items-baseline text-xs text-slate-400">
                 <span>Processor Fee Cut:</span>
                 <span className="font-bold text-rose-400 text-sm">
-                  -{formatLatinCurrency(forwardCut, currency)} ({formatLatinPercent(forwardEffectiveFeePercent)})
+                  {forwardCut > 0 ? '-' : ''}{formatLatinCurrency(forwardCut, currency)} ({formatLatinPercent(forwardEffectiveFeePercent)})
                 </span>
               </div>
               <div className="flex justify-between items-baseline border-t border-slate-800 pt-2.5">
@@ -488,7 +489,7 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
               <div className="flex justify-between items-baseline text-xs text-slate-400">
                 <span>Estimated Processor Fee Deduction:</span>
                 <span className="font-bold text-rose-400 text-sm">
-                  -{formatLatinCurrency(reverseCut, currency)}
+                  {reverseCut > 0 ? '-' : ''}{formatLatinCurrency(reverseCut, currency)}
                 </span>
               </div>
               <div className="flex justify-between items-baseline border-t border-slate-800 pt-2.5">
@@ -538,7 +539,7 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
               <div className="flex justify-between text-xs text-slate-300">
                 <span>Processor Fee:</span>
                 <span className="font-bold text-rose-400">
-                  -{formatLatinCurrency(mode === 'forward' ? forwardCut : reverseCut, currency)}
+                  {activeFeeA > 0 ? '-' : ''}{formatLatinCurrency(activeFeeA, currency)}
                 </span>
               </div>
               <div className="flex justify-between text-xs text-slate-300">
@@ -566,7 +567,7 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
               <div className="flex justify-between text-xs text-slate-300">
                 <span>Processor Fee:</span>
                 <span className="font-bold text-rose-400">
-                  -{formatLatinCurrency(mode === 'forward' ? forwardCutB : reverseCutB, currency)}
+                  {activeFeeB > 0 ? '-' : ''}{formatLatinCurrency(activeFeeB, currency)}
                 </span>
               </div>
               <div className="flex justify-between text-xs text-slate-300">

@@ -83,7 +83,11 @@ export const BreakEvenCalc: React.FC<Props> = ({ currency }) => {
   // Undefined break-even if contribution margin <= 0
   const unroundedBreakEvenUnits = isViable ? safeFixedCosts / contributionMargin : null;
   const wholeBreakEvenUnits =
-    unroundedBreakEvenUnits !== null ? Math.ceil(unroundedBreakEvenUnits - 1e-9) : null;
+    unroundedBreakEvenUnits !== null
+      ? unroundedBreakEvenUnits > 0
+        ? Math.ceil(unroundedBreakEvenUnits - 1e-9)
+        : 0
+      : null;
 
   const unroundedBreakEvenRevenue =
     unroundedBreakEvenUnits !== null
@@ -244,8 +248,9 @@ export const BreakEvenCalc: React.FC<Props> = ({ currency }) => {
   });
 
   const formatCompactAxis = (val: number): string => {
-    if (val >= 1000000) return `${currency}${(val / 1000000).toFixed(1)}M`;
-    if (val >= 1000) return `${currency}${(val / 1000).toFixed(0)}k`;
+    if (val >= 1e9) return `${currency}${(val / 1e9).toFixed(1)}B`;
+    if (val >= 1e6) return `${currency}${(val / 1e6).toFixed(1)}M`;
+    if (val >= 1e3) return `${currency}${(val / 1e3).toFixed(0)}k`;
     return `${currency}${val.toFixed(0)}`;
   };
 
