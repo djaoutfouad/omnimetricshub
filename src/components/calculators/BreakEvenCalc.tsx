@@ -73,15 +73,16 @@ export const BreakEvenCalc: React.FC<Props> = ({ currency }) => {
   const safeUnitPrice = unitPriceField.value ?? 0;
   const safeVariableCost = variableCostField.value ?? 0;
 
-  const contributionMargin = roundToDecimals(safeUnitPrice - safeVariableCost, 2);
-  const isViable = isFormValid && contributionMargin > 0;
+  const rawContributionMargin = safeUnitPrice - safeVariableCost;
+  const contributionMargin = roundToDecimals(rawContributionMargin, 2);
+  const isViable = isFormValid && rawContributionMargin > 0;
   const contributionRatio =
     safeUnitPrice > 0
-      ? roundToDecimals((contributionMargin / safeUnitPrice) * 100, 1)
+      ? roundToDecimals((rawContributionMargin / safeUnitPrice) * 100, 1)
       : 0;
 
   // Undefined break-even if contribution margin <= 0
-  const unroundedBreakEvenUnits = isViable ? safeFixedCosts / contributionMargin : null;
+  const unroundedBreakEvenUnits = isViable ? safeFixedCosts / rawContributionMargin : null;
   const wholeBreakEvenUnits =
     unroundedBreakEvenUnits !== null
       ? unroundedBreakEvenUnits > 0

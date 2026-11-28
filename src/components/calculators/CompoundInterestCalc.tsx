@@ -226,9 +226,25 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
     };
   }, [isFormValid, yearlySchedule, safePrincipal, finalBalance, totalPrincipalDeposits]);
 
+  const formatCompactAxis = (val: number): string => {
+    if (!Number.isFinite(val)) return 'N/A';
+    if (val >= 1e15) return `${currency}${val.toExponential(1)}`;
+    if (val >= 1e12) return `${currency}${(val / 1e12).toFixed(1)}T`;
+    if (val >= 1e9) return `${currency}${(val / 1e9).toFixed(1)}B`;
+    if (val >= 1e6) return `${currency}${(val / 1e6).toFixed(1)}M`;
+    if (val >= 1e3) return `${currency}${(val / 1e3).toFixed(0)}k`;
+    return `${currency}${val.toFixed(0)}`;
+  };
+
+  const formatDisplayCurrency = (val: number): string => {
+    if (!Number.isFinite(val)) return 'N/A';
+    if (Math.abs(val) >= 1e15) return formatCompactAxis(val);
+    return formatLatinCurrency(val, currency);
+  };
+
   const handleCopy = async () => {
     if (!isFormValid) return;
-    const text = `Compound Growth Forecast (${safeYears} Years):\n- Initial Principal: ${formatLatinCurrency(safePrincipal, currency)}\n- Monthly Contribution: ${formatLatinCurrency(safeMonthly, currency)} (${depositTiming === 'end' ? 'End of Month' : 'Beginning of Month'})\n- Annual Return Rate: ${formatLatinPercent(safeRate)} (Compounded Monthly)\n- Total Principal Contributed: ${formatLatinCurrency(totalPrincipalDeposits, currency)}\n- Total Compound Interest Earned: ${formatLatinCurrency(totalInterestEarned, currency)}\n- Projected Future Value: ${formatLatinCurrency(finalBalance, currency)}`;
+    const text = `Compound Growth Forecast (${safeYears} Years):\n- Initial Principal: ${formatLatinCurrency(safePrincipal, currency)}\n- Monthly Contribution: ${formatLatinCurrency(safeMonthly, currency)} (${depositTiming === 'end' ? 'End of Month' : 'Beginning of Month'})\n- Annual Return Rate: ${formatLatinPercent(safeRate)} (Compounded Monthly)\n- Total Principal Contributed: ${formatDisplayCurrency(totalPrincipalDeposits)}\n- Total Compound Interest Earned: ${formatDisplayCurrency(totalInterestEarned)}\n- Projected Future Value: ${formatDisplayCurrency(finalBalance)}`;
 
     const ok = await copyTextToClipboard(text);
     if (ok) {
@@ -270,9 +286,9 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
       { label: 'Contribution Timing', value: depositTiming === 'end' ? 'End of Month (Ordinary Annuity)' : 'Beginning of Month (Annuity Due)' },
     ],
     results: [
-      { label: 'Projected Future Portfolio Value', value: formatLatinCurrency(finalBalance, currency) },
-      { label: 'Total Principal & Deposits Contributed', value: `${formatLatinCurrency(totalPrincipalDeposits, currency)} (${formatLatinPercent(principalSharePercent)})` },
-      { label: 'Estimated Compound Interest Earned', value: `+${formatLatinCurrency(totalInterestEarned, currency)} (${formatLatinPercent(interestSharePercent)})` },
+      { label: 'Projected Future Portfolio Value', value: formatDisplayCurrency(finalBalance) },
+      { label: 'Total Principal & Deposits Contributed', value: `${formatDisplayCurrency(totalPrincipalDeposits)} (${formatLatinPercent(principalSharePercent)})` },
+      { label: 'Estimated Compound Interest Earned', value: `+${formatDisplayCurrency(totalInterestEarned)} (${formatLatinPercent(interestSharePercent)})` },
     ],
     assumptions: [
       'Monthly compounding frequency (12 compounding periods per year).',
@@ -283,28 +299,12 @@ export const CompoundInterestCalc: React.FC<Props> = ({ currency }) => {
       headers: ['Year', 'Total Contributions', 'Compound Growth', 'Ending Balance'],
       rows: yearlySchedule.map((row) => [
         `Year ${row.year}`,
-        formatLatinCurrency(row.totalContributions, currency),
-        `+${formatLatinCurrency(row.totalInterest, currency)}`,
-        formatLatinCurrency(row.endingBalance, currency),
+        formatDisplayCurrency(row.totalContributions),
+        `+${formatDisplayCurrency(row.totalInterest)}`,
+        formatDisplayCurrency(row.endingBalance),
       ]),
     },
   });
-
-  const formatCompactAxis = (val: number): string => {
-    if (!Number.isFinite(val)) return 'N/A';
-    if (val >= 1e15) return `${currency}${val.toExponential(1)}`;
-    if (val >= 1e12) return `${currency}${(val / 1e12).toFixed(1)}T`;
-    if (val >= 1e9) return `${currency}${(val / 1e9).toFixed(1)}B`;
-    if (val >= 1e6) return `${currency}${(val / 1e6).toFixed(1)}M`;
-    if (val >= 1e3) return `${currency}${(val / 1e3).toFixed(0)}k`;
-    return `${currency}${val.toFixed(0)}`;
-  };
-
-  const formatDisplayCurrency = (val: number): string => {
-    if (!Number.isFinite(val)) return 'N/A';
-    if (Math.abs(val) >= 1e15) return formatCompactAxis(val);
-    return formatLatinCurrency(val, currency);
-  };
 
   return (
     <div className="space-y-4 text-slate-800">

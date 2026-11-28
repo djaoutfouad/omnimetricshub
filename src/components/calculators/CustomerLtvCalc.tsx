@@ -103,7 +103,6 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
 
   // Monthly revenue per customer (ARPU) = AOV * monthly order frequency
   const rawMonthlyRevenuePerCustomer = safeAov * safeFreq;
-  const monthlyRevenuePerCustomer = roundToDecimals(rawMonthlyRevenuePerCustomer, 2);
 
   // Customer Lifespan in Months = 1 / (monthly churn rate %)
   // When churn = 0, lifespan is infinite (undefined / N/A in linear model)
@@ -131,7 +130,7 @@ export const CustomerLtvCalc: React.FC<Props> = ({ currency }) => {
       : null;
 
   // Payback period (months to recover CAC from monthly gross profit contribution)
-  const monthlyGrossProfitContribution = monthlyRevenuePerCustomer * (safeMargin / 100);
+  const monthlyGrossProfitContribution = rawMonthlyRevenuePerCustomer * (safeMargin / 100);
   const paybackMonths =
     monthlyGrossProfitContribution > 0 && safeCac > 0
       ? roundToDecimals(safeCac / monthlyGrossProfitContribution, 1)

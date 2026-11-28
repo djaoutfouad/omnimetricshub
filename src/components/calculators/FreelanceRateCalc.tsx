@@ -154,11 +154,12 @@ export const FreelanceRateCalc: React.FC<Props> = ({ currency }) => {
   };
 
   const projectInvoiceAmount = weeklyRate > 0 ? weeklyRate : dayRate ?? 100;
-  const paymentFeesWorkflowUrl = `/tools/payment-gateway-fees/?amount=${projectInvoiceAmount.toFixed(2)}`;
+  const paymentFeesWorkflowUrl = `/tools/payment-gateway-fees/?amount=${projectInvoiceAmount.toFixed(2)}&currency=${encodeURIComponent(currency)}`;
 
   const getReportPayload = (): CalculationReportPayload => ({
     calculatorId: 'freelance-rate',
     calculatorName: 'Freelance Hourly & Project Rate Calculator',
+    slug: 'freelance-rate',
     currency,
     inputs: [
       { label: 'Target Net Personal Pay (Annual)', value: formatLatinCurrency(safeTakeHome, currency) },

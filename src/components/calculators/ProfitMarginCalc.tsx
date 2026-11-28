@@ -174,9 +174,9 @@ export const ProfitMarginCalc: React.FC<Props> = ({ currency }) => {
     }
   };
 
-  const breakEvenWorkflowUrl = `/tools/break-even/?price=${safePrice.toFixed(2)}&variableCost=${safeCost.toFixed(2)}`;
+  const breakEvenWorkflowUrl = `/tools/break-even/?price=${safePrice.toFixed(2)}&variableCost=${safeCost.toFixed(2)}&currency=${encodeURIComponent(currency)}`;
   const sampleOrders = 50;
-  const roasWorkflowUrl = `/tools/roas-calculator/?conversions=${sampleOrders}&revenue=${(safePrice * sampleOrders).toFixed(2)}&cogs=${(safeCost * sampleOrders).toFixed(2)}`;
+  const roasWorkflowUrl = `/tools/roas-calculator/?conversions=${sampleOrders}&revenue=${(safePrice * sampleOrders).toFixed(2)}&cogs=${(safeCost * sampleOrders).toFixed(2)}&currency=${encodeURIComponent(currency)}`;
 
   const getReportPayload = (): CalculationReportPayload => ({
     calculatorId: 'profit-margin',

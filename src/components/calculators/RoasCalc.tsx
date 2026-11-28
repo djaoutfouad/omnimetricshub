@@ -170,7 +170,7 @@ export const RoasCalc: React.FC<Props> = ({ currency }) => {
       : null;
   const conversionRateWorkflowUrl = `/tools/conversion-rate-cpa/?spend=${safeAdSpend.toFixed(2)}${
     safeConversions > 0 ? `&conversions=${safeConversions}` : ''
-  }${impliedAov !== null ? `&aov=${impliedAov.toFixed(2)}` : ''}`;
+  }${impliedAov !== null ? `&aov=${impliedAov.toFixed(2)}` : ''}&currency=${encodeURIComponent(currency)}`;
 
   const getReportPayload = (): CalculationReportPayload => ({
     calculatorId: 'roas-calculator',

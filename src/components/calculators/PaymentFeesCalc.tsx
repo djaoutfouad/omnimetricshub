@@ -199,7 +199,7 @@ export const PaymentFeesCalc: React.FC<Props> = ({ currency }) => {
     }
   };
 
-  const lateInterestWorkflowUrl = `/tools/late-payment-interest/?principal=${activeInvoiceAmount.toFixed(2)}`;
+  const lateInterestWorkflowUrl = `/tools/late-payment-interest/?principal=${activeInvoiceAmount.toFixed(2)}&currency=${encodeURIComponent(currency)}`;
 
   const getReportPayload = (): CalculationReportPayload => ({
     calculatorId: 'payment-gateway-fees',
